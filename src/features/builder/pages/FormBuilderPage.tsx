@@ -26,6 +26,7 @@ export const FormBuilderPage = () => {
     createQuestion,
     updateQuestion,
     deleteQuestion,
+    reorderQuestions,
   } = useQuestions(formId!);
 
   const selectedQuestion = questions.find((q) => q.id === selectedQuestionId);
@@ -84,6 +85,14 @@ export const FormBuilderPage = () => {
     deleteQuestion(id);
   };
 
+  const handleReorderQuestions = (reorderedQuestions: typeof questions) => {
+    const updates = reorderedQuestions.map((q, index) => ({
+      id: q.id,
+      position: index,
+    }));
+    reorderQuestions(updates);
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
       <BuilderTopBar form={form || null} isSaving={isSaving} />
@@ -96,6 +105,7 @@ export const FormBuilderPage = () => {
           selectedQuestionId={selectedQuestionId}
           onSelectQuestion={setSelectedQuestionId}
           onDeleteQuestion={handleDeleteQuestion}
+          onReorderQuestions={handleReorderQuestions}
         />
         
         <PropertiesPanel

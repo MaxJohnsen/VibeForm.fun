@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Question } from '../api/questionsApi';
 import { cn } from '@/lib/utils';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface QuestionCardProps {
   question: Question;
@@ -20,19 +22,40 @@ export const QuestionCard = ({
   onSelect,
   onDelete,
 }: QuestionCardProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: question.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
     <div
+      ref={setNodeRef}
+      style={style}
       onClick={onSelect}
       className={cn(
         'glass-panel p-6 rounded-xl border cursor-pointer transition-all duration-200 group',
         isSelected
           ? 'border-primary shadow-lg shadow-primary/20'
-          : 'border-border/50 hover:border-border'
+          : 'border-border/50 hover:border-border',
+        isDragging && 'opacity-50'
       )}
     >
       <div className="flex items-start gap-4">
         {/* Drag Handle */}
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
+        <div
+          {...attributes}
+          {...listeners}
+          className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+        >
           <GripVertical className="h-5 w-5 text-muted-foreground" />
         </div>
 
