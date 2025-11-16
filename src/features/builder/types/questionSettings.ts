@@ -1,0 +1,117 @@
+// Type definitions for question-specific settings
+
+export interface MultipleChoiceSettings {
+  options: { id: string; text: string; position: number }[];
+  allowMultiple: boolean;
+  allowOther: boolean;
+  required: boolean;
+  randomize?: boolean;
+}
+
+export interface YesNoSettings {
+  yesLabel: string;
+  noLabel: string;
+  buttonStyle: 'pills' | 'boxes' | 'toggle';
+  required: boolean;
+}
+
+export interface RatingSettings {
+  scaleType: 'stars' | 'numbers' | 'emoji';
+  min: number;
+  max: number;
+  minLabel?: string;
+  maxLabel?: string;
+  required: boolean;
+}
+
+export interface EmailSettings {
+  required: boolean;
+  requireConfirmation: boolean;
+  placeholder?: string;
+  allowedDomains?: string[];
+}
+
+export interface PhoneSettings {
+  required: boolean;
+  countryCode: string;
+  format: 'US' | 'INTERNATIONAL';
+  placeholder?: string;
+}
+
+export interface DateSettings {
+  required: boolean;
+  format: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD';
+  minDate?: string;
+  maxDate?: string;
+  disablePast: boolean;
+  disableFuture: boolean;
+}
+
+export type QuestionSettings =
+  | MultipleChoiceSettings
+  | YesNoSettings
+  | RatingSettings
+  | EmailSettings
+  | PhoneSettings
+  | DateSettings
+  | Record<string, any>;
+
+// Default settings for each question type
+export const getDefaultSettings = (type: string): QuestionSettings => {
+  switch (type) {
+    case 'multiple_choice':
+      return {
+        options: [
+          { id: '1', text: 'Option 1', position: 0 },
+          { id: '2', text: 'Option 2', position: 1 },
+          { id: '3', text: 'Option 3', position: 2 },
+        ],
+        allowMultiple: false,
+        allowOther: false,
+        required: false,
+        randomize: false,
+      } as MultipleChoiceSettings;
+
+    case 'yes_no':
+      return {
+        yesLabel: 'Yes',
+        noLabel: 'No',
+        buttonStyle: 'pills',
+        required: false,
+      } as YesNoSettings;
+
+    case 'rating':
+      return {
+        scaleType: 'stars',
+        min: 1,
+        max: 10,
+        required: false,
+      } as RatingSettings;
+
+    case 'email':
+      return {
+        required: false,
+        requireConfirmation: false,
+        placeholder: 'email@example.com',
+      } as EmailSettings;
+
+    case 'phone':
+      return {
+        required: false,
+        countryCode: 'US',
+        format: 'US',
+        placeholder: '(555) 123-4567',
+      } as PhoneSettings;
+
+    case 'date':
+      return {
+        required: false,
+        format: 'MM/DD/YYYY',
+        disablePast: false,
+        disableFuture: false,
+      } as DateSettings;
+
+    default:
+      return {};
+  }
+};
