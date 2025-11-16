@@ -47,7 +47,7 @@ export const QuestionCard = ({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'relative glass-panel p-8 rounded-2xl border transition-all duration-200 group',
+        'relative glass-panel p-6 rounded-xl border transition-all duration-200 group',
         isSelected
           ? 'border-primary shadow-lg shadow-primary/20'
           : 'border-border/50 hover:border-border',
@@ -56,53 +56,54 @@ export const QuestionCard = ({
       )}
       onClick={!isDragging ? onSelect : undefined}
     >
-      {/* Drag Handle - Top Right Corner */}
-      <div
-        {...attributes}
-        {...listeners}
-        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing touch-none p-2 hover:bg-muted/50 rounded-lg"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <GripVertical className="h-5 w-5 text-muted-foreground" />
+      {/* Action Buttons - Top Right */}
+      <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+        >
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+        
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing touch-none p-2 hover:bg-muted/50 rounded-lg h-8 w-8 flex items-center justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
       </div>
 
-      {/* Delete Button - Top Right, appears on hover */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete();
-        }}
-        className="absolute top-4 right-14 opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <Trash2 className="h-4 w-4 text-destructive" />
-      </Button>
-
       {/* Question Number */}
-      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-lg font-semibold text-primary mb-6">
+      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-base font-semibold text-primary mb-4">
         {index + 1}
       </div>
 
       {/* Question Label */}
-      <div className="text-xl font-medium text-foreground mb-8">
+      <div className="text-base font-medium text-foreground mb-4">
         {question.label}
       </div>
       
       {/* Preview Input */}
-      <div className="mt-4">
+      <div>
         {question.type === 'short_text' ? (
           <Input
             placeholder="Your answer..."
             disabled
-            className="opacity-50 text-base border-border/50"
+            className="opacity-50 border-border/50"
           />
         ) : (
           <Textarea
             placeholder="Your answer..."
             disabled
-            className="opacity-50 resize-none text-base border-border/50"
-            rows={3}
+            className="opacity-50 resize-none border-border/50"
+            rows={2}
           />
         )}
       </div>
