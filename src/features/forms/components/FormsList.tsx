@@ -13,7 +13,7 @@ interface FormsListProps {
 export const FormsList = ({ forms, isLoading, onCreateNew }: FormsListProps) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {[1, 2, 3].map((i) => (
           <Skeleton key={i} className="h-48 rounded-2xl" />
         ))}
@@ -34,7 +34,7 @@ export const FormsList = ({ forms, isLoading, onCreateNew }: FormsListProps) => 
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in">
       {forms.map((form) => (
         <FormCard key={form.id} form={form} />
       ))}
