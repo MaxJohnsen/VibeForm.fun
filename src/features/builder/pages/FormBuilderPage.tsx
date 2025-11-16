@@ -86,10 +86,12 @@ export const FormBuilderPage = () => {
   };
 
   const handleReorderQuestions = (reorderedQuestions: typeof questions) => {
+    console.log('handleReorderQuestions called with:', reorderedQuestions);
     const updates = reorderedQuestions.map((q, index) => ({
       id: q.id,
       position: index,
     }));
+    console.log('Calling reorderQuestions mutation with updates:', updates);
     reorderQuestions(updates);
   };
 
