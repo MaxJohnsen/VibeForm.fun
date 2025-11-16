@@ -47,7 +47,7 @@ const DropZone = ({
   return (
     <div
       ref={setNodeRef}
-      className={`h-16 -my-2 flex items-center justify-center transition-all duration-200 ${
+      className={`h-20 my-2 flex items-center justify-center transition-all duration-200 ${
         isOver 
           ? 'bg-primary/10 border-2 border-dashed border-primary rounded-xl' 
           : 'border-2 border-dashed border-transparent'
@@ -77,12 +77,6 @@ export const QuestionCanvas = ({
   useEffect(() => {
     setItems(questions);
   }, [questions]);
-
-  useEffect(() => {
-    if (!activeId) {
-      setItems(questions);
-    }
-  }, [activeId, questions]);
 
   const activeQuestion = items.find((q) => q.id === activeId);
   const isDraggingFromPalette = activeId?.startsWith('palette-');
@@ -151,6 +145,13 @@ export const QuestionCanvas = ({
                 onSelect={() => {}}
                 onDelete={() => {}}
               />
+            </div>
+          ) : isDraggingFromPalette ? (
+            <div className="glass-panel p-6 rounded-xl border-2 border-primary shadow-2xl shadow-primary/30 opacity-90">
+              <div className="flex items-center gap-3 text-primary font-medium">
+                <MousePointer2 className="h-5 w-5" />
+                <span>New Question</span>
+              </div>
             </div>
           ) : null}
         </DragOverlay>

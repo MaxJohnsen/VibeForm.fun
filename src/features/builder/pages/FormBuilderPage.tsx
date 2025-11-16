@@ -73,14 +73,7 @@ export const FormBuilderPage = () => {
       const questionType = type as QuestionType;
       const targetPosition = position !== undefined ? position : questions.length;
       
-      const newQuestion = await createQuestion({
-        type: questionType,
-        label: `New ${type.replace('_', ' ')} question`,
-        position: targetPosition,
-        settings: getDefaultSettings(questionType),
-      });
-      
-      // Reorder existing questions if inserting in the middle
+      // Reorder existing questions first if inserting in the middle
       if (position !== undefined && position < questions.length) {
         const updates = questions
           .filter((q) => q.position >= position)
@@ -89,9 +82,16 @@ export const FormBuilderPage = () => {
             position: q.position + 1,
           }));
         if (updates.length > 0) {
-          reorderQuestions(updates);
+          await reorderQuestions(updates);
         }
       }
+      
+      const newQuestion = await createQuestion({
+        type: questionType,
+        label: `New ${type.replace('_', ' ')} question`,
+        position: targetPosition,
+        settings: getDefaultSettings(questionType),
+      });
       
       setSelectedQuestionId(newQuestion.id);
     } finally {
@@ -216,12 +216,21 @@ export const FormBuilderPage = () => {
       } else if (over.id === 'drop-start') {
         position = 0;
       } else if (over.id.toString().startsWith('drop-after-')) {
-        const index = parseInt(over.id.toString().replace('drop-after-', ''));
-        position = index + 1;
+        // Get the actual array index from the drop zone ID
+        const arrayIndex = parseInt(over.id.toString().replace('drop-after-', ''));
+        // Position should be after this question
+        position = arrayIndex + 1;
       } else {
         // Dropped on a question - insert after it
-        const targetIndex = questions.findIndex((q) => q.id === over.id);
-        position = targetIndex >= 0 ? targetIndex + 1 : questions.length;
+        const targetQuestion = questions.find((q) => q.id === over.id);
+        if (targetQuestion) {
+          // Find the index in the sorted array
+          const sortedQuestions = [...questions].sort((a, b) => a.position - b.position);
+          const targetIndex = sortedQuestions.findIndex((q) => q.id === targetQuestion.id);
+          position = targetIndex + 1;
+        } else {
+          position = questions.length;
+        }
       }
 
       await handleAddQuestion(questionType, position);
