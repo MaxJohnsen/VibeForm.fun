@@ -8,6 +8,7 @@ export interface Question {
   label: string;
   position: number;
   settings: Record<string, any>;
+  logic?: Record<string, any>;
   created_at: string;
   updated_at: string;
 }
@@ -23,6 +24,7 @@ export interface UpdateQuestionData {
   label?: string;
   settings?: Record<string, any>;
   position?: number;
+  logic?: Record<string, any>;
 }
 
 export const questionsApi = {

@@ -5,9 +5,11 @@ import { BuilderTopBar } from '../components/BuilderTopBar';
 import { QuestionTypePalette } from '../components/QuestionTypePalette';
 import { QuestionCanvas } from '../components/QuestionCanvas';
 import { PropertiesPanel } from '../components/PropertiesPanel';
+import { LogicModal } from '../components/LogicModal';
 import { useQuestions } from '../hooks/useQuestions';
 import { formsApi } from '@/features/forms/api/formsApi';
 import { QuestionType } from '@/shared/constants/questionTypes';
+import { QuestionLogic } from '../types/logic';
 import { debounce } from '@/shared/utils/debounce';
 import { getDefaultSettings } from '../types/questionSettings';
 import {
@@ -29,6 +31,8 @@ export const FormBuilderPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [tempQuestions, setTempQuestions] = useState<any[]>([]);
+  const [logicModalOpen, setLogicModalOpen] = useState(false);
+  const [logicEditingQuestionId, setLogicEditingQuestionId] = useState<string | null>(null);
 
   const { data: form } = useQuery({
     queryKey: ['form', formId],
@@ -158,6 +162,25 @@ export const FormBuilderPage = () => {
     deleteQuestion(id);
   };
 
+  const handleOpenLogic = (questionId: string) => {
+    setLogicEditingQuestionId(questionId);
+    setLogicModalOpen(true);
+  };
+
+  const handleSaveLogic = async (logic: QuestionLogic) => {
+    if (!logicEditingQuestionId) return;
+    
+    setIsSaving(true);
+    updateQuestion(
+      { id: logicEditingQuestionId, data: { logic } },
+      {
+        onSettled: () => {
+          setTimeout(() => setIsSaving(false), 300);
+        },
+      }
+    );
+  };
+
   const handleReorderQuestions = (reorderedQuestions: typeof questions) => {
     const updates = reorderedQuestions.map((q, index) => ({
       id: q.id,
@@ -279,6 +302,7 @@ export const FormBuilderPage = () => {
             onSelectQuestion={setSelectedQuestionId}
             onDeleteQuestion={handleDeleteQuestion}
             onReorderQuestions={handleReorderQuestions}
+            onOpenLogic={handleOpenLogic}
             activeId={activeId}
           />
 
@@ -291,6 +315,17 @@ export const FormBuilderPage = () => {
           )}
         </div>
       </DndContext>
+
+      {/* Logic Modal */}
+      {logicEditingQuestionId && (
+        <LogicModal
+          open={logicModalOpen}
+          onOpenChange={setLogicModalOpen}
+          question={questions.find((q) => q.id === logicEditingQuestionId)!}
+          allQuestions={questions}
+          onSave={handleSaveLogic}
+        />
+      )}
     </div>
   );
 };

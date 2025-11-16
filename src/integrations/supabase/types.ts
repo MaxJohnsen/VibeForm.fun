@@ -50,6 +50,7 @@ export type Database = {
           form_id: string
           id: string
           label: string
+          logic: Json | null
           position: number
           settings: Json | null
           type: string
@@ -60,6 +61,7 @@ export type Database = {
           form_id: string
           id?: string
           label: string
+          logic?: Json | null
           position: number
           settings?: Json | null
           type: string
@@ -70,6 +72,7 @@ export type Database = {
           form_id?: string
           id?: string
           label?: string
+          logic?: Json | null
           position?: number
           settings?: Json | null
           type?: string
