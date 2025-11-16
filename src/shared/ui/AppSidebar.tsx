@@ -1,4 +1,4 @@
-import { Home, LogOut, User } from 'lucide-react';
+import { Home, LogOut, User, Waves } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
@@ -23,6 +23,13 @@ export const AppSidebar = () => {
 
   return (
     <div className="fixed left-0 top-0 h-screen w-16 glass-panel border-r border-border/50 flex flex-col items-center py-6">
+      {/* Logo */}
+      <div className="mb-8">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-primary/80 to-primary/60 flex items-center justify-center shadow-lg">
+          <Waves className="h-6 w-6 text-primary-foreground" />
+        </div>
+      </div>
+
       {/* Top Navigation */}
       <div className="flex-1 flex flex-col gap-4">
         <button
