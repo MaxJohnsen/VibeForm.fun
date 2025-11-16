@@ -41,7 +41,7 @@ export const QUESTION_TYPES: QuestionTypeDefinition[] = [
     label: 'Long Text',
     description: 'Multi-line textarea',
     icon: FileText,
-    colorClass: 'bg-secondary/10 text-secondary',
+    colorClass: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
   },
   {
     type: 'multiple_choice',
