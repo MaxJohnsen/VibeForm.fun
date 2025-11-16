@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { BuilderTopBar } from '../components/BuilderTopBar';
@@ -8,6 +8,7 @@ import { PropertiesPanel } from '../components/PropertiesPanel';
 import { useQuestions } from '../hooks/useQuestions';
 import { formsApi } from '@/features/forms/api/formsApi';
 import { QuestionType } from '@/shared/constants/questionTypes';
+import { debounce } from '@/shared/utils/debounce';
 
 export const FormBuilderPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -49,16 +50,31 @@ export const FormBuilderPage = () => {
     }
   };
 
-  const handleUpdateLabel = (label: string) => {
-    if (!selectedQuestionId) return;
-    setIsSaving(true);
-    updateQuestion(
-      { id: selectedQuestionId, data: { label } },
-      {
-        onSettled: () => setIsSaving(false),
-      }
-    );
-  };
+  // Debounced save function - only saves after user stops typing for 800ms
+  const debouncedUpdate = useMemo(
+    () =>
+      debounce((id: string, label: string) => {
+        setIsSaving(true);
+        updateQuestion(
+          { id, data: { label } },
+          {
+            onSettled: () => {
+              setTimeout(() => setIsSaving(false), 300);
+            },
+          }
+        );
+      }, 800),
+    [updateQuestion]
+  );
+
+  const handleUpdateLabel = useCallback(
+    (label: string) => {
+      if (!selectedQuestionId) return;
+      setIsSaving(true);
+      debouncedUpdate(selectedQuestionId, label);
+    },
+    [selectedQuestionId, debouncedUpdate]
+  );
 
   const handleDeleteQuestion = (id: string) => {
     if (selectedQuestionId === id) {

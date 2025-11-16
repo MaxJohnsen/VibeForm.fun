@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { TextInput } from '@/shared/ui/TextInput';
 import { Question } from '../api/questionsApi';
@@ -10,6 +11,27 @@ interface PropertiesPanelProps {
 }
 
 export const PropertiesPanel = ({ question, onUpdateLabel }: PropertiesPanelProps) => {
+  const [localLabel, setLocalLabel] = useState(question?.label || '');
+
+  // Update local state when question changes
+  useEffect(() => {
+    if (question?.label !== undefined) {
+      setLocalLabel(question.label);
+    }
+  }, [question?.id, question?.label]);
+
+  // Handle input change with local state only
+  const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalLabel(e.target.value);
+  };
+
+  // Handle blur to trigger save
+  const handleBlur = () => {
+    if (question && localLabel !== question.label) {
+      onUpdateLabel(localLabel);
+    }
+  };
+
   if (!question) {
     return (
       <div className="w-80 border-l border-border/50 glass-panel p-6">
@@ -44,8 +66,9 @@ export const PropertiesPanel = ({ question, onUpdateLabel }: PropertiesPanelProp
         {/* Question Label */}
         <TextInput
           label="Question Text"
-          value={question.label}
-          onChange={(e) => onUpdateLabel(e.target.value)}
+          value={localLabel}
+          onChange={handleLabelChange}
+          onBlur={handleBlur}
           placeholder="Enter your question..."
         />
 
