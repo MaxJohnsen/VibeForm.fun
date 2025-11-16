@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { LoginPage, SignupPage } from "./features/auth";
+import { FormsHomePage, CreateFormPage } from "./features/forms";
+import { FormBuilderPage } from "./features/builder";
 import { ROUTES } from "./shared/constants/routes";
 
 const queryClient = new QueryClient();
@@ -20,6 +22,9 @@ const App = () => (
           <Route path={ROUTES.HOME} element={<Index />} />
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
+          <Route path={ROUTES.FORMS_HOME} element={<FormsHomePage />} />
+          <Route path={ROUTES.CREATE_FORM} element={<CreateFormPage />} />
+          <Route path={ROUTES.BUILDER} element={<FormBuilderPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
