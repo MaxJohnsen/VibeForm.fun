@@ -9,8 +9,12 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate(ROUTES.LOGIN);
+    if (!loading) {
+      if (!user) {
+        navigate(ROUTES.LOGIN);
+      } else {
+        navigate(ROUTES.FORMS_HOME);
+      }
     }
   }, [user, loading, navigate]);
 
