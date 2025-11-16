@@ -17,6 +17,14 @@ import { Question } from '../api/questionsApi';
 import { cn } from '@/lib/utils';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import {
+  MultipleChoiceSettings,
+  YesNoSettings,
+  RatingSettings,
+  EmailSettings,
+  PhoneSettings,
+  DateSettings,
+} from '../types/questionSettings';
 
 interface QuestionCardProps {
   question: Question;
@@ -125,80 +133,218 @@ export const QuestionCard = ({
             />
           )}
           
-          {question.type === 'multiple_choice' && (
-            <div className="space-y-2">
-              {['Option 1', 'Option 2', 'Option 3'].map((option, idx) => (
-                <div key={idx} className="flex items-center gap-3 p-3 rounded-lg border border-border/50 opacity-50">
-                  <div className="w-4 h-4 rounded-full border-2 border-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{option}</span>
+          {question.type === 'multiple_choice' && (() => {
+            const settings = question.settings as MultipleChoiceSettings;
+            const options = settings?.options || [];
+            const allowMultiple = settings?.allowMultiple || false;
+            const allowOther = settings?.allowOther || false;
+            
+            return (
+              <div className="space-y-2">
+                {options.map((option) => (
+                  <div key={option.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/50 opacity-50">
+                    <div className={cn(
+                      "w-4 h-4 border-2 border-muted-foreground",
+                      allowMultiple ? "rounded" : "rounded-full"
+                    )} />
+                    <span className="text-sm text-muted-foreground">{option.text}</span>
+                  </div>
+                ))}
+                
+                {allowOther && (
+                  <div className="flex items-center gap-3 p-3 rounded-lg border border-border/50 opacity-50">
+                    <div className={cn(
+                      "w-4 h-4 border-2 border-muted-foreground",
+                      allowMultiple ? "rounded" : "rounded-full"
+                    )} />
+                    <span className="text-sm text-muted-foreground italic">Other</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+          
+          {question.type === 'yes_no' && (() => {
+            const settings = question.settings as YesNoSettings;
+            const yesLabel = settings?.yesLabel || 'Yes';
+            const noLabel = settings?.noLabel || 'No';
+            const buttonStyle = settings?.buttonStyle || 'pills';
+            
+            const getButtonClasses = (isYes: boolean) => {
+              const baseClasses = "flex-1 py-3 px-6 font-medium opacity-50 transition-all";
+              
+              switch (buttonStyle) {
+                case 'pills':
+                  return cn(
+                    baseClasses,
+                    "rounded-full border-2",
+                    isYes 
+                      ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
+                      : "border-border/30 bg-muted/5 text-muted-foreground"
+                  );
+                case 'boxes':
+                  return cn(
+                    baseClasses,
+                    "rounded-lg border-2",
+                    isYes
+                      ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
+                      : "border-border/30 bg-muted/5 text-muted-foreground"
+                  );
+                case 'toggle':
+                  return cn(
+                    baseClasses,
+                    "rounded-md border-2",
+                    isYes
+                      ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
+                      : "border-border/30 bg-muted/5 text-muted-foreground"
+                  );
+              }
+            };
+            
+            return (
+              <div className="flex gap-3">
+                <button disabled className={getButtonClasses(true)}>
+                  {yesLabel}
+                </button>
+                <button disabled className={getButtonClasses(false)}>
+                  {noLabel}
+                </button>
+              </div>
+            );
+          })()}
+          
+          {question.type === 'rating' && (() => {
+            const settings = question.settings as RatingSettings;
+            const scaleType = settings?.scaleType || 'stars';
+            const min = settings?.min || 1;
+            const max = settings?.max || 10;
+            const minLabel = settings?.minLabel;
+            const maxLabel = settings?.maxLabel;
+            
+            const scaleLength = max - min + 1;
+            const scaleArray = Array.from({ length: scaleLength }, (_, i) => min + i);
+            
+            const ScaleIcon = ({ value }: { value: number }) => {
+              switch (scaleType) {
+                case 'stars':
+                  return <Star className="h-6 w-6 text-yellow-500 fill-yellow-500/20" />;
+                case 'numbers':
+                  return (
+                    <div className="w-8 h-8 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center">
+                      <span className="text-sm font-medium text-muted-foreground">{value}</span>
+                    </div>
+                  );
+                case 'emoji':
+                  const emojiMap = ['😞', '😕', '😐', '🙂', '😊', '😄', '🤩', '🥳', '🤩', '🎉'];
+                  const emojiIndex = Math.min(Math.floor((value - min) / scaleLength * 9), 9);
+                  return <span className="text-2xl">{emojiMap[emojiIndex]}</span>;
+              }
+            };
+            
+            return (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-1 opacity-50">
+                  {scaleArray.map((value) => (
+                    <div key={value} className="flex flex-col items-center gap-1">
+                      <ScaleIcon value={value} />
+                      {scaleType !== 'numbers' && (
+                        <span className="text-xs text-muted-foreground">{value}</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
+                
+                {(minLabel || maxLabel) && (
+                  <div className="flex items-center justify-between text-xs text-muted-foreground opacity-50">
+                    <span>{minLabel || ''}</span>
+                    <span>{maxLabel || ''}</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
           
-          {question.type === 'yes_no' && (
-            <div className="flex gap-3">
-              <button 
-                disabled 
-                className="flex-1 py-3 px-6 rounded-full border-2 border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 font-medium opacity-50"
-              >
-                Yes
-              </button>
-              <button 
-                disabled 
-                className="flex-1 py-3 px-6 rounded-full border-2 border-border/30 bg-muted/5 text-muted-foreground font-medium opacity-50"
-              >
-                No
-              </button>
-            </div>
-          )}
-          
-          {question.type === 'rating' && (
-            <div className="flex items-center justify-between gap-2">
-              {[...Array(10)].map((_, idx) => (
-                <div 
-                  key={idx} 
-                  className="flex flex-col items-center gap-1 opacity-50"
-                >
-                  <Star className="h-6 w-6 text-yellow-500 fill-yellow-500/20" />
-                  <span className="text-xs text-muted-foreground">{idx + 1}</span>
+          {question.type === 'email' && (() => {
+            const settings = question.settings as EmailSettings;
+            const placeholder = settings?.placeholder || 'email@example.com';
+            const requireConfirmation = settings?.requireConfirmation || false;
+            
+            return (
+              <div className="space-y-3">
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                  <Input
+                    placeholder={placeholder}
+                    disabled
+                    className="opacity-50 border-border/50 pl-10"
+                  />
                 </div>
-              ))}
-            </div>
-          )}
+                
+                {requireConfirmation && (
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                    <Input
+                      placeholder="Confirm email address"
+                      disabled
+                      className="opacity-50 border-border/50 pl-10"
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })()}
           
-          {question.type === 'email' && (
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
-              <Input
-                placeholder="email@example.com"
-                disabled
-                className="opacity-50 border-border/50 pl-10"
-              />
-            </div>
-          )}
+          {question.type === 'phone' && (() => {
+            const settings = question.settings as PhoneSettings;
+            const placeholder = settings?.placeholder || (
+              settings?.format === 'INTERNATIONAL' ? '+1 555 123 4567' : '(555) 123-4567'
+            );
+            
+            return (
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                <Input
+                  placeholder={placeholder}
+                  disabled
+                  className="opacity-50 border-border/50 pl-10"
+                />
+              </div>
+            );
+          })()}
           
-          {question.type === 'phone' && (
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
-              <Input
-                placeholder="(555) 123-4567"
-                disabled
-                className="opacity-50 border-border/50 pl-10"
-              />
-            </div>
-          )}
-          
-          {question.type === 'date' && (
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
-              <Input
-                placeholder="MM/DD/YYYY"
-                disabled
-                className="opacity-50 border-border/50 pl-10"
-              />
-            </div>
-          )}
+          {question.type === 'date' && (() => {
+            const settings = question.settings as DateSettings;
+            const format = settings?.format || 'MM/DD/YYYY';
+            const disablePast = settings?.disablePast || false;
+            const disableFuture = settings?.disableFuture || false;
+            const minDate = settings?.minDate;
+            const maxDate = settings?.maxDate;
+            
+            const constraints = [];
+            if (disablePast) constraints.push('No past dates');
+            if (disableFuture) constraints.push('No future dates');
+            if (minDate) constraints.push(`From ${minDate}`);
+            if (maxDate) constraints.push(`Until ${maxDate}`);
+            
+            return (
+              <div className="space-y-2">
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                  <Input
+                    placeholder={format}
+                    disabled
+                    className="opacity-50 border-border/50 pl-10"
+                  />
+                </div>
+                
+                {constraints.length > 0 && (
+                  <div className="text-xs text-muted-foreground opacity-50 pl-1">
+                    {constraints.join(' • ')}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </div>
 
