@@ -69,10 +69,10 @@ export const QuestionCard = ({
         ref={setNodeRef}
         style={style}
         className={cn(
-          'relative glass-panel p-6 rounded-xl border-2 transition-all duration-200 group',
+          'relative glass-panel p-6 rounded-xl transition-all duration-200 group',
           isSelected
-            ? 'border-primary shadow-lg shadow-primary/30 ring-2 ring-primary/20'
-            : 'border-border/30 hover:border-border',
+            ? 'border-[3px] border-primary shadow-xl shadow-primary/40 ring-4 ring-primary/10'
+            : 'border-2 border-border/30 hover:border-border',
           isDragging && 'opacity-0',
           !isDragging && 'cursor-pointer'
         )}
