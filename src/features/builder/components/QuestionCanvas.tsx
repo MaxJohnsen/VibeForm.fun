@@ -77,6 +77,7 @@ export const QuestionCanvas = ({
   const [items, setItems] = useState(questions);
   const [hoveredQuestionId, setHoveredQuestionId] = useState<string | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
 
   // Sync items with questions when questions change from parent
   useEffect(() => {
@@ -121,11 +122,12 @@ export const QuestionCanvas = ({
 
   return (
     <div className="flex-1 p-8 overflow-y-auto" ref={canvasRef}>
-      <div className="max-w-3xl mx-auto space-y-4 animate-fade-in relative">
+      <div className="max-w-3xl mx-auto space-y-4 animate-fade-in relative" ref={innerRef}>
         {/* Flow Arrows Overlay */}
         <FlowArrows 
           questions={items} 
-          containerRef={canvasRef}
+          containerRef={innerRef}
+          scrollContainerRef={canvasRef}
           hoveredQuestionId={hoveredQuestionId}
         />
 

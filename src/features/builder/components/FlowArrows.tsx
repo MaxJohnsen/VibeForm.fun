@@ -12,10 +12,18 @@ interface ArrowConnection {
 interface FlowArrowsProps {
   questions: Question[];
   containerRef: React.RefObject<HTMLDivElement>;
+  scrollContainerRef?: React.RefObject<HTMLDivElement>;
   hoveredQuestionId?: string | null;
 }
 
-export const FlowArrows = ({ questions, containerRef, hoveredQuestionId }: FlowArrowsProps) => {
+const GUTTER = 56; // Space on the right side for arrows
+
+export const FlowArrows = ({ 
+  questions, 
+  containerRef, 
+  scrollContainerRef,
+  hoveredQuestionId 
+}: FlowArrowsProps) => {
   const [connections, setConnections] = useState<ArrowConnection[]>([]);
   const [arrowPaths, setArrowPaths] = useState<Map<string, string>>(new Map());
   const svgRef = useRef<SVGSVGElement>(null);
@@ -105,8 +113,8 @@ export const FlowArrows = ({ questions, containerRef, hoveredQuestionId }: FlowA
           toRect = toElement.getBoundingClientRect();
         }
 
-        // Calculate start point (right side of from card)
-        const startX = fromRect.right - containerRect.left + 8;
+        // Calculate start point (right side of from card with gutter)
+        const startX = fromRect.right - containerRect.left + GUTTER;
         const startY = fromRect.top + fromRect.height / 2 - containerRect.top;
 
         let endX: number;
@@ -117,8 +125,8 @@ export const FlowArrows = ({ questions, containerRef, hoveredQuestionId }: FlowA
           endX = startX + 60;
           endY = startY + 40;
         } else if (toRect) {
-          // Calculate end point (right side of to card)
-          endX = toRect.right - containerRect.left + 8;
+          // Calculate end point (right side of to card with gutter)
+          endX = toRect.right - containerRect.left + GUTTER;
           endY = toRect.top + toRect.height / 2 - containerRect.top;
         } else {
           return;
@@ -137,21 +145,21 @@ export const FlowArrows = ({ questions, containerRef, hoveredQuestionId }: FlowA
 
     // Recalculate on scroll or resize
     const handleUpdate = () => calculatePaths();
-    const container = containerRef.current;
-    container?.addEventListener('scroll', handleUpdate);
+    const scrollContainer = scrollContainerRef?.current || containerRef.current;
+    scrollContainer?.addEventListener('scroll', handleUpdate);
     window.addEventListener('resize', handleUpdate);
 
     // Use ResizeObserver to detect when cards change size
     const resizeObserver = new ResizeObserver(handleUpdate);
-    const questionCards = container?.querySelectorAll('[data-question-id]');
+    const questionCards = containerRef.current?.querySelectorAll('[data-question-id]');
     questionCards?.forEach((card) => resizeObserver.observe(card));
 
     return () => {
-      container?.removeEventListener('scroll', handleUpdate);
+      scrollContainer?.removeEventListener('scroll', handleUpdate);
       window.removeEventListener('resize', handleUpdate);
       resizeObserver.disconnect();
     };
-  }, [connections, containerRef]);
+  }, [connections, containerRef, scrollContainerRef]);
 
   const createCurvedPath = (
     startX: number,
@@ -189,7 +197,7 @@ export const FlowArrows = ({ questions, containerRef, hoveredQuestionId }: FlowA
   return (
     <svg
       ref={svgRef}
-      className="absolute inset-0 pointer-events-none z-0"
+      className="absolute inset-0 w-full h-full pointer-events-none z-20"
       style={{ overflow: 'visible' }}
     >
       <defs>
@@ -246,16 +254,17 @@ export const FlowArrows = ({ questions, containerRef, hoveredQuestionId }: FlowA
             ? 'hsl(var(--destructive))'
             : 'hsl(var(--muted-foreground))';
 
-        const opacity = connection.type === 'default' ? 0.3 : 0.6;
-        const highlightedOpacity = connection.type === 'default' ? 0.5 : 0.9;
+        const opacity = connection.type === 'default' ? 0.5 : 0.6;
+        const highlightedOpacity = connection.type === 'default' ? 0.8 : 0.9;
 
         return (
           <g key={key}>
             <path
+              id={`path-${key}`}
               d={path}
               fill="none"
               stroke={strokeColor}
-              strokeWidth={isHighlighted ? 2.5 : 1.5}
+              strokeWidth={isHighlighted ? 2.5 : 2}
               strokeDasharray={connection.type === 'default' ? '4 4' : 'none'}
               opacity={isHighlighted ? highlightedOpacity : opacity}
               markerEnd={`url(#arrow-${connection.type})`}
