@@ -2,18 +2,15 @@ import { useState, useEffect } from 'react';
 import { QuestionCard } from './QuestionCard';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Question } from '../api/questionsApi';
-import { FileQuestion } from 'lucide-react';
+import { FileQuestion, MousePointer2 } from 'lucide-react';
 import {
-  DndContext,
   closestCenter,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
-  DragStartEvent,
-  DragOverEvent,
   DragOverlay,
+  useDroppable,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -28,7 +25,43 @@ interface QuestionCanvasProps {
   onSelectQuestion: (id: string) => void;
   onDeleteQuestion: (id: string) => void;
   onReorderQuestions: (questions: Question[]) => void;
+  activeId: string | null;
 }
+
+const DropZone = ({ 
+  id, 
+  position, 
+  isActive 
+}: { 
+  id: string; 
+  position: 'start' | 'end' | number;
+  isActive: boolean;
+}) => {
+  const { setNodeRef, isOver } = useDroppable({
+    id,
+    data: { position },
+  });
+
+  if (!isActive) return null;
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`h-16 -my-2 flex items-center justify-center transition-all duration-200 ${
+        isOver 
+          ? 'bg-primary/10 border-2 border-dashed border-primary rounded-xl' 
+          : 'border-2 border-dashed border-transparent'
+      }`}
+    >
+      {isOver && (
+        <div className="flex items-center gap-2 text-sm text-primary font-medium">
+          <MousePointer2 className="h-4 w-4" />
+          Drop here
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const QuestionCanvas = ({
   questions,
@@ -36,8 +69,8 @@ export const QuestionCanvas = ({
   onSelectQuestion,
   onDeleteQuestion,
   onReorderQuestions,
+  activeId,
 }: QuestionCanvasProps) => {
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [items, setItems] = useState(questions);
 
   // Sync items with questions when questions change from parent
@@ -45,61 +78,38 @@ export const QuestionCanvas = ({
     setItems(questions);
   }, [questions]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  };
-
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex((q) => q.id === active.id);
-        const newIndex = items.findIndex((q) => q.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
+  useEffect(() => {
+    if (!activeId) {
+      setItems(questions);
     }
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    setActiveId(null);
-
-    // Persist final order based on current items, even if `over` is null
-    const originalIds = questions.map((q) => q.id).join('|');
-    const newIds = items.map((q) => q.id).join('|');
-
-    if (originalIds !== newIds) {
-      onReorderQuestions(items);
-    }
-  };
-
-  const handleDragCancel = () => {
-    setActiveId(null);
-    setItems(questions); // Reset to original on cancel
-  };
+  }, [activeId, questions]);
 
   const activeQuestion = items.find((q) => q.id === activeId);
+  const isDraggingFromPalette = activeId?.startsWith('palette-');
+  const showDropZones = isDraggingFromPalette;
+
+  const { setNodeRef: setEmptyDropRef, isOver: isOverEmpty } = useDroppable({
+    id: 'empty-canvas',
+    data: { position: 0 },
+  });
+
   if (questions.length === 0) {
     return (
       <div className="flex-1 p-8 overflow-y-auto">
-        <EmptyState
-          icon={FileQuestion}
-          title="No questions yet"
-          description="Click on a question type from the left panel to add your first question"
-        />
+        <div 
+          ref={setEmptyDropRef}
+          className={`max-w-3xl mx-auto min-h-[400px] rounded-2xl border-2 border-dashed transition-all duration-200 flex items-center justify-center ${
+            isOverEmpty 
+              ? 'border-primary bg-primary/10' 
+              : 'border-border/50 bg-muted/20'
+          }`}
+        >
+          <EmptyState
+            icon={isDraggingFromPalette ? MousePointer2 : FileQuestion}
+            title={isDraggingFromPalette ? "Drop here to add" : "No questions yet"}
+            description={isDraggingFromPalette ? "Release to create your first question" : "Drag a question type from the left or click to add"}
+          />
+        </div>
       </div>
     );
   }
@@ -107,44 +117,43 @@ export const QuestionCanvas = ({
   return (
     <div className="flex-1 p-8 overflow-y-auto">
       <div className="max-w-3xl mx-auto space-y-4 animate-fade-in">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-          onDragCancel={handleDragCancel}
+        <SortableContext
+          items={items.map((q) => q.id)}
+          strategy={verticalListSortingStrategy}
         >
-          <SortableContext
-            items={items.map((q) => q.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {items.map((question, index) => (
+          <DropZone id="drop-start" position="start" isActive={showDropZones} />
+          
+          {items.map((question, index) => (
+            <div key={question.id}>
               <QuestionCard
-                key={question.id}
                 question={question}
                 index={index}
                 isSelected={selectedQuestionId === question.id}
                 onSelect={() => onSelectQuestion(question.id)}
                 onDelete={() => onDeleteQuestion(question.id)}
               />
-            ))}
-          </SortableContext>
-          <DragOverlay>
-            {activeQuestion ? (
-              <div className="glass-panel p-6 rounded-xl border border-primary shadow-2xl shadow-primary/30 opacity-90">
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
-                    {items.findIndex((q) => q.id === activeQuestion.id) + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium">{activeQuestion.label}</div>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+              <DropZone 
+                id={`drop-after-${index}`} 
+                position={index + 1} 
+                isActive={showDropZones} 
+              />
+            </div>
+          ))}
+        </SortableContext>
+
+        <DragOverlay>
+          {activeQuestion ? (
+            <div className="opacity-80">
+              <QuestionCard
+                question={activeQuestion}
+                index={0}
+                isSelected={false}
+                onSelect={() => {}}
+                onDelete={() => {}}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
       </div>
     </div>
   );

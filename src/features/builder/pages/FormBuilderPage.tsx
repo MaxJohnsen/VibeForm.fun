@@ -10,11 +10,25 @@ import { formsApi } from '@/features/forms/api/formsApi';
 import { QuestionType } from '@/shared/constants/questionTypes';
 import { debounce } from '@/shared/utils/debounce';
 import { getDefaultSettings } from '../types/questionSettings';
+import {
+  DndContext,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverEvent,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 
 export const FormBuilderPage = () => {
   const { formId } = useParams<{ formId: string }>();
   const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [tempQuestions, setTempQuestions] = useState<any[]>([]);
 
   const { data: form } = useQuery({
     queryKey: ['form', formId],
@@ -33,21 +47,52 @@ export const FormBuilderPage = () => {
   const selectedQuestion = questions.find((q) => q.id === selectedQuestionId);
 
   useEffect(() => {
+    setTempQuestions(questions);
+  }, [questions]);
+
+  useEffect(() => {
     if (questions.length > 0 && !selectedQuestionId) {
       setSelectedQuestionId(questions[0].id);
     }
   }, [questions, selectedQuestionId]);
 
-  const handleAddQuestion = async (type: string) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleAddQuestion = async (type: string, position?: number) => {
     setIsSaving(true);
     try {
       const questionType = type as QuestionType;
+      const targetPosition = position !== undefined ? position : questions.length;
+      
       const newQuestion = await createQuestion({
         type: questionType,
         label: `New ${type.replace('_', ' ')} question`,
-        position: questions.length,
+        position: targetPosition,
         settings: getDefaultSettings(questionType),
       });
+      
+      // Reorder existing questions if inserting in the middle
+      if (position !== undefined && position < questions.length) {
+        const updates = questions
+          .filter((q) => q.position >= position)
+          .map((q) => ({
+            id: q.id,
+            position: q.position + 1,
+          }));
+        if (updates.length > 0) {
+          reorderQuestions(updates);
+        }
+      }
+      
       setSelectedQuestionId(newQuestion.id);
     } finally {
       setIsSaving(false);
@@ -121,27 +166,117 @@ export const FormBuilderPage = () => {
     reorderQuestions(updates);
   };
 
-  return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-background via-background to-muted/20">
-      <BuilderTopBar form={form || null} isSaving={isSaving} />
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    
+    if (!over) return;
+    
+    // Only handle reordering if dragging a question (not from palette)
+    if (!active.id.toString().startsWith('palette-')) {
+      if (active.id !== over.id) {
+        setTempQuestions((items) => {
+          const oldIndex = items.findIndex((q) => q.id === active.id);
+          const newIndex = items.findIndex((q) => q.id === over.id);
+          
+          if (oldIndex === -1 || newIndex === -1) return items;
+          
+          const newItems = [...items];
+          const [removed] = newItems.splice(oldIndex, 1);
+          newItems.splice(newIndex, 0, removed);
+          return newItems;
+        });
+      }
+    }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    setActiveId(null);
+
+    if (!over) {
+      setTempQuestions(questions);
+      return;
+    }
+
+    // Handle dropping from palette
+    if (active.id.toString().startsWith('palette-')) {
+      const questionType = active.data.current?.type;
+      if (!questionType) return;
+
+      let position = 0;
       
-      <div className="flex-1 flex overflow-hidden">
-        <QuestionTypePalette onSelectType={handleAddQuestion} />
-        
-        <QuestionCanvas
-          questions={questions}
-          selectedQuestionId={selectedQuestionId}
-          onSelectQuestion={setSelectedQuestionId}
-          onDeleteQuestion={handleDeleteQuestion}
-          onReorderQuestions={handleReorderQuestions}
-        />
-        
-        <PropertiesPanel
-          question={selectedQuestion || null}
-          onUpdateLabel={handleUpdateLabel}
-          onUpdateSettings={handleUpdateSettings}
-        />
-      </div>
+      // Determine position based on drop target
+      if (over.id === 'empty-canvas') {
+        position = 0;
+      } else if (over.id === 'drop-start') {
+        position = 0;
+      } else if (over.id.toString().startsWith('drop-after-')) {
+        const index = parseInt(over.id.toString().replace('drop-after-', ''));
+        position = index + 1;
+      } else {
+        // Dropped on a question - insert after it
+        const targetIndex = questions.findIndex((q) => q.id === over.id);
+        position = targetIndex >= 0 ? targetIndex + 1 : questions.length;
+      }
+
+      await handleAddQuestion(questionType, position);
+    } else {
+      // Handle reordering existing questions
+      const originalIds = questions.map((q) => q.id).join('|');
+      const newIds = tempQuestions.map((q) => q.id).join('|');
+
+      if (originalIds !== newIds) {
+        handleReorderQuestions(tempQuestions);
+      }
+    }
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+    setTempQuestions(questions);
+  };
+
+  return (
+    <div className="h-screen flex flex-col bg-background">
+      <BuilderTopBar 
+        form={form || null} 
+        isSaving={isSaving}
+      />
+      
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <div className="flex-1 flex overflow-hidden">
+          <QuestionTypePalette onSelectType={handleAddQuestion} />
+          
+          <QuestionCanvas
+            questions={tempQuestions}
+            selectedQuestionId={selectedQuestionId}
+            onSelectQuestion={setSelectedQuestionId}
+            onDeleteQuestion={handleDeleteQuestion}
+            onReorderQuestions={handleReorderQuestions}
+            activeId={activeId}
+          />
+
+          {selectedQuestion && (
+            <PropertiesPanel
+              question={selectedQuestion}
+              onUpdateLabel={handleUpdateLabel}
+              onUpdateSettings={handleUpdateSettings}
+            />
+          )}
+        </div>
+      </DndContext>
     </div>
   );
 };
