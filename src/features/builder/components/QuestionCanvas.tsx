@@ -75,7 +75,6 @@ export const QuestionCanvas = ({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
-    console.log('handleDragEnd called', { activeId: active.id, overId: over?.id });
     setActiveId(null);
 
     // Persist final order based on current items, even if `over` is null
@@ -83,10 +82,7 @@ export const QuestionCanvas = ({
     const newIds = items.map((q) => q.id).join('|');
 
     if (originalIds !== newIds) {
-      console.log('Order changed. Persisting with onReorderQuestions', items);
       onReorderQuestions(items);
-    } else {
-      console.log('Order unchanged. No persist needed');
     }
   };
 
