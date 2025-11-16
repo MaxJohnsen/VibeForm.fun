@@ -57,12 +57,14 @@ export const QuestionCard = ({
       onClick={!isDragging ? onSelect : undefined}
     >
       {/* Action Buttons - Top Right */}
-      <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
         <Button
           variant="ghost"
           size="icon"
           className="h-8 w-8"
+          onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             onDelete();
           }}
