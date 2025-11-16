@@ -40,12 +40,10 @@ export const QuestionCanvas = ({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [items, setItems] = useState(questions);
 
-  // Sync items with questions only when not dragging
+  // Sync items with questions when questions change from parent
   useEffect(() => {
-    if (!activeId) {
-      setItems(questions);
-    }
-  }, [questions, activeId]);
+    setItems(questions);
+  }, [questions]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -76,17 +74,18 @@ export const QuestionCanvas = ({
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      const oldIndex = questions.findIndex((q) => q.id === active.id);
-      const newIndex = questions.findIndex((q) => q.id === over.id);
-
-      const reorderedQuestions = arrayMove(questions, oldIndex, newIndex);
-      onReorderQuestions(reorderedQuestions);
-    }
     
     setActiveId(null);
-    // Don't reset items here - let useEffect handle it when questions update
+
+    if (over && active.id !== over.id) {
+      // Keep the optimistic order in items
+      const oldIndex = items.findIndex((q) => q.id === active.id);
+      const newIndex = items.findIndex((q) => q.id === over.id);
+      const reorderedQuestions = arrayMove(items, oldIndex, newIndex);
+      
+      // Update parent - when this completes, useEffect will sync items
+      onReorderQuestions(reorderedQuestions);
+    }
   };
 
   const handleDragCancel = () => {
