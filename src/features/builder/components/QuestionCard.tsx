@@ -29,7 +29,13 @@ export const QuestionCard = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: question.id });
+  } = useSortable({ 
+    id: question.id,
+    transition: {
+      duration: 200,
+      easing: 'cubic-bezier(0.25, 1, 0.5, 1)',
+    },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -40,21 +46,23 @@ export const QuestionCard = ({
     <div
       ref={setNodeRef}
       style={style}
-      onClick={onSelect}
       className={cn(
-        'glass-panel p-6 rounded-xl border cursor-pointer transition-all duration-200 group',
+        'glass-panel p-6 rounded-xl border transition-all duration-200 group',
         isSelected
           ? 'border-primary shadow-lg shadow-primary/20'
           : 'border-border/50 hover:border-border',
-        isDragging && 'opacity-50'
+        isDragging && 'opacity-0',
+        !isDragging && 'cursor-pointer'
       )}
+      onClick={!isDragging ? onSelect : undefined}
     >
       <div className="flex items-start gap-4">
         {/* Drag Handle */}
         <div
           {...attributes}
           {...listeners}
-          className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+          className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing touch-none"
+          onClick={(e) => e.stopPropagation()}
         >
           <GripVertical className="h-5 w-5 text-muted-foreground" />
         </div>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { QuestionCard } from './QuestionCard';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Question } from '../api/questionsApi';
@@ -10,6 +11,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -33,12 +36,22 @@ export const QuestionCanvas = ({
   onDeleteQuestion,
   onReorderQuestions,
 }: QuestionCanvasProps) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Requires 8px movement before activating drag
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -50,7 +63,15 @@ export const QuestionCanvas = ({
       const reorderedQuestions = arrayMove(questions, oldIndex, newIndex);
       onReorderQuestions(reorderedQuestions);
     }
+    
+    setActiveId(null);
   };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
+
+  const activeQuestion = questions.find((q) => q.id === activeId);
   if (questions.length === 0) {
     return (
       <div className="flex-1 p-8 overflow-y-auto">
@@ -69,7 +90,9 @@ export const QuestionCanvas = ({
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
         >
           <SortableContext
             items={questions.map((q) => q.id)}
@@ -86,6 +109,20 @@ export const QuestionCanvas = ({
               />
             ))}
           </SortableContext>
+          <DragOverlay>
+            {activeQuestion ? (
+              <div className="glass-panel p-6 rounded-xl border border-primary shadow-2xl shadow-primary/30 opacity-90">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
+                    {questions.findIndex((q) => q.id === activeQuestion.id) + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium">{activeQuestion.label}</div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </DragOverlay>
         </DndContext>
       </div>
     </div>
