@@ -74,8 +74,6 @@ export const questionsApi = {
   },
 
   async reorderQuestions(updates: { id: string; position: number }[]): Promise<void> {
-    console.log('Reordering questions:', updates);
-    
     const promises = updates.map(({ id, position }) =>
       supabase
         .from('questions')
@@ -84,12 +82,7 @@ export const questionsApi = {
     );
 
     const results = await Promise.all(promises);
-    console.log('Reorder results:', results);
-    
     const error = results.find(r => r.error)?.error;
-    if (error) {
-      console.error('Reorder error:', error);
-      throw error;
-    }
+    if (error) throw error;
   },
 };
