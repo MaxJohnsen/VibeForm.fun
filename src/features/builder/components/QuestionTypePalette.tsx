@@ -16,7 +16,7 @@ export const QuestionTypePalette = ({ onSelectType }: QuestionTypePaletteProps) 
             <button
               key={questionType.type}
               onClick={() => onSelectType(questionType.type)}
-              className="w-full text-left p-4 rounded-xl border border-border/50 hover:border-primary/50 hover:bg-accent/50 transition-all duration-200 group"
+              className="w-full text-left p-4 rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all duration-200 group"
             >
               <div className="flex items-start gap-3">
                 <div className={cn(
