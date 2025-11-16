@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QuestionCard } from './QuestionCard';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Question } from '../api/questionsApi';
@@ -40,10 +40,17 @@ export const QuestionCanvas = ({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [items, setItems] = useState(questions);
 
+  // Sync items with questions only when not dragging
+  useEffect(() => {
+    if (!activeId) {
+      setItems(questions);
+    }
+  }, [questions, activeId]);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // Requires 8px movement before activating drag
+        distance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -53,7 +60,6 @@ export const QuestionCanvas = ({
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
-    setItems(questions);
   };
 
   const handleDragOver = (event: DragOverEvent) => {
@@ -80,16 +86,15 @@ export const QuestionCanvas = ({
     }
     
     setActiveId(null);
-    setItems(questions);
+    // Don't reset items here - let useEffect handle it when questions update
   };
 
   const handleDragCancel = () => {
     setActiveId(null);
-    setItems(questions);
+    setItems(questions); // Reset to original on cancel
   };
 
-  const displayItems = activeId ? items : questions;
-  const activeQuestion = questions.find((q) => q.id === activeId);
+  const activeQuestion = items.find((q) => q.id === activeId);
   if (questions.length === 0) {
     return (
       <div className="flex-1 p-8 overflow-y-auto">
@@ -114,10 +119,10 @@ export const QuestionCanvas = ({
           onDragCancel={handleDragCancel}
         >
           <SortableContext
-            items={displayItems.map((q) => q.id)}
+            items={items.map((q) => q.id)}
             strategy={verticalListSortingStrategy}
           >
-            {displayItems.map((question, index) => (
+            {items.map((question, index) => (
               <QuestionCard
                 key={question.id}
                 question={question}
@@ -133,7 +138,7 @@ export const QuestionCanvas = ({
               <div className="glass-panel p-6 rounded-xl border border-primary shadow-2xl shadow-primary/30 opacity-90">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
-                    {displayItems.findIndex((q) => q.id === activeQuestion.id) + 1}
+                    {items.findIndex((q) => q.id === activeQuestion.id) + 1}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium">{activeQuestion.label}</div>
