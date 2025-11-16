@@ -55,7 +55,7 @@ const Index = () => {
         
         <div>
           <h1 className="text-3xl font-semibold text-foreground mb-2">
-            Welcome to FormFlow
+            Welcome to VibeFlow
           </h1>
           <p className="text-muted-foreground">
             You're successfully authenticated!
