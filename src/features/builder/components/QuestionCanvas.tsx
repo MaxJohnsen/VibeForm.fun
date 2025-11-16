@@ -47,7 +47,7 @@ const DropZone = ({
   return (
     <div
       ref={setNodeRef}
-      className={`h-20 my-2 flex items-center justify-center transition-all duration-200 ${
+      className={`h-12 my-2 flex items-center justify-center transition-all duration-200 ${
         isOver 
           ? 'bg-primary/10 border-2 border-dashed border-primary rounded-xl' 
           : 'border-2 border-dashed border-transparent'
