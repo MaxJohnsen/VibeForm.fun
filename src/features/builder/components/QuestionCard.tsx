@@ -81,7 +81,7 @@ export const QuestionCard = ({
       </div>
 
       {/* Question Number */}
-      <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-base font-semibold text-primary mb-4">
+      <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary mb-3">
         {index + 1}
       </div>
 
