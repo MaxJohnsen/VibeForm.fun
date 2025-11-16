@@ -71,7 +71,7 @@ export const QuestionCard = ({
         className={cn(
           'relative glass-panel p-6 rounded-xl transition-all duration-200 group',
           isSelected
-            ? '!border-2 !border-primary shadow-xl shadow-primary/40 ring-4 ring-primary/10'
+            ? '!border !border-primary shadow-xl shadow-primary/40 ring-4 ring-primary/10'
             : '!border !border-border/30 hover:!border-border',
           isDragging && 'opacity-0',
           !isDragging && 'cursor-pointer'
