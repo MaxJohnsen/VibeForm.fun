@@ -80,8 +80,14 @@ export const QuestionCanvas = ({
 
   // Sync items with questions when questions change from parent
   useEffect(() => {
-    setItems(questions);
-  }, [questions]);
+    const questionIds = questions.map(q => q.id).join(',');
+    const itemIds = items.map(q => q.id).join(',');
+    
+    // Only update if the questions actually changed
+    if (questionIds !== itemIds) {
+      setItems(questions);
+    }
+  }, [questions, items]);
 
   const activeQuestion = items.find((q) => q.id === activeId);
   const isDraggingFromPalette = activeId?.startsWith('palette-');

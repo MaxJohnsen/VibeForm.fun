@@ -26,8 +26,9 @@ export const FlowArrows = ({ questions, containerRef, hoveredQuestionId }: FlowA
 
     questions.forEach((question, index) => {
       const logic = question.logic as QuestionLogic | undefined;
+      const hasLogic = logic && (logic.rules?.length > 0 || logic.default_target || logic.default_action === 'end');
 
-      if (logic?.rules) {
+      if (logic?.rules && logic.rules.length > 0) {
         // Add arrows for each rule
         logic.rules.forEach((rule, ruleIndex) => {
           if (rule.action.type === 'jump' && rule.action.target_question_id) {
@@ -48,8 +49,9 @@ export const FlowArrows = ({ questions, containerRef, hoveredQuestionId }: FlowA
         });
       }
 
-      // Add default next arrow if no custom default target
-      if (!logic?.default_target && logic?.default_action === 'next') {
+      // Always show default flow arrows
+      if (!hasLogic || (logic?.default_action === 'next' && !logic?.default_target)) {
+        // Show default next question arrow
         const nextQuestion = questions[index + 1];
         if (nextQuestion) {
           newConnections.push({
