@@ -20,16 +20,11 @@ export const PropertiesPanel = ({ question, onUpdateLabel }: PropertiesPanelProp
     }
   }, [question?.id, question?.label]);
 
-  // Handle input change with local state only
+  // Handle input change - update local state and trigger debounced save
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalLabel(e.target.value);
-  };
-
-  // Handle blur to trigger save
-  const handleBlur = () => {
-    if (question && localLabel !== question.label) {
-      onUpdateLabel(localLabel);
-    }
+    const newValue = e.target.value;
+    setLocalLabel(newValue);
+    onUpdateLabel(newValue); // This will be debounced by parent
   };
 
   if (!question) {
@@ -68,7 +63,6 @@ export const PropertiesPanel = ({ question, onUpdateLabel }: PropertiesPanelProp
           label="Question Text"
           value={localLabel}
           onChange={handleLabelChange}
-          onBlur={handleBlur}
           placeholder="Enter your question..."
         />
 

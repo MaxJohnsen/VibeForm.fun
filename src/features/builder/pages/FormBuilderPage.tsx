@@ -70,7 +70,6 @@ export const FormBuilderPage = () => {
   const handleUpdateLabel = useCallback(
     (label: string) => {
       if (!selectedQuestionId) return;
-      setIsSaving(true);
       debouncedUpdate(selectedQuestionId, label);
     },
     [selectedQuestionId, debouncedUpdate]
