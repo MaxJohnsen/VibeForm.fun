@@ -25,8 +25,8 @@ export const AppSidebar = () => {
     <div className="fixed left-0 top-0 h-screen w-16 glass-panel border-r border-border/50 flex flex-col items-center py-6">
       {/* Logo */}
       <div className="mb-8">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-primary/80 to-primary/60 flex items-center justify-center shadow-lg">
-          <Waves className="h-6 w-6 text-primary-foreground" />
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 flex items-center justify-center shadow-lg">
+          <Waves className="h-6 w-6 text-white" />
         </div>
       </div>
 
