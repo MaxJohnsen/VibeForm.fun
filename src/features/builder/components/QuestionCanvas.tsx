@@ -75,16 +75,21 @@ export const QuestionCanvas = ({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     
+    console.log('handleDragEnd called', { activeId: active.id, overId: over?.id });
     setActiveId(null);
 
     if (over && active.id !== over.id) {
+      console.log('Reordering - condition met');
       // Keep the optimistic order in items
       const oldIndex = items.findIndex((q) => q.id === active.id);
       const newIndex = items.findIndex((q) => q.id === over.id);
       const reorderedQuestions = arrayMove(items, oldIndex, newIndex);
       
+      console.log('Calling onReorderQuestions with:', reorderedQuestions);
       // Update parent - when this completes, useEffect will sync items
       onReorderQuestions(reorderedQuestions);
+    } else {
+      console.log('Not reordering - condition not met', { hasOver: !!over, sameId: active.id === over?.id });
     }
   };
 
