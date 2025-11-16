@@ -12,6 +12,7 @@ import {
   useSensors,
   DragEndEvent,
   DragStartEvent,
+  DragOverEvent,
   DragOverlay,
 } from '@dnd-kit/core';
 import {
@@ -37,6 +38,7 @@ export const QuestionCanvas = ({
   onReorderQuestions,
 }: QuestionCanvasProps) => {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [items, setItems] = useState(questions);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -51,6 +53,19 @@ export const QuestionCanvas = ({
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
+    setItems(questions);
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setItems((items) => {
+        const oldIndex = items.findIndex((q) => q.id === active.id);
+        const newIndex = items.findIndex((q) => q.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -65,12 +80,15 @@ export const QuestionCanvas = ({
     }
     
     setActiveId(null);
+    setItems(questions);
   };
 
   const handleDragCancel = () => {
     setActiveId(null);
+    setItems(questions);
   };
 
+  const displayItems = activeId ? items : questions;
   const activeQuestion = questions.find((q) => q.id === activeId);
   if (questions.length === 0) {
     return (
@@ -91,14 +109,15 @@ export const QuestionCanvas = ({
           sensors={sensors}
           collisionDetection={closestCenter}
           onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
           onDragCancel={handleDragCancel}
         >
           <SortableContext
-            items={questions.map((q) => q.id)}
+            items={displayItems.map((q) => q.id)}
             strategy={verticalListSortingStrategy}
           >
-            {questions.map((question, index) => (
+            {displayItems.map((question, index) => (
               <QuestionCard
                 key={question.id}
                 question={question}
@@ -114,7 +133,7 @@ export const QuestionCanvas = ({
               <div className="glass-panel p-6 rounded-xl border border-primary shadow-2xl shadow-primary/30 opacity-90">
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
-                    {questions.findIndex((q) => q.id === activeQuestion.id) + 1}
+                    {displayItems.findIndex((q) => q.id === activeQuestion.id) + 1}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium">{activeQuestion.label}</div>
