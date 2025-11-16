@@ -29,32 +29,27 @@ export const FormCard = ({ form }: FormCardProps) => {
 
   return (
     <GlassCard className="p-6 hover-elevate transition-all duration-300 relative">
-      {/* Form Icon and Badge */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="rounded-2xl bg-gradient-to-br from-primary to-primary/70 p-4">
-          <FileText className="h-6 w-6 text-primary-foreground" />
-        </div>
-        <Badge className={`${getStatusColor(form.status)} capitalize rounded-full px-3 py-1 text-xs font-medium border`}>
+      {/* Form Title and Status */}
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <h3 className="font-semibold text-lg flex-1">{form.title}</h3>
+        <Badge className={`${getStatusColor(form.status)} capitalize rounded-full px-3 py-1 text-xs font-medium border flex-shrink-0`}>
           {form.status}
         </Badge>
       </div>
 
-      {/* Form Title and Description */}
-      <div className="mb-4">
-        <h3 className="font-semibold text-lg mb-1">{form.title}</h3>
-        {form.description && (
-          <p className="text-sm text-muted-foreground">{form.description}</p>
-        )}
-      </div>
+      {/* Description */}
+      {form.description && (
+        <p className="text-sm text-muted-foreground mb-4">{form.description}</p>
+      )}
 
       {/* Metadata */}
-      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+      <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
         <div className="flex items-center gap-1">
-          <Clock className="h-4 w-4" />
+          <Clock className="h-3 w-3" />
           <span>Updated {formatDistanceToNow(new Date(form.updated_at), { addSuffix: true })}</span>
         </div>
         <div className="flex items-center gap-1">
-          <MessageSquare className="h-4 w-4" />
+          <MessageSquare className="h-3 w-3" />
           <span>234 responses</span>
         </div>
       </div>
