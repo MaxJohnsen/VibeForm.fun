@@ -16,6 +16,7 @@ export interface CreateQuestionData {
   type: QuestionType;
   label: string;
   position: number;
+  settings?: Record<string, any>;
 }
 
 export interface UpdateQuestionData {
@@ -44,6 +45,7 @@ export const questionsApi = {
         type: questionData.type,
         label: questionData.label,
         position: questionData.position,
+        settings: questionData.settings || {},
       })
       .select()
       .single();

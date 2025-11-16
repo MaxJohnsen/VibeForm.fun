@@ -9,6 +9,7 @@ import { useQuestions } from '../hooks/useQuestions';
 import { formsApi } from '@/features/forms/api/formsApi';
 import { QuestionType } from '@/shared/constants/questionTypes';
 import { debounce } from '@/shared/utils/debounce';
+import { getDefaultSettings } from '../types/questionSettings';
 
 export const FormBuilderPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -40,10 +41,12 @@ export const FormBuilderPage = () => {
   const handleAddQuestion = async (type: string) => {
     setIsSaving(true);
     try {
+      const questionType = type as QuestionType;
       const newQuestion = await createQuestion({
-        type: type as QuestionType,
+        type: questionType,
         label: `New ${type.replace('_', ' ')} question`,
         position: questions.length,
+        settings: getDefaultSettings(questionType),
       });
       setSelectedQuestionId(newQuestion.id);
     } finally {
@@ -68,12 +71,37 @@ export const FormBuilderPage = () => {
     [updateQuestion]
   );
 
+  // Debounced settings update
+  const debouncedSettingsUpdate = useMemo(
+    () =>
+      debounce((id: string, settings: Record<string, any>) => {
+        setIsSaving(true);
+        updateQuestion(
+          { id, data: { settings } },
+          {
+            onSettled: () => {
+              setTimeout(() => setIsSaving(false), 300);
+            },
+          }
+        );
+      }, 800),
+    [updateQuestion]
+  );
+
   const handleUpdateLabel = useCallback(
     (label: string) => {
       if (!selectedQuestionId) return;
       debouncedUpdate(selectedQuestionId, label);
     },
     [selectedQuestionId, debouncedUpdate]
+  );
+
+  const handleUpdateSettings = useCallback(
+    (settings: Record<string, any>) => {
+      if (!selectedQuestionId) return;
+      debouncedSettingsUpdate(selectedQuestionId, settings);
+    },
+    [selectedQuestionId, debouncedSettingsUpdate]
   );
 
   const handleDeleteQuestion = (id: string) => {
@@ -111,6 +139,7 @@ export const FormBuilderPage = () => {
         <PropertiesPanel
           question={selectedQuestion || null}
           onUpdateLabel={handleUpdateLabel}
+          onUpdateSettings={handleUpdateSettings}
         />
       </div>
     </div>

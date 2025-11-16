@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GripVertical, Trash2 } from 'lucide-react';
+import { GripVertical, Trash2, Mail, Phone, Calendar, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -108,19 +108,96 @@ export const QuestionCard = ({
         
         {/* Preview Input */}
         <div>
-          {question.type === 'short_text' ? (
+          {question.type === 'short_text' && (
             <Input
               placeholder="Your answer..."
               disabled
               className="opacity-50 border-border/50"
             />
-          ) : (
+          )}
+          
+          {question.type === 'long_text' && (
             <Textarea
               placeholder="Your answer..."
               disabled
               className="opacity-50 resize-none border-border/50"
               rows={2}
             />
+          )}
+          
+          {question.type === 'multiple_choice' && (
+            <div className="space-y-2">
+              {['Option 1', 'Option 2', 'Option 3'].map((option, idx) => (
+                <div key={idx} className="flex items-center gap-3 p-3 rounded-lg border border-border/50 opacity-50">
+                  <div className="w-4 h-4 rounded-full border-2 border-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">{option}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {question.type === 'yes_no' && (
+            <div className="flex gap-3">
+              <button 
+                disabled 
+                className="flex-1 py-3 px-6 rounded-full border-2 border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 font-medium opacity-50"
+              >
+                Yes
+              </button>
+              <button 
+                disabled 
+                className="flex-1 py-3 px-6 rounded-full border-2 border-border/30 bg-muted/5 text-muted-foreground font-medium opacity-50"
+              >
+                No
+              </button>
+            </div>
+          )}
+          
+          {question.type === 'rating' && (
+            <div className="flex items-center justify-between gap-2">
+              {[...Array(10)].map((_, idx) => (
+                <div 
+                  key={idx} 
+                  className="flex flex-col items-center gap-1 opacity-50"
+                >
+                  <Star className="h-6 w-6 text-yellow-500 fill-yellow-500/20" />
+                  <span className="text-xs text-muted-foreground">{idx + 1}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {question.type === 'email' && (
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+              <Input
+                placeholder="email@example.com"
+                disabled
+                className="opacity-50 border-border/50 pl-10"
+              />
+            </div>
+          )}
+          
+          {question.type === 'phone' && (
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+              <Input
+                placeholder="(555) 123-4567"
+                disabled
+                className="opacity-50 border-border/50 pl-10"
+              />
+            </div>
+          )}
+          
+          {question.type === 'date' && (
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+              <Input
+                placeholder="MM/DD/YYYY"
+                disabled
+                className="opacity-50 border-border/50 pl-10"
+              />
+            </div>
           )}
         </div>
       </div>
