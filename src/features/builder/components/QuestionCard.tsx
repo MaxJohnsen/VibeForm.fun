@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GripVertical, Trash2, Mail, Phone, Calendar, Star } from 'lucide-react';
+import { GripVertical, Trash2, Mail, Phone, Calendar, Star, GitBranch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,6 +32,7 @@ interface QuestionCardProps {
   isSelected: boolean;
   onSelect: () => void;
   onDelete: () => void;
+  onOpenLogic?: () => void;
 }
 
 export const QuestionCard = ({
@@ -40,6 +41,7 @@ export const QuestionCard = ({
   isSelected,
   onSelect,
   onDelete,
+  onOpenLogic,
 }: QuestionCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
@@ -80,6 +82,23 @@ export const QuestionCard = ({
       >
         {/* Action Buttons - Top Right */}
         <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+          {onOpenLogic && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onOpenLogic();
+              }}
+              title="Edit logic rules"
+            >
+              <GitBranch className="h-4 w-4 text-primary" />
+            </Button>
+          )}
+          
           <Button
             variant="ghost"
             size="icon"
@@ -103,6 +122,16 @@ export const QuestionCard = ({
             <GripVertical className="h-4 w-4 text-muted-foreground" />
           </div>
         </div>
+
+        {/* Logic Indicator Badge - Always visible when logic exists */}
+        {question.logic && (question.logic as any).rules?.length > 0 && (
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 border border-primary/20">
+            <GitBranch className="h-3 w-3 text-primary" />
+            <span className="text-xs font-medium text-primary">
+              {(question.logic as any).rules.length}
+            </span>
+          </div>
+        )}
 
         {/* Question Number */}
         <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary mb-3">

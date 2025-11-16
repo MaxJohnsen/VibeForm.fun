@@ -25,6 +25,7 @@ interface QuestionCanvasProps {
   onSelectQuestion: (id: string) => void;
   onDeleteQuestion: (id: string) => void;
   onReorderQuestions: (questions: Question[]) => void;
+  onOpenLogic?: (questionId: string) => void;
   activeId: string | null;
 }
 
@@ -69,6 +70,7 @@ export const QuestionCanvas = ({
   onSelectQuestion,
   onDeleteQuestion,
   onReorderQuestions,
+  onOpenLogic,
   activeId,
 }: QuestionCanvasProps) => {
   const [items, setItems] = useState(questions);
@@ -125,6 +127,7 @@ export const QuestionCanvas = ({
                 isSelected={selectedQuestionId === question.id}
                 onSelect={() => onSelectQuestion(question.id)}
                 onDelete={() => onDeleteQuestion(question.id)}
+                onOpenLogic={onOpenLogic ? () => onOpenLogic(question.id) : undefined}
               />
               <DropZone 
                 id={`drop-after-${index}`} 
