@@ -47,7 +47,7 @@ export const QuestionCard = ({
       ref={setNodeRef}
       style={style}
       className={cn(
-        'glass-panel p-6 rounded-xl border transition-all duration-200 group',
+        'relative glass-panel p-8 rounded-2xl border transition-all duration-200 group',
         isSelected
           ? 'border-primary shadow-lg shadow-primary/20'
           : 'border-border/50 hover:border-border',
@@ -56,55 +56,55 @@ export const QuestionCard = ({
       )}
       onClick={!isDragging ? onSelect : undefined}
     >
-      <div className="flex items-start gap-4">
-        {/* Drag Handle */}
-        <div
-          {...attributes}
-          {...listeners}
-          className="opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing touch-none"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <GripVertical className="h-5 w-5 text-muted-foreground" />
-        </div>
+      {/* Drag Handle - Top Right Corner */}
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing touch-none p-2 hover:bg-muted/50 rounded-lg"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <GripVertical className="h-5 w-5 text-muted-foreground" />
+      </div>
 
-        {/* Question Number */}
-        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
-          {index + 1}
-        </div>
+      {/* Delete Button - Top Right, appears on hover */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+        className="absolute top-4 right-14 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <Trash2 className="h-4 w-4 text-destructive" />
+      </Button>
 
-        {/* Question Content */}
-        <div className="flex-1 min-w-0">
-          <div className="font-medium mb-3">{question.label}</div>
-          
-          {/* Preview Input */}
-          {question.type === 'short_text' ? (
-            <Input
-              placeholder="Short text answer..."
-              disabled
-              className="opacity-50"
-            />
-          ) : (
-            <Textarea
-              placeholder="Long text answer..."
-              disabled
-              className="opacity-50 resize-none"
-              rows={3}
-            />
-          )}
-        </div>
+      {/* Question Number */}
+      <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-lg font-semibold text-primary mb-6">
+        {index + 1}
+      </div>
 
-        {/* Delete Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          className="opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <Trash2 className="h-4 w-4 text-destructive" />
-        </Button>
+      {/* Question Label */}
+      <div className="text-xl font-medium text-foreground mb-8">
+        {question.label}
+      </div>
+      
+      {/* Preview Input */}
+      <div className="mt-4">
+        {question.type === 'short_text' ? (
+          <Input
+            placeholder="Your answer..."
+            disabled
+            className="opacity-50 text-base border-border/50"
+          />
+        ) : (
+          <Textarea
+            placeholder="Your answer..."
+            disabled
+            className="opacity-50 resize-none text-base border-border/50"
+            rows={3}
+          />
+        )}
       </div>
     </div>
   );
