@@ -1,18 +1,63 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Plus, Filter, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/shared/ui/SearchBar';
 import { AppSidebar } from '@/shared/ui/AppSidebar';
 import { FormsList } from '../components/FormsList';
-import { StatsPanel } from '../components/StatsPanel';
 import { useForms } from '../hooks/useForms';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
+import { Form } from '../api/formsApi';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+type FilterType = 'all' | 'active' | 'draft' | 'archived';
+type SortType = 'updated' | 'created' | 'title';
 
 export const FormsHomePage = () => {
   const navigate = useNavigate();
   const { forms, isLoading } = useForms();
   const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<FilterType>('all');
+  const [sortType, setSortType] = useState<SortType>('updated');
+
+  const filteredAndSortedForms = useMemo(() => {
+    let filtered = forms;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (form) =>
+          form.title.toLowerCase().includes(query) ||
+          form.description?.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply status filter
+    if (filterType !== 'all') {
+      filtered = filtered.filter((form) => form.status === filterType);
+    }
+
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortType) {
+        case 'title':
+          return a.title.localeCompare(b.title);
+        case 'created':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'updated':
+        default:
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+      }
+    });
+
+    return sorted;
+  }, [forms, searchQuery, filterType, sortType]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -47,26 +92,65 @@ export const FormsHomePage = () => {
                 onChange={setSearchQuery}
               />
             </div>
-            <Button variant="outline" className="gap-2">
-              <Filter className="h-4 w-4" />
-              Filter
-            </Button>
-            <Button variant="outline" className="gap-2">
-              <ArrowUpDown className="h-4 w-4" />
-              Sort
-            </Button>
+            
+            {/* Filter Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Filter className="h-4 w-4" />
+                  Filter
+                  {filterType !== 'all' && (
+                    <span className="ml-1 text-xs text-muted-foreground">
+                      ({filterType})
+                    </span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setFilterType('all')}>
+                  All Forms
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterType('active')}>
+                  Active
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterType('draft')}>
+                  Draft
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFilterType('archived')}>
+                  Archived
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Sort Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <ArrowUpDown className="h-4 w-4" />
+                  Sort
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setSortType('updated')}>
+                  Last Updated
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortType('created')}>
+                  Date Created
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSortType('title')}>
+                  Title (A-Z)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
         {/* Forms Grid */}
         <FormsList
-          forms={forms}
+          forms={filteredAndSortedForms}
           isLoading={isLoading}
           onCreateNew={() => navigate(ROUTES.CREATE_FORM)}
         />
-
-        {/* Stats Panel */}
-        <StatsPanel />
       </div>
     </div>
   );
