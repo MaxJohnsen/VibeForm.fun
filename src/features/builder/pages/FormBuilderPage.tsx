@@ -216,10 +216,15 @@ export const FormBuilderPage = () => {
       } else if (over.id === 'drop-start') {
         position = 0;
       } else if (over.id.toString().startsWith('drop-after-')) {
-        // Get the actual array index from the drop zone ID
+        // Get the array index from the drop zone ID
         const arrayIndex = parseInt(over.id.toString().replace('drop-after-', ''));
-        // Position should be after this question
-        position = arrayIndex + 1;
+        // Find the question at this index in tempQuestions and use its position
+        const questionAtIndex = tempQuestions[arrayIndex];
+        if (questionAtIndex) {
+          position = questionAtIndex.position + 1;
+        } else {
+          position = tempQuestions.length;
+        }
       } else {
         // Dropped on a question - insert after it
         const targetQuestion = questions.find((q) => q.id === over.id);
