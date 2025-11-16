@@ -1,6 +1,6 @@
 import { 
   Type, 
-  AlignLeft, 
+  FileText, 
   ListOrdered, 
   ToggleLeft, 
   Star, 
@@ -40,7 +40,7 @@ export const QUESTION_TYPES: QuestionTypeDefinition[] = [
     type: 'long_text',
     label: 'Long Text',
     description: 'Multi-line textarea',
-    icon: AlignLeft,
+    icon: FileText,
     colorClass: 'bg-secondary/10 text-secondary',
   },
   {

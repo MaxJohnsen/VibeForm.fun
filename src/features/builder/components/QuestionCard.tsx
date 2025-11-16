@@ -69,10 +69,10 @@ export const QuestionCard = ({
         ref={setNodeRef}
         style={style}
         className={cn(
-          'relative glass-panel p-6 rounded-xl border transition-all duration-200 group',
+          'relative glass-panel p-6 rounded-xl border-2 transition-all duration-200 group',
           isSelected
-            ? 'border-primary shadow-lg shadow-primary/20'
-            : 'border-border/50 hover:border-border',
+            ? 'border-primary shadow-lg shadow-primary/30 ring-2 ring-primary/20'
+            : 'border-border/30 hover:border-border',
           isDragging && 'opacity-0',
           !isDragging && 'cursor-pointer'
         )}
@@ -171,7 +171,7 @@ export const QuestionCard = ({
             const buttonStyle = settings?.buttonStyle || 'pills';
             
             const getButtonClasses = (isYes: boolean) => {
-              const baseClasses = "flex-1 py-3 px-6 font-medium opacity-50 transition-all";
+              const baseClasses = "flex-1 py-2 px-4 text-sm font-medium opacity-50 transition-all";
               
               switch (buttonStyle) {
                 case 'pills':
