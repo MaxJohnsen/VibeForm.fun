@@ -62,15 +62,15 @@ export const LogicSummary = ({ logic, allQuestions, currentQuestion }: LogicSumm
     // Scenario 2: No rules, but custom default
     if (!hasRules && hasCustomDefault) {
       if (logic.default_action === 'end') {
-        return '→ Skips to end';
+        return 'Skips to end';
       }
-      return `→ Skips to ${getQuestionLabel(logic.default_target!)}`;
+      return `Skips to ${getQuestionLabel(logic.default_target!)}`;
     }
     
     // Scenario 3: Natural flow (show next question)
     const nextLabel = getNextQuestionLabel();
     if (nextLabel) {
-      return `→ ${nextLabel}`;
+      return nextLabel;
     }
     
     // Scenario 4: Last question, no custom logic
