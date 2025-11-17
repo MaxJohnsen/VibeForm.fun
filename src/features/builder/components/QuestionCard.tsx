@@ -36,8 +36,6 @@ interface QuestionCardProps {
   onDelete: () => void;
   onOpenLogic?: () => void;
   allQuestions: Question[];
-  isHighlighted?: boolean;
-  onHighlightTarget?: (targetId: string | null) => void;
 }
 
 export const QuestionCard = ({
@@ -48,21 +46,8 @@ export const QuestionCard = ({
   onDelete,
   onOpenLogic,
   allQuestions,
-  isHighlighted,
-  onHighlightTarget,
 }: QuestionCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  // Scroll into view when highlighted
-  useEffect(() => {
-    if (isHighlighted && cardRef.current) {
-      cardRef.current.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center' 
-      });
-    }
-  }, [isHighlighted]);
   
   const {
     attributes,
@@ -114,20 +99,14 @@ export const QuestionCard = ({
   return (
     <>
       <div
-        ref={(node) => {
-          setNodeRef(node);
-          if (node && cardRef) {
-            (cardRef as any).current = node;
-          }
-        }}
+        ref={setNodeRef}
         data-question-id={question.id}
         style={style}
         className={cn(
-          'relative glass-panel p-6 rounded-xl transition-all duration-300 group',
+          'relative glass-panel p-6 rounded-xl transition-all duration-200 group',
           isSelected
             ? '!border !border-primary shadow-xl shadow-primary/40 ring-4 ring-primary/10'
             : '!border !border-border/30 hover:!border-border',
-          isHighlighted && 'ring-2 ring-primary/50 shadow-lg shadow-primary/20',
           isDragging && 'opacity-0',
           !isDragging && 'cursor-pointer'
         )}
@@ -434,7 +413,6 @@ export const QuestionCard = ({
           <LogicSummary 
             logic={logic} 
             allQuestions={allQuestions}
-            onHoverTarget={onHighlightTarget}
           />
         )}
       </div>

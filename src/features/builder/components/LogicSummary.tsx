@@ -1,16 +1,17 @@
-import { ArrowRight, StopCircle } from 'lucide-react';
+import { ArrowRight, StopCircle, ChevronDown } from 'lucide-react';
 import { QuestionLogic } from '../types/logic';
 import { Question } from '../api/questionsApi';
 import { getOperatorLabel } from '../types/logic';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 
 interface LogicSummaryProps {
   logic: QuestionLogic;
   allQuestions: Question[];
-  onHoverTarget?: (targetId: string | null) => void;
 }
 
-export const LogicSummary = ({ logic, allQuestions, onHoverTarget }: LogicSummaryProps) => {
+export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const hasRules = logic.rules && logic.rules.length > 0;
   
   if (!hasRules && logic.default_action === 'next') {
@@ -25,113 +26,71 @@ export const LogicSummary = ({ logic, allQuestions, onHoverTarget }: LogicSummar
   };
 
   const formatCondition = (rule: any) => {
-    const condition = rule.conditions[0]; // Show first condition
+    const condition = rule.conditions[0];
     const operator = getOperatorLabel(condition.operator);
     const hasValue = !['is_empty', 'is_not_empty'].includes(condition.operator);
     
     if (hasValue && condition.value) {
-      const displayValue = typeof condition.value === 'string' && condition.value.length > 20 
-        ? `"${condition.value.substring(0, 20)}..."` 
+      const displayValue = typeof condition.value === 'string' && condition.value.length > 15 
+        ? `"${condition.value.substring(0, 15)}..."` 
         : `"${condition.value}"`;
       return `${operator} ${displayValue}`;
     }
     return operator;
   };
 
+  const formatAction = (action: any) => {
+    if (action.type === 'jump' && action.target_question_id) {
+      return `→ ${getQuestionLabel(action.target_question_id)}`;
+    }
+    return '→ End';
+  };
+
   return (
-    <div className="mt-4 pt-4 border-t border-border/30">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-          <ArrowRight className="h-3 w-3" />
-          <span>Logic Rules</span>
-        </div>
-        
-        {hasRules && logic.rules.map((rule, index) => (
-          <div
-            key={rule.id || index}
-            className={cn(
-              "text-xs p-2 rounded-lg transition-all duration-200",
-              "bg-muted/30 hover:bg-muted/50 cursor-default"
-            )}
-            onMouseEnter={() => {
-              if (rule.action.type === 'jump' && rule.action.target_question_id) {
-                onHoverTarget?.(rule.action.target_question_id);
-              }
-            }}
-            onMouseLeave={() => onHoverTarget?.(null)}
-          >
-            <div className="flex items-start gap-2">
-              <span className="text-muted-foreground shrink-0">•</span>
-              <div className="flex-1 space-y-1">
-                <div className="text-muted-foreground">
-                  If answer {formatCondition(rule)}
-                  {rule.conditions.length > 1 && (
-                    <span className="ml-1 text-muted-foreground/70">
-                      +{rule.conditions.length - 1} more
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-1.5">
-                  {rule.action.type === 'jump' && rule.action.target_question_id ? (
-                    <>
-                      <ArrowRight className="h-3 w-3 text-primary" />
-                      <span className="font-medium text-primary">
-                        Jump to {getQuestionLabel(rule.action.target_question_id)}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <StopCircle className="h-3 w-3 text-destructive" />
-                      <span className="font-medium text-destructive">End form</span>
-                    </>
-                  )}
-                </div>
-              </div>
+    <div className="mt-3 pt-3 border-t border-border/20">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <span className="font-medium">
+          {hasRules ? `${logic.rules.length} rule${logic.rules.length > 1 ? 's' : ''}` : 'Default flow'}
+        </span>
+        <ChevronDown className={cn(
+          "h-3 w-3 transition-transform duration-200",
+          isExpanded && "rotate-180"
+        )} />
+      </button>
+      
+      {isExpanded && (
+        <div className="mt-2 space-y-1 animate-fade-in">
+          {hasRules && logic.rules.map((rule, index) => (
+            <div
+              key={rule.id || index}
+              className="text-xs py-1.5 px-2 rounded bg-muted/20 flex items-center justify-between gap-2"
+            >
+              <span className="text-muted-foreground truncate flex-1">
+                If {formatCondition(rule)}
+                {rule.conditions.length > 1 && ` +${rule.conditions.length - 1}`}
+              </span>
+              <span className={cn(
+                "font-medium shrink-0",
+                rule.action.type === 'end' ? 'text-destructive' : 'text-primary'
+              )}>
+                {formatAction(rule.action)}
+              </span>
             </div>
-          </div>
-        ))}
-        
-        {/* Default Action */}
-        <div
-          className={cn(
-            "text-xs p-2 rounded-lg transition-all duration-200",
-            "bg-muted/20 hover:bg-muted/30 cursor-default"
-          )}
-          onMouseEnter={() => {
-            if (logic.default_action === 'next' && logic.default_target) {
-              onHoverTarget?.(logic.default_target);
-            }
-          }}
-          onMouseLeave={() => onHoverTarget?.(null)}
-        >
-          <div className="flex items-start gap-2">
-            <span className="text-muted-foreground shrink-0">•</span>
-            <div className="flex-1">
-              <div className="text-muted-foreground mb-1">Otherwise</div>
-              <div className="flex items-center gap-1.5">
-                {logic.default_action === 'end' ? (
-                  <>
-                    <StopCircle className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">End form</span>
-                  </>
-                ) : logic.default_target ? (
-                  <>
-                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">
-                      Jump to {getQuestionLabel(logic.default_target)}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Next question</span>
-                  </>
-                )}
-              </div>
-            </div>
+          ))}
+          
+          <div className="text-xs py-1.5 px-2 rounded bg-muted/10 flex items-center justify-between gap-2">
+            <span className="text-muted-foreground">Otherwise</span>
+            <span className="text-muted-foreground shrink-0">
+              {logic.default_action === 'end' ? '→ End' : 
+               logic.default_target ? `→ ${getQuestionLabel(logic.default_target)}` : 
+               '→ Next'}
+            </span>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

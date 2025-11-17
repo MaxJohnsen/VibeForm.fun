@@ -75,7 +75,6 @@ export const QuestionCanvas = ({
   activeId,
 }: QuestionCanvasProps) => {
   const [items, setItems] = useState(questions);
-  const [highlightedQuestionId, setHighlightedQuestionId] = useState<string | null>(null);
 
   // Sync items with questions when questions change from parent
   useEffect(() => {
@@ -137,8 +136,6 @@ export const QuestionCanvas = ({
                 onDelete={() => onDeleteQuestion(question.id)}
                 onOpenLogic={onOpenLogic ? () => onOpenLogic(question.id) : undefined}
                 allQuestions={items}
-                isHighlighted={highlightedQuestionId === question.id}
-                onHighlightTarget={setHighlightedQuestionId}
               />
               <DropZone 
                 id={`drop-after-${index}`} 
