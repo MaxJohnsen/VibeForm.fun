@@ -37,15 +37,12 @@ export const PropertiesPanel = ({ question, onUpdateLabel, onUpdateSettings }: P
     question?.settings || {}
   );
 
-  // Update local state when question changes
+  // Update local state when question ID changes (narrow dependency to avoid loops)
   useEffect(() => {
-    if (question?.label !== undefined) {
-      setLocalLabel(question.label);
-    }
-    if (question?.settings !== undefined) {
-      setLocalSettings(question.settings);
-    }
-  }, [question?.id, question?.label, question?.settings]);
+    if (!question) return;
+    setLocalLabel(question.label ?? '');
+    setLocalSettings(question.settings ?? {});
+  }, [question?.id]);
 
   // Handle input change - update local state and trigger debounced save
   const handleLabelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
