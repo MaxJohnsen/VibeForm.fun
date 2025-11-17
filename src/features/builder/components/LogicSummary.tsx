@@ -16,8 +16,7 @@ export const LogicSummary = ({ logic, allQuestions, currentQuestion }: LogicSumm
   const getQuestionLabel = (questionId: string) => {
     const question = allQuestions.find(q => q.id === questionId);
     if (!question) return 'Unknown';
-    const index = allQuestions.indexOf(question);
-    return `Q${index + 1}`;
+    return `Q${question.position + 1}`;
   };
 
   const getNextQuestionLabel = () => {

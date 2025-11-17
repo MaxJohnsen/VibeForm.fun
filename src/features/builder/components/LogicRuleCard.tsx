@@ -162,9 +162,9 @@ export const LogicRuleCard = ({
                 <SelectValue placeholder="Select question..." />
               </SelectTrigger>
               <SelectContent>
-                {availableQuestions.map((q, idx) => (
+                {availableQuestions.map((q) => (
                   <SelectItem key={q.id} value={q.id}>
-                    Q{idx + 1}: {q.label}
+                    Q{q.position + 1}: {q.label}
                   </SelectItem>
                 ))}
               </SelectContent>
