@@ -403,6 +403,7 @@ export const QuestionCard = ({
           <LogicSummary 
             logic={logic} 
             allQuestions={allQuestions}
+            currentQuestion={question}
           />
         )}
       </div>
