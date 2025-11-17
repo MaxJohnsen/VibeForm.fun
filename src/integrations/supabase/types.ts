@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      answers: {
+        Row: {
+          answer_value: Json
+          answered_at: string
+          id: string
+          is_current: boolean
+          question_id: string
+          response_id: string
+        }
+        Insert: {
+          answer_value: Json
+          answered_at?: string
+          id?: string
+          is_current?: boolean
+          question_id: string
+          response_id: string
+        }
+        Update: {
+          answer_value?: Json
+          answered_at?: string
+          id?: string
+          is_current?: boolean
+          question_id?: string
+          response_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answers_response_id_fkey"
+            columns: ["response_id"]
+            isOneToOne: false
+            referencedRelation: "responses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forms: {
         Row: {
           created_at: string | null
@@ -81,6 +123,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "questions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      responses: {
+        Row: {
+          completed_at: string | null
+          current_question_id: string | null
+          form_id: string
+          id: string
+          metadata: Json | null
+          session_token: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          current_question_id?: string | null
+          form_id: string
+          id?: string
+          metadata?: Json | null
+          session_token: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          current_question_id?: string | null
+          form_id?: string
+          id?: string
+          metadata?: Json | null
+          session_token?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "responses_form_id_fkey"
             columns: ["form_id"]
             isOneToOne: false
             referencedRelation: "forms"
