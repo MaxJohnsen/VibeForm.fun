@@ -5,5 +5,7 @@ export const ROUTES = {
   FORMS_HOME: '/home',
   CREATE_FORM: '/forms/new',
   BUILDER: '/builder/:formId',
+  RESPONDENT: '/f/:formId',
   getBuilderRoute: (formId: string) => `/builder/${formId}`,
+  getRespondentRoute: (formId: string) => `/f/${formId}`,
 } as const;
