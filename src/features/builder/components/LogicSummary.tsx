@@ -27,14 +27,6 @@ export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
     return `Q${index + 1}`;
   };
 
-  const getDefaultActionSummary = () => {
-    if (logic.default_action === 'end') return '→ End';
-    if (logic.default_target) return `→ ${getQuestionLabel(logic.default_target)}`;
-    return null;
-  };
-
-  const defaultSummary = getDefaultActionSummary();
-
   const formatCondition = (rule: any) => {
     const condition = rule.conditions[0];
     const operator = getOperatorLabel(condition.operator);
@@ -56,6 +48,25 @@ export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
     return '→ End';
   };
 
+  // Simple non-expandable display when there are no rules, just a custom default
+  if (!hasRules && hasCustomDefault) {
+    const actionText = logic.default_action === 'end' 
+      ? 'Skips to end' 
+      : `Skips to ${getQuestionLabel(logic.default_target!)}`;
+    
+    const Icon = logic.default_action === 'end' ? StopCircle : ArrowRight;
+    
+    return (
+      <div className="mt-3 pt-3 border-t border-border/20">
+        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+          <Icon className="h-3.5 w-3.5" />
+          <span>{actionText}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Expandable display when there are conditional rules
   return (
     <div className="mt-3 pt-3 border-t border-border/20">
       <button
@@ -64,12 +75,7 @@ export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
       >
         <GitBranch className="h-3.5 w-3.5" />
         <span className="flex-1 text-left">
-          {hasRules 
-            ? `${logic.rules.length} rule${logic.rules.length > 1 ? 's' : ''}` 
-            : 'Custom default action'}
-          {!hasRules && defaultSummary && (
-            <span className="ml-2 font-semibold">{defaultSummary}</span>
-          )}
+          {logic.rules.length} rule{logic.rules.length > 1 ? 's' : ''}
         </span>
         <ChevronDown className={cn(
           "h-3.5 w-3.5 transition-transform duration-200",
@@ -79,7 +85,7 @@ export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
       
       {isExpanded && (
         <div className="mt-2 space-y-1 animate-fade-in">
-          {hasRules && logic.rules.map((rule, index) => (
+          {logic.rules.map((rule, index) => (
             <div
               key={rule.id || index}
               className="text-xs py-1.5 px-2 rounded bg-muted/20 flex items-center justify-between gap-2"
