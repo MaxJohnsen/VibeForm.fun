@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+
 import { QuestionCard } from './QuestionCard';
 import { EmptyState } from '@/shared/ui/EmptyState';
 
@@ -74,14 +74,8 @@ export const QuestionCanvas = ({
   onOpenLogic,
   activeId,
 }: QuestionCanvasProps) => {
-  const [items, setItems] = useState(questions);
 
-  // Sync items with questions - update whenever questions prop changes
-  useEffect(() => {
-    setItems(questions);
-  }, [questions]);
-
-  const activeQuestion = items.find((q) => q.id === activeId);
+  const activeQuestion = questions.find((q) => q.id === activeId);
   const isDraggingFromPalette = activeId?.startsWith('palette-');
   const showDropZones = isDraggingFromPalette;
 
@@ -115,12 +109,12 @@ export const QuestionCanvas = ({
     <div className="flex-1 p-8 overflow-y-auto scroll-smooth">
       <div className="max-w-3xl mx-auto space-y-4 animate-fade-in">
         <SortableContext
-          items={items.map((q) => q.id)}
+          items={questions.map((q) => q.id)}
           strategy={verticalListSortingStrategy}
         >
           <DropZone id="drop-start" position="start" isActive={showDropZones} />
           
-          {items.map((question, index) => (
+          {questions.map((question, index) => (
             <div key={question.id}>
               <QuestionCard
                 question={question}
@@ -129,7 +123,7 @@ export const QuestionCanvas = ({
                 onSelect={() => onSelectQuestion(question.id)}
                 onDelete={() => onDeleteQuestion(question.id)}
                 onOpenLogic={onOpenLogic ? () => onOpenLogic(question.id) : undefined}
-                allQuestions={items}
+                allQuestions={questions}
               />
               <DropZone 
                 id={`drop-after-${index}`} 
@@ -149,7 +143,7 @@ export const QuestionCanvas = ({
                 isSelected={false}
                 onSelect={() => {}}
                 onDelete={() => {}}
-                allQuestions={items}
+                allQuestions={questions}
               />
             </div>
           ) : isDraggingFromPalette ? (

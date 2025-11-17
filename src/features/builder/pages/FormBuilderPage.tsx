@@ -142,6 +142,12 @@ export const FormBuilderPage = () => {
   const handleUpdateLabel = useCallback(
     (label: string) => {
       if (!selectedQuestionId) return;
+
+      // Optimistic local update for instant UI feedback
+      setTempQuestions((prev) =>
+        prev.map((q) => (q.id === selectedQuestionId ? { ...q, label } : q))
+      );
+
       debouncedUpdate(selectedQuestionId, label);
     },
     [selectedQuestionId, debouncedUpdate]
@@ -150,6 +156,12 @@ export const FormBuilderPage = () => {
   const handleUpdateSettings = useCallback(
     (settings: Record<string, any>) => {
       if (!selectedQuestionId) return;
+
+      // Optimistic local update for instant UI feedback
+      setTempQuestions((prev) =>
+        prev.map((q) => (q.id === selectedQuestionId ? { ...q, settings } : q))
+      );
+
       debouncedSettingsUpdate(selectedQuestionId, settings);
     },
     [selectedQuestionId, debouncedSettingsUpdate]
@@ -319,15 +331,18 @@ export const FormBuilderPage = () => {
       </DndContext>
 
       {/* Logic Modal */}
-      {logicEditingQuestionId && (
-        <LogicModal
-          open={logicModalOpen}
-          onOpenChange={setLogicModalOpen}
-          question={questions.find((q) => q.id === logicEditingQuestionId)!}
-          allQuestions={questions}
-          onSave={handleSaveLogic}
-        />
-      )}
+      {(() => {
+        const logicQuestion = questions.find((q) => q.id === logicEditingQuestionId);
+        return logicEditingQuestionId && logicQuestion ? (
+          <LogicModal
+            open={logicModalOpen}
+            onOpenChange={setLogicModalOpen}
+            question={logicQuestion}
+            allQuestions={questions}
+            onSave={handleSaveLogic}
+          />
+        ) : null;
+      })()}
     </div>
   );
 };
