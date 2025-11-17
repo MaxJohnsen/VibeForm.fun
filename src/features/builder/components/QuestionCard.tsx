@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { GripVertical, Trash2, Mail, Phone, Calendar, Star, GitBranch } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { GripVertical, Trash2, Mail, Phone, Calendar, Star, GitBranch, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,6 +25,8 @@ import {
   PhoneSettings,
   DateSettings,
 } from '../types/questionSettings';
+import { LogicSummary } from './LogicSummary';
+import { QuestionLogic } from '../types/logic';
 
 interface QuestionCardProps {
   question: Question;
@@ -33,6 +35,9 @@ interface QuestionCardProps {
   onSelect: () => void;
   onDelete: () => void;
   onOpenLogic?: () => void;
+  allQuestions: Question[];
+  isHighlighted?: boolean;
+  onHighlightTarget?: (targetId: string | null) => void;
 }
 
 export const QuestionCard = ({
@@ -42,8 +47,22 @@ export const QuestionCard = ({
   onSelect,
   onDelete,
   onOpenLogic,
+  allQuestions,
+  isHighlighted,
+  onHighlightTarget,
 }: QuestionCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Scroll into view when highlighted
+  useEffect(() => {
+    if (isHighlighted && cardRef.current) {
+      cardRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    }
+  }, [isHighlighted]);
   
   const {
     attributes,
@@ -65,16 +84,50 @@ export const QuestionCard = ({
     transition,
   };
 
+  const logic = question.logic as QuestionLogic | undefined;
+  const hasLogic = logic && (logic.rules?.length > 0 || logic.default_target || logic.default_action === 'end');
+
+  // Get logic summary for badge
+  const getLogicSummary = () => {
+    if (!hasLogic) return '';
+    
+    const targets: string[] = [];
+    logic.rules?.forEach(rule => {
+      if (rule.action.type === 'jump' && rule.action.target_question_id) {
+        const targetQ = allQuestions.find(q => q.id === rule.action.target_question_id);
+        if (targetQ) {
+          const idx = allQuestions.indexOf(targetQ);
+          targets.push(`Q${idx + 1}`);
+        }
+      } else if (rule.action.type === 'end') {
+        targets.push('End');
+      }
+    });
+    
+    const ruleCount = logic.rules?.length || 0;
+    const uniqueTargets = [...new Set(targets)];
+    
+    if (uniqueTargets.length === 0) return `${ruleCount} rule${ruleCount > 1 ? 's' : ''}`;
+    return `${ruleCount} rule${ruleCount > 1 ? 's' : ''} → ${uniqueTargets.join(', ')}`;
+  };
+
   return (
     <>
       <div
-        ref={setNodeRef}
+        ref={(node) => {
+          setNodeRef(node);
+          if (node && cardRef) {
+            (cardRef as any).current = node;
+          }
+        }}
+        data-question-id={question.id}
         style={style}
         className={cn(
-          'relative glass-panel p-6 rounded-xl transition-all duration-200 group',
+          'relative glass-panel p-6 rounded-xl transition-all duration-300 group',
           isSelected
             ? '!border !border-primary shadow-xl shadow-primary/40 ring-4 ring-primary/10'
             : '!border !border-border/30 hover:!border-border',
+          isHighlighted && 'ring-2 ring-primary/50 shadow-lg shadow-primary/20',
           isDragging && 'opacity-0',
           !isDragging && 'cursor-pointer'
         )}
@@ -375,6 +428,15 @@ export const QuestionCard = ({
             );
           })()}
         </div>
+
+        {/* Logic Summary Section */}
+        {hasLogic && (
+          <LogicSummary 
+            logic={logic} 
+            allQuestions={allQuestions}
+            onHoverTarget={onHighlightTarget}
+          />
+        )}
       </div>
 
       {/* Delete Confirmation Dialog */}

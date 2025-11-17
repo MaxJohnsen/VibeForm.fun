@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { QuestionCard } from './QuestionCard';
 import { EmptyState } from '@/shared/ui/EmptyState';
-import { FlowArrows } from './FlowArrows';
+
 import { Question } from '../api/questionsApi';
 import { FileQuestion, MousePointer2 } from 'lucide-react';
 import {
@@ -75,9 +75,7 @@ export const QuestionCanvas = ({
   activeId,
 }: QuestionCanvasProps) => {
   const [items, setItems] = useState(questions);
-  const [hoveredQuestionId, setHoveredQuestionId] = useState<string | null>(null);
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
+  const [highlightedQuestionId, setHighlightedQuestionId] = useState<string | null>(null);
 
   // Sync items with questions when questions change from parent
   useEffect(() => {
@@ -121,16 +119,8 @@ export const QuestionCanvas = ({
   }
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto" ref={canvasRef}>
-      <div className="max-w-3xl mx-auto space-y-4 animate-fade-in relative" ref={innerRef}>
-        {/* Flow Arrows Overlay */}
-        <FlowArrows 
-          questions={items} 
-          containerRef={innerRef}
-          scrollContainerRef={canvasRef}
-          hoveredQuestionId={hoveredQuestionId}
-        />
-
+    <div className="flex-1 p-8 overflow-y-auto scroll-smooth">
+      <div className="max-w-3xl mx-auto space-y-4 animate-fade-in">
         <SortableContext
           items={items.map((q) => q.id)}
           strategy={verticalListSortingStrategy}
@@ -138,12 +128,7 @@ export const QuestionCanvas = ({
           <DropZone id="drop-start" position="start" isActive={showDropZones} />
           
           {items.map((question, index) => (
-            <div 
-              key={question.id}
-              data-question-id={question.id}
-              onMouseEnter={() => setHoveredQuestionId(question.id)}
-              onMouseLeave={() => setHoveredQuestionId(null)}
-            >
+            <div key={question.id}>
               <QuestionCard
                 question={question}
                 index={index}
@@ -151,6 +136,9 @@ export const QuestionCanvas = ({
                 onSelect={() => onSelectQuestion(question.id)}
                 onDelete={() => onDeleteQuestion(question.id)}
                 onOpenLogic={onOpenLogic ? () => onOpenLogic(question.id) : undefined}
+                allQuestions={items}
+                isHighlighted={highlightedQuestionId === question.id}
+                onHighlightTarget={setHighlightedQuestionId}
               />
               <DropZone 
                 id={`drop-after-${index}`} 
@@ -170,6 +158,7 @@ export const QuestionCanvas = ({
                 isSelected={false}
                 onSelect={() => {}}
                 onDelete={() => {}}
+                allQuestions={items}
               />
             </div>
           ) : isDraggingFromPalette ? (
