@@ -1,4 +1,4 @@
-import { ArrowRight, StopCircle, ChevronDown } from 'lucide-react';
+import { ArrowRight, StopCircle, ChevronDown, GitBranch } from 'lucide-react';
 import { QuestionLogic } from '../types/logic';
 import { Question } from '../api/questionsApi';
 import { getOperatorLabel } from '../types/logic';
@@ -50,13 +50,14 @@ export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
     <div className="mt-3 pt-3 border-t border-border/20">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors"
+        className="w-full flex items-center gap-2 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
       >
-        <span className="font-medium">
+        <GitBranch className="h-3.5 w-3.5" />
+        <span className="flex-1 text-left">
           {hasRules ? `${logic.rules.length} rule${logic.rules.length > 1 ? 's' : ''}` : 'Default flow'}
         </span>
         <ChevronDown className={cn(
-          "h-3 w-3 transition-transform duration-200",
+          "h-3.5 w-3.5 transition-transform duration-200",
           isExpanded && "rotate-180"
         )} />
       </button>
