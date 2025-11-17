@@ -1,25 +1,18 @@
-import { ArrowRight, StopCircle, ChevronDown, GitBranch } from 'lucide-react';
+import { ArrowRight, GitBranch } from 'lucide-react';
 import { QuestionLogic } from '../types/logic';
 import { Question } from '../api/questionsApi';
 import { getOperatorLabel } from '../types/logic';
-import { cn } from '@/lib/utils';
-import { useState } from 'react';
 
 interface LogicSummaryProps {
   logic: QuestionLogic;
   allQuestions: Question[];
+  currentQuestion: Question;
 }
 
-export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+export const LogicSummary = ({ logic, allQuestions, currentQuestion }: LogicSummaryProps) => {
   const hasRules = logic.rules && logic.rules.length > 0;
-  
-  // Only hide if there's truly no logic at all
   const hasCustomDefault = logic.default_action === 'end' || logic.default_target;
-  if (!hasRules && !hasCustomDefault) {
-    return null;
-  }
-
+  
   const getQuestionLabel = (questionId: string) => {
     const question = allQuestions.find(q => q.id === questionId);
     if (!question) return 'Unknown';
@@ -27,92 +20,78 @@ export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
     return `Q${index + 1}`;
   };
 
-  const formatCondition = (rule: any) => {
-    const condition = rule.conditions[0];
-    const operator = getOperatorLabel(condition.operator);
-    const hasValue = !['is_empty', 'is_not_empty'].includes(condition.operator);
-    
-    if (hasValue && condition.value) {
-      const displayValue = typeof condition.value === 'string' && condition.value.length > 15 
-        ? `"${condition.value.substring(0, 15)}..."` 
-        : `"${condition.value}"`;
-      return `${operator} ${displayValue}`;
-    }
-    return operator;
+  const getNextQuestionLabel = () => {
+    const currentIndex = allQuestions.findIndex(q => q.id === currentQuestion.id);
+    const nextQuestion = allQuestions[currentIndex + 1];
+    return nextQuestion ? getQuestionLabel(nextQuestion.id) : null;
   };
 
-  const formatAction = (action: any) => {
-    if (action.type === 'jump' && action.target_question_id) {
-      return `→ ${getQuestionLabel(action.target_question_id)}`;
+  const buildSummaryText = () => {
+    // Scenario 1: Has rules
+    if (hasRules && logic.rules.length > 0) {
+      const firstRule = logic.rules[0];
+      const condition = firstRule.conditions[0];
+      const operator = getOperatorLabel(condition.operator);
+      
+      // Format condition value
+      const hasValue = !['is_empty', 'is_not_empty'].includes(condition.operator);
+      let conditionText = operator;
+      
+      if (hasValue && condition.value) {
+        const displayValue = typeof condition.value === 'string' && condition.value.length > 15 
+          ? `"${condition.value.substring(0, 15)}..."` 
+          : `"${condition.value}"`;
+        conditionText = `${operator} ${displayValue}`;
+      }
+      
+      // Format action
+      const actionTarget = firstRule.action.type === 'end' 
+        ? 'end' 
+        : getQuestionLabel(firstRule.action.target_question_id!);
+      
+      // Format otherwise
+      const otherwiseTarget = logic.default_action === 'end' 
+        ? 'end' 
+        : logic.default_target 
+          ? getQuestionLabel(logic.default_target) 
+          : getNextQuestionLabel() || 'next';
+      
+      return `If ${conditionText} → ${actionTarget}; otherwise → ${otherwiseTarget}`;
     }
-    return '→ End';
+    
+    // Scenario 2: No rules, but custom default
+    if (!hasRules && hasCustomDefault) {
+      if (logic.default_action === 'end') {
+        return '→ Skips to end';
+      }
+      return `→ Skips to ${getQuestionLabel(logic.default_target!)}`;
+    }
+    
+    // Scenario 3: Natural flow (show next question)
+    const nextLabel = getNextQuestionLabel();
+    if (nextLabel) {
+      return `→ ${nextLabel}`;
+    }
+    
+    // Scenario 4: Last question, no custom logic
+    return null;
   };
 
-  // Simple non-expandable display when there are no rules, just a custom default
-  if (!hasRules && hasCustomDefault) {
-    const actionText = logic.default_action === 'end' 
-      ? 'Skips to end' 
-      : `Skips to ${getQuestionLabel(logic.default_target!)}`;
-    
-    const Icon = logic.default_action === 'end' ? StopCircle : ArrowRight;
-    
-    return (
-      <div className="mt-3 pt-3 border-t border-border/20">
-        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
-          <Icon className="h-3.5 w-3.5" />
-          <span>{actionText}</span>
-        </div>
-      </div>
-    );
+  const summaryText = buildSummaryText();
+  
+  if (!summaryText) {
+    return null;
   }
 
-  // Expandable display when there are conditional rules
+  // Determine icon
+  const Icon = hasRules ? GitBranch : ArrowRight;
+
   return (
     <div className="mt-3 pt-3 border-t border-border/20">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center gap-2 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
-      >
-        <GitBranch className="h-3.5 w-3.5" />
-        <span className="flex-1 text-left">
-          {logic.rules.length} rule{logic.rules.length > 1 ? 's' : ''}
-        </span>
-        <ChevronDown className={cn(
-          "h-3.5 w-3.5 transition-transform duration-200",
-          isExpanded && "rotate-180"
-        )} />
-      </button>
-      
-      {isExpanded && (
-        <div className="mt-2 space-y-1 animate-fade-in">
-          {logic.rules.map((rule, index) => (
-            <div
-              key={rule.id || index}
-              className="text-xs py-1.5 px-2 rounded bg-muted/20 flex items-center justify-between gap-2"
-            >
-              <span className="text-muted-foreground truncate flex-1">
-                If {formatCondition(rule)}
-                {rule.conditions.length > 1 && ` +${rule.conditions.length - 1}`}
-              </span>
-              <span className={cn(
-                "font-medium shrink-0",
-                rule.action.type === 'end' ? 'text-destructive' : 'text-primary'
-              )}>
-                {formatAction(rule.action)}
-              </span>
-            </div>
-          ))}
-          
-          <div className="text-xs py-1.5 px-2 rounded bg-muted/10 flex items-center justify-between gap-2">
-            <span className="text-muted-foreground">Otherwise</span>
-            <span className="text-muted-foreground shrink-0">
-              {logic.default_action === 'end' ? '→ End' : 
-               logic.default_target ? `→ ${getQuestionLabel(logic.default_target)}` : 
-               '→ Next'}
-            </span>
-          </div>
-        </div>
-      )}
+      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+        <Icon className="h-3.5 w-3.5" />
+        <span>{summaryText}</span>
+      </div>
     </div>
   );
 };
