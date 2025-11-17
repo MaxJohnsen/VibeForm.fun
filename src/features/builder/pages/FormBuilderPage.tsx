@@ -50,15 +50,17 @@ export const FormBuilderPage = () => {
 
   const selectedQuestion = questions.find((q) => q.id === selectedQuestionId);
 
+  // Sync tempQuestions with questions from React Query
   useEffect(() => {
     setTempQuestions(questions);
   }, [questions]);
 
+  // Auto-select first question only when initially empty
   useEffect(() => {
     if (questions.length > 0 && !selectedQuestionId) {
       setSelectedQuestionId(questions[0].id);
     }
-  }, [questions, selectedQuestionId]);
+  }, [questions.length, selectedQuestionId]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

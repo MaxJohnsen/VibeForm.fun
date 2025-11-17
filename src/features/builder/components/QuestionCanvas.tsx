@@ -75,17 +75,10 @@ export const QuestionCanvas = ({
   activeId,
 }: QuestionCanvasProps) => {
   const [items, setItems] = useState(questions);
-  const prevQuestionsRef = useRef<string>('');
 
-  // Sync items with questions when questions change from parent
+  // Sync items with questions - update whenever questions prop changes
   useEffect(() => {
-    const questionIds = questions.map(q => q.id).join(',');
-    
-    // Only update if the question IDs actually changed
-    if (questionIds !== prevQuestionsRef.current) {
-      setItems(questions);
-      prevQuestionsRef.current = questionIds;
-    }
+    setItems(questions);
   }, [questions]);
 
   const activeQuestion = items.find((q) => q.id === activeId);
