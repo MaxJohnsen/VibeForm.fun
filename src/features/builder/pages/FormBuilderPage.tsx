@@ -48,11 +48,25 @@ export const FormBuilderPage = () => {
     reorderQuestions,
   } = useQuestions(formId!);
 
-  const selectedQuestion = questions.find((q) => q.id === selectedQuestionId);
+  // Derive selectedQuestion from tempQuestions for instant UI updates
+  const selectedQuestion = useMemo(
+    () => tempQuestions.find((q) => q.id === selectedQuestionId) ?? null,
+    [tempQuestions, selectedQuestionId]
+  );
 
-  // Sync tempQuestions with questions from React Query
+  // Sync tempQuestions with questions from React Query (guarded to prevent infinite loops)
   useEffect(() => {
-    setTempQuestions(questions);
+    setTempQuestions((prev) => {
+      // Create signature to compare actual content, not references
+      const createSignature = (arr: any[]) =>
+        arr.map((q) => `${q.id}|${q.label}|${JSON.stringify(q.settings)}`).join('||');
+      
+      const prevSig = createSignature(prev);
+      const newSig = createSignature(questions);
+      
+      // Only update if content actually changed
+      return prevSig === newSig ? prev : questions;
+    });
   }, [questions]);
 
   // Auto-select first question only when initially empty
