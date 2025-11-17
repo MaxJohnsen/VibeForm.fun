@@ -399,13 +399,11 @@ export const QuestionCard = ({
         </div>
 
         {/* Logic Summary Section */}
-        {hasLogic && (
-          <LogicSummary 
-            logic={logic} 
-            allQuestions={allQuestions}
-            currentQuestion={question}
-          />
-        )}
+        <LogicSummary 
+          logic={logic || { rules: [], default_action: 'next' }} 
+          allQuestions={allQuestions}
+          currentQuestion={question}
+        />
       </div>
 
       {/* Delete Confirmation Dialog */}
