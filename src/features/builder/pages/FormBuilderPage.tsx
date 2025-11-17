@@ -198,6 +198,11 @@ export const FormBuilderPage = () => {
   const handleSaveLogic = async (logic: QuestionLogic) => {
     if (!logicEditingQuestionId) return;
     
+    // Optimistic local update for instant UI feedback
+    setTempQuestions((prev) =>
+      prev.map((q) => (q.id === logicEditingQuestionId ? { ...q, logic } : q))
+    );
+    
     setIsSaving(true);
     updateQuestion(
       { id: logicEditingQuestionId, data: { logic } },

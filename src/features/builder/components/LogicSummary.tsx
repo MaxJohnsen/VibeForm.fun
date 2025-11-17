@@ -14,7 +14,9 @@ export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasRules = logic.rules && logic.rules.length > 0;
   
-  if (!hasRules && logic.default_action === 'next') {
+  // Only hide if there's truly no logic at all
+  const hasCustomDefault = logic.default_action === 'end' || logic.default_target;
+  if (!hasRules && !hasCustomDefault) {
     return null;
   }
 
@@ -24,6 +26,14 @@ export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
     const index = allQuestions.indexOf(question);
     return `Q${index + 1}`;
   };
+
+  const getDefaultActionSummary = () => {
+    if (logic.default_action === 'end') return '→ End';
+    if (logic.default_target) return `→ ${getQuestionLabel(logic.default_target)}`;
+    return null;
+  };
+
+  const defaultSummary = getDefaultActionSummary();
 
   const formatCondition = (rule: any) => {
     const condition = rule.conditions[0];
@@ -54,7 +64,12 @@ export const LogicSummary = ({ logic, allQuestions }: LogicSummaryProps) => {
       >
         <GitBranch className="h-3.5 w-3.5" />
         <span className="flex-1 text-left">
-          {hasRules ? `${logic.rules.length} rule${logic.rules.length > 1 ? 's' : ''}` : 'Default flow'}
+          {hasRules 
+            ? `${logic.rules.length} rule${logic.rules.length > 1 ? 's' : ''}` 
+            : 'Custom default action'}
+          {!hasRules && defaultSummary && (
+            <span className="ml-2 font-semibold">{defaultSummary}</span>
+          )}
         </span>
         <ChevronDown className={cn(
           "h-3.5 w-3.5 transition-transform duration-200",
