@@ -155,16 +155,6 @@ export const QuestionCard = ({
           </div>
         </div>
 
-        {/* Logic Indicator Badge - Always visible when logic exists */}
-        {question.logic && (question.logic as any).rules?.length > 0 && (
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 border border-primary/20">
-            <GitBranch className="h-3 w-3 text-primary" />
-            <span className="text-xs font-medium text-primary">
-              {(question.logic as any).rules.length}
-            </span>
-          </div>
-        )}
-
         {/* Question Number */}
         <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary mb-3">
           {index + 1}
