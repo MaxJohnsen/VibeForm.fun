@@ -97,7 +97,7 @@ export const RespondentPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="min-h-screen flex items-center justify-center p-4 respondent-bg respondent-bg-1">
         <div className="flex items-center justify-center space-x-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="text-xl text-foreground">Loading form...</span>
@@ -108,7 +108,7 @@ export const RespondentPage = () => {
 
   if (showWelcome && formInfo && !isComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="min-h-screen respondent-bg respondent-bg-1">
         <WelcomeScreen
           formTitle={formInfo.title}
           formDescription={formInfo.description || undefined}
@@ -119,8 +119,13 @@ export const RespondentPage = () => {
     );
   }
 
+  // Compute gradient class based on question position (rotate through 5 gradients)
+  const gradientClass = currentQuestion 
+    ? `respondent-bg-${((currentQuestion.position % 5) + 1)}` 
+    : 'respondent-bg-1';
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className={`min-h-screen respondent-bg ${gradientClass}`}>
       {!isComplete && currentQuestion && (
         <>
           <FormHeader
