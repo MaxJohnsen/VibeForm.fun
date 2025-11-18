@@ -17,7 +17,7 @@ export const PhoneQuestion = ({
   onSubmit,
   onValidationChange,
 }: PhoneQuestionProps) => {
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(initialValue ?? '');
   const [error, setError] = useState('');
   const placeholder = settings?.placeholder || '+1 (555) 000-0000';
 

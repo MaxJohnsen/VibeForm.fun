@@ -16,7 +16,7 @@ export const ShortTextQuestion = ({
   onSubmit,
   onValidationChange,
 }: ShortTextQuestionProps) => {
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(initialValue ?? '');
   const isRequired = settings?.required !== false;
   const placeholder = settings?.placeholder || 'Type your answer here...';
   const maxLength = settings?.maxLength;
