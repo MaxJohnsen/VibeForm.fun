@@ -29,7 +29,7 @@ export const LogicRuleCard = ({
     const newCondition: LogicCondition = {
       field: 'answer',
       operator: 'equals',
-      value: '',
+      value: questionType === 'yes_no' ? true : '',
     };
 
     onUpdateRule(rule.id, {

@@ -48,7 +48,7 @@ export const getOperatorsForQuestionType = (questionType: QuestionType): LogicOp
     short_text: ['equals', 'not_equals', 'contains', 'not_contains', 'is_empty', 'is_not_empty'],
     long_text: ['equals', 'not_equals', 'contains', 'not_contains', 'is_empty', 'is_not_empty'],
     multiple_choice: ['equals', 'not_equals', 'contains'],
-    yes_no: ['equals', 'not_equals'],
+    yes_no: ['equals'],
     rating: ['equals', 'not_equals', 'greater_than', 'less_than', 'greater_than_or_equal', 'less_than_or_equal'],
     email: ['equals', 'not_equals', 'contains', 'is_empty', 'is_not_empty'],
     phone: ['equals', 'not_equals', 'contains', 'is_empty', 'is_not_empty'],
