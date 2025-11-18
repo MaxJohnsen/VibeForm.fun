@@ -22,6 +22,7 @@ export const ConditionBuilder = ({
 }: ConditionBuilderProps) => {
   const operators = getOperatorsForQuestionType(questionType as QuestionType);
   const needsValueInput = !['is_empty', 'is_not_empty'].includes(condition.operator);
+  const isYesNoQuestion = questionType === 'yes_no';
 
   return (
     <div className="flex items-start gap-2 p-3 rounded-lg bg-background border border-border/50">
@@ -37,7 +38,7 @@ export const ConditionBuilder = ({
           <SelectContent>
             {operators.map((op) => (
               <SelectItem key={op} value={op}>
-                {getOperatorLabel(op)}
+                {isYesNoQuestion ? 'Answer is' : getOperatorLabel(op)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -45,12 +46,29 @@ export const ConditionBuilder = ({
 
         {/* Value Input */}
         {needsValueInput && (
-          <Input
-            placeholder="Enter value..."
-            value={condition.value || ''}
-            onChange={(e) => onUpdate({ value: e.target.value })}
-            className="w-full"
-          />
+          <>
+            {isYesNoQuestion ? (
+              <Select
+                value={String(condition.value)}
+                onValueChange={(value) => onUpdate({ value: value === 'true' })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select answer..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="true">Yes (true)</SelectItem>
+                  <SelectItem value="false">No (false)</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                placeholder="Enter value..."
+                value={condition.value || ''}
+                onChange={(e) => onUpdate({ value: e.target.value })}
+                className="w-full"
+              />
+            )}
+          </>
         )}
       </div>
 
