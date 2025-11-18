@@ -118,25 +118,29 @@ Deno.serve(async (req) => {
     let nextQuestionId: string | null = null;
     let isComplete = false;
 
-    if (logic && logic.rules && logic.rules.length > 0) {
-      // Evaluate rules
-      for (const rule of logic.rules) {
-        if (evaluateRule(rule, answerValue)) {
-          if (rule.action.type === 'end') {
-            isComplete = true;
-            break;
-          } else if (rule.action.type === 'jump' && rule.action.target_question_id) {
-            nextQuestionId = rule.action.target_question_id;
-            break;
+    // Evaluate logic if defined
+    if (logic) {
+      // Evaluate rules if they exist
+      if (logic.rules && logic.rules.length > 0) {
+        for (const rule of logic.rules) {
+          if (evaluateRule(rule, answerValue)) {
+            if (rule.action.type === 'end') {
+              isComplete = true;
+              break;
+            } else if (rule.action.type === 'jump' && rule.action.target_question_id) {
+              nextQuestionId = rule.action.target_question_id;
+              break;
+            }
           }
         }
       }
 
-      // If no rule matched, apply default action
+      // If no rule matched, apply default action (regardless of whether rules exist)
       if (!isComplete && !nextQuestionId) {
         if (logic.default_action === 'end') {
           isComplete = true;
         } else if (logic.default_target) {
+          // If there's a default target, jump to it (default_action is 'next' with a target)
           nextQuestionId = logic.default_target;
         }
       }
@@ -181,7 +185,18 @@ Deno.serve(async (req) => {
         .single();
 
       if (!error && data) {
-        nextQuestion = data;
+        // Check for existing answer for the next question
+        const { data: existingAnswer } = await supabase
+          .from('answers')
+          .select('answer_value')
+          .eq('response_id', response.id)
+          .eq('question_id', data.id)
+          .maybeSingle();
+        
+        nextQuestion = {
+          ...data,
+          currentAnswer: existingAnswer?.answer_value || null,
+        };
       }
     }
 

@@ -89,6 +89,14 @@ Deno.serve(async (req) => {
 
     console.log('Response started:', { responseId: response.id, sessionToken });
 
+    // Check for existing answer for the first question
+    const { data: existingAnswer } = await supabase
+      .from('answers')
+      .select('answer_value')
+      .eq('response_id', response.id)
+      .eq('question_id', firstQuestion.id)
+      .maybeSingle();
+
     return new Response(
       JSON.stringify({
         sessionToken,
@@ -97,7 +105,10 @@ Deno.serve(async (req) => {
           title: form.title,
           description: form.description,
         },
-        question: firstQuestion,
+        question: {
+          ...firstQuestion,
+          currentAnswer: existingAnswer?.answer_value || null,
+        },
         totalQuestions: questions.length,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
