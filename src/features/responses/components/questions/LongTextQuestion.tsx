@@ -24,7 +24,10 @@ export const LongTextQuestion = ({
   useEffect(() => {
     const isValid = !isRequired || value.trim().length > 0;
     onValidationChange(isValid);
-  }, [value, isRequired, onValidationChange]);
+    if (isValid) {
+      onSubmit(value);
+    }
+  }, [value, isRequired, onValidationChange, onSubmit]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && e.ctrlKey && value.trim()) {
