@@ -31,7 +31,10 @@ export const EmailQuestion = ({
     const isValid = validateEmail(value);
     setError(isValid ? '' : 'Please enter a valid email address');
     onValidationChange(isValid);
-  }, [value, onValidationChange]);
+    if (isValid) {
+      onSubmit(value);
+    }
+  }, [value, onValidationChange, onSubmit]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && value && !error) {
