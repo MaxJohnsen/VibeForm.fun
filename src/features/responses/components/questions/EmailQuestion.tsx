@@ -17,7 +17,7 @@ export const EmailQuestion = ({
   onSubmit,
   onValidationChange,
 }: EmailQuestionProps) => {
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(initialValue ?? '');
   const [error, setError] = useState('');
   const placeholder = settings?.placeholder || 'name@example.com';
 
