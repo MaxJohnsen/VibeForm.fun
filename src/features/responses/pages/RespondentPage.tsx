@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useRespondent } from '../hooks/useRespondent';
 import { QuestionRenderer } from '../components/QuestionRenderer';
@@ -7,6 +7,7 @@ import { FormHeader } from '../components/FormHeader';
 import { FormNavigation } from '../components/FormNavigation';
 import { WelcomeScreen } from '../components/WelcomeScreen';
 import { Loader2 } from 'lucide-react';
+import { debounce } from '@/shared/utils/debounce';
 
 export const RespondentPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -14,6 +15,7 @@ export const RespondentPage = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [canProceed, setCanProceed] = useState(false);
   const [currentAnswer, setCurrentAnswer] = useState<any>(null);
+  const isSubmittingRef = useRef(false);
 
   if (!formId) {
     return (
@@ -49,12 +51,23 @@ export const RespondentPage = () => {
   }, []);
 
   const handleNext = useCallback(() => {
-    if (currentAnswer !== null) {
+    if (currentAnswer !== null && !isSubmittingRef.current) {
+      isSubmittingRef.current = true;
       submitAnswer(currentAnswer);
       setCurrentAnswer(null);
       setCanProceed(false);
+      // Reset after a short delay to prevent rapid re-submission
+      setTimeout(() => {
+        isSubmittingRef.current = false;
+      }, 500);
     }
   }, [currentAnswer, submitAnswer]);
+
+  // Debounced version for keyboard input
+  const debouncedHandleNext = useCallback(
+    debounce(handleNext, 300),
+    [handleNext]
+  );
 
   const handleClose = useCallback(() => {
     if (window.confirm('Are you sure you want to exit? Your progress will be saved.')) {
@@ -65,15 +78,15 @@ export const RespondentPage = () => {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter' && canProceed && !isSubmitting && !showWelcome) {
+      if (e.key === 'Enter' && canProceed && !isSubmitting && !showWelcome && !isSubmittingRef.current) {
         e.preventDefault();
-        handleNext();
+        debouncedHandleNext();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [canProceed, isSubmitting, showWelcome, handleNext]);
+  }, [canProceed, isSubmitting, showWelcome, debouncedHandleNext]);
 
   if (isLoading) {
     return (

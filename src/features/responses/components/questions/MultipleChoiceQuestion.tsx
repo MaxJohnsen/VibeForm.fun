@@ -42,10 +42,9 @@ export const MultipleChoiceQuestion = ({
           : [...prev, optionId]
       );
     } else {
+      if (selectedValues[0] === optionId) return; // Prevent re-submitting same value
       setSelectedValues([optionId]);
-      setTimeout(() => {
-        onSubmit(optionId);
-      }, 300);
+      onSubmit(optionId);
     }
   };
 

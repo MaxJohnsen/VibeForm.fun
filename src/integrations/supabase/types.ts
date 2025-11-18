@@ -19,7 +19,6 @@ export type Database = {
           answer_value: Json
           answered_at: string
           id: string
-          is_current: boolean
           question_id: string
           response_id: string
         }
@@ -27,7 +26,6 @@ export type Database = {
           answer_value: Json
           answered_at?: string
           id?: string
-          is_current?: boolean
           question_id: string
           response_id: string
         }
@@ -35,7 +33,6 @@ export type Database = {
           answer_value?: Json
           answered_at?: string
           id?: string
-          is_current?: boolean
           question_id?: string
           response_id?: string
         }
