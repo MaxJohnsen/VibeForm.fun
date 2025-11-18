@@ -57,9 +57,9 @@ export const responsesApi = {
     return data;
   },
 
-  async navigateBack(sessionToken: string): Promise<NavigateBackData> {
+  async navigateBack(sessionToken: string, currentQuestionId: string): Promise<NavigateBackData> {
     const { data, error } = await supabase.functions.invoke('navigate-back', {
-      body: { sessionToken },
+      body: { sessionToken, currentQuestionId },
     });
 
     if (error) throw error;
