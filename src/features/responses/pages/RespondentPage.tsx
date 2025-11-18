@@ -88,6 +88,14 @@ export const RespondentPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [canProceed, isSubmitting, showWelcome, debouncedHandleNext]);
 
+  // Reset answer state whenever the question changes (forward or backward navigation)
+  useEffect(() => {
+    if (currentQuestion?.id) {
+      setCurrentAnswer(null);
+      setCanProceed(false);
+    }
+  }, [currentQuestion?.id]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
