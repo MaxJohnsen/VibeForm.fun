@@ -31,7 +31,10 @@ export const PhoneQuestion = ({
     const isValid = validatePhone(value);
     setError(isValid ? '' : 'Please enter a valid phone number');
     onValidationChange(isValid);
-  }, [value, onValidationChange]);
+    if (isValid) {
+      onSubmit(value);
+    }
+  }, [value, onValidationChange, onSubmit]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && value && !error) {
