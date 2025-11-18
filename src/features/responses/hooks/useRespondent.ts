@@ -108,11 +108,11 @@ export const useRespondent = (formId: string) => {
   };
 
   const goBack = async () => {
-    if (!sessionToken || !canGoBack) return;
+    if (!sessionToken || !currentQuestion || !canGoBack) return;
 
     setIsSubmitting(true);
     try {
-      const data = await responsesApi.navigateBack(sessionToken);
+      const data = await responsesApi.navigateBack(sessionToken, currentQuestion.id);
       setCurrentQuestion(data.question);
       setTotalQuestions(data.totalQuestions);
       

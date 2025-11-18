@@ -11,11 +11,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { sessionToken } = await req.json();
+    const { sessionToken, currentQuestionId } = await req.json();
 
-    if (!sessionToken) {
+    if (!sessionToken || !currentQuestionId) {
       return new Response(
-        JSON.stringify({ error: 'sessionToken is required' }),
+        JSON.stringify({ error: 'sessionToken and currentQuestionId are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -54,36 +54,12 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get all answers ordered by submission time
-    const { data: allAnswers, error: answersError } = await supabase
-      .from('answers')
-      .select('id, question_id')
-      .eq('response_id', response.id)
-      .order('answered_at', { ascending: true });
-
-    if (answersError) {
-      console.error('Failed to fetch answers:', answersError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch answers' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (!allAnswers || allAnswers.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'No previous answers to navigate back from' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Get the last answer to delete
-    const lastAnswer = allAnswers[allAnswers.length - 1];
-
-    // Delete the last answer
+    // Delete answer for the current question (if exists)
     const { error: deleteError } = await supabase
       .from('answers')
       .delete()
-      .eq('id', lastAnswer.id);
+      .eq('response_id', response.id)
+      .eq('question_id', currentQuestionId);
 
     if (deleteError) {
       console.error('Failed to delete answer:', deleteError);
@@ -93,12 +69,29 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Get the most recently answered question (by timestamp)
+    const { data: lastAnswer, error: lastAnswerError } = await supabase
+      .from('answers')
+      .select('question_id')
+      .eq('response_id', response.id)
+      .order('answered_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (lastAnswerError) {
+      console.error('Failed to fetch last answer:', lastAnswerError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to determine previous question' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Determine which question to navigate to
     let targetQuestionId: string;
     
-    if (allAnswers.length > 1) {
-      // Navigate to the question of the now-last answer
-      targetQuestionId = allAnswers[allAnswers.length - 2].question_id;
+    if (lastAnswer) {
+      // Navigate to the most recently answered question
+      targetQuestionId = lastAnswer.question_id;
     } else {
       // No more answers, navigate to first question
       targetQuestionId = allQuestions[0].id;
@@ -133,7 +126,7 @@ Deno.serve(async (req) => {
       console.error('Failed to update response:', updateError);
     }
 
-    console.log('Navigated back to question:', targetQuestionId, '(deleted answer for question:', lastAnswer.question_id, ')');
+    console.log('Navigated back to question:', targetQuestionId, '(deleted answer for question:', currentQuestionId, ')');
 
     return new Response(
       JSON.stringify({
