@@ -12,6 +12,12 @@ interface BuilderTopBarProps {
 export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) => {
   const navigate = useNavigate();
 
+  const handlePreview = () => {
+    if (form) {
+      window.open(ROUTES.getRespondentRoute(form.id), '_blank');
+    }
+  };
+
   return (
     <div className="h-16 border-b border-border/50 glass-panel flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
@@ -32,7 +38,7 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
       </div>
 
       <div className="flex items-center gap-3">
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={handlePreview}>
           <Eye className="h-4 w-4 mr-2" />
           Preview
         </Button>
