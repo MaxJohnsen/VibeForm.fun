@@ -35,7 +35,7 @@ export const YesNoQuestion = ({
 
   return (
     <div className="space-y-12 animate-fade-in">
-      <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+      <h2 className="text-4xl md:text-5xl font-bold text-foreground text-center">
         {label}
       </h2>
 
