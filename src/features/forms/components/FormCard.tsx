@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Clock, MessageSquare, Share2, MoreHorizontal, Pencil, Trash2, Archive } from 'lucide-react';
+import { FileText, Clock, MessageSquare, Share2, MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -54,6 +54,10 @@ export const FormCard = ({ form }: FormCardProps) => {
     },
   });
 
+  const handlePreview = () => {
+    window.open(ROUTES.getRespondentRoute(form.id), '_blank');
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -103,6 +107,17 @@ export const FormCard = ({ form }: FormCardProps) => {
           >
             <Pencil className="h-4 w-4 mr-2" />
             Edit
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePreview();
+            }}
+            title="Preview form"
+          >
+            <Eye className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
