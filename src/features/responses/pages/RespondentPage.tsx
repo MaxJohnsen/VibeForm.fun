@@ -69,6 +69,13 @@ export const RespondentPage = () => {
     [handleNext]
   );
 
+  const handleBack = useCallback(() => {
+    // Clear state before navigating to prevent stale data
+    setCurrentAnswer(null);
+    setCanProceed(false);
+    goBack();
+  }, [goBack]);
+
   const handleClose = useCallback(() => {
     if (window.confirm('Are you sure you want to exit? Your progress will be saved.')) {
       navigate('/');
@@ -87,14 +94,6 @@ export const RespondentPage = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [canProceed, isSubmitting, showWelcome, debouncedHandleNext]);
-
-  // Reset answer state whenever the question changes (forward or backward navigation)
-  useEffect(() => {
-    if (currentQuestion?.id) {
-      setCurrentAnswer(null);
-      setCanProceed(false);
-    }
-  }, [currentQuestion?.id]);
 
   if (isLoading) {
     return (
@@ -146,7 +145,7 @@ export const RespondentPage = () => {
             isLastQuestion={isLastQuestion}
             isSubmitting={isSubmitting}
             canProceed={canProceed}
-            onBack={goBack}
+            onBack={handleBack}
             onNext={handleNext}
           />
         </>
