@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X, Waves } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface FormHeaderProps {
@@ -14,10 +14,10 @@ export const FormHeader = ({ currentQuestion, totalQuestions, onClose }: FormHea
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <div className="container mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">F</span>
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 flex items-center justify-center shadow-lg">
+            <Waves className="h-5 w-5 text-white" />
           </div>
-          <span className="font-semibold text-foreground">FormCraft</span>
+          <span className="font-semibold text-foreground">VibeForm</span>
         </div>
 
         <div className="flex items-center gap-3">
