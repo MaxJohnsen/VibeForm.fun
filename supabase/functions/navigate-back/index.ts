@@ -54,12 +54,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get all current answers
-    const { data: currentAnswers, error: answersError } = await supabase
+    // Get all answers ordered by submission time
+    const { data: allAnswers, error: answersError } = await supabase
       .from('answers')
-      .select('question_id')
+      .select('id, question_id')
       .eq('response_id', response.id)
-      .eq('is_current', true)
       .order('answered_at', { ascending: true });
 
     if (answersError) {
@@ -70,43 +69,52 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (!currentAnswers || currentAnswers.length === 0) {
+    if (!allAnswers || allAnswers.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'No previous answers found' }),
+        JSON.stringify({ error: 'No previous answers to navigate back from' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get the last answered question
-    const lastAnsweredQuestionId = currentAnswers[currentAnswers.length - 1].question_id;
+    // Get the last answer to delete
+    const lastAnswer = allAnswers[allAnswers.length - 1];
 
-    // Mark the last answer as not current
-    const { error: updateAnswerError } = await supabase
+    // Delete the last answer
+    const { error: deleteError } = await supabase
       .from('answers')
-      .update({ is_current: false })
-      .eq('response_id', response.id)
-      .eq('question_id', lastAnsweredQuestionId)
-      .eq('is_current', true);
+      .delete()
+      .eq('id', lastAnswer.id);
 
-    if (updateAnswerError) {
-      console.error('Failed to update answer:', updateAnswerError);
+    if (deleteError) {
+      console.error('Failed to delete answer:', deleteError);
       return new Response(
         JSON.stringify({ error: 'Failed to navigate back' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get the previous question
-    const { data: previousQuestion, error: prevQuestionError } = await supabase
+    // Determine which question to navigate to
+    let targetQuestionId: string;
+    
+    if (allAnswers.length > 1) {
+      // Navigate to the question of the now-last answer
+      targetQuestionId = allAnswers[allAnswers.length - 2].question_id;
+    } else {
+      // No more answers, navigate to first question
+      targetQuestionId = allQuestions[0].id;
+    }
+
+    // Get the target question
+    const { data: targetQuestion, error: targetQuestionError } = await supabase
       .from('questions')
       .select('*')
-      .eq('id', lastAnsweredQuestionId)
+      .eq('id', targetQuestionId)
       .single();
 
-    if (prevQuestionError || !previousQuestion) {
-      console.error('Failed to fetch previous question:', prevQuestionError);
+    if (targetQuestionError || !targetQuestion) {
+      console.error('Failed to fetch target question:', targetQuestionError);
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch previous question' }),
+        JSON.stringify({ error: 'Failed to fetch target question' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -115,7 +123,7 @@ Deno.serve(async (req) => {
     const { error: updateError } = await supabase
       .from('responses')
       .update({
-        current_question_id: lastAnsweredQuestionId,
+        current_question_id: targetQuestionId,
         status: 'in_progress',
         completed_at: null,
       })
@@ -125,12 +133,12 @@ Deno.serve(async (req) => {
       console.error('Failed to update response:', updateError);
     }
 
-    console.log('Navigated back to question:', lastAnsweredQuestionId);
+    console.log('Navigated back to question:', targetQuestionId, '(deleted answer for question:', lastAnswer.question_id, ')');
 
     return new Response(
       JSON.stringify({
         success: true,
-        question: previousQuestion,
+        question: targetQuestion,
         totalQuestions: allQuestions.length,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
