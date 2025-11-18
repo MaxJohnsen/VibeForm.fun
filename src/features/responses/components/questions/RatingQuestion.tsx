@@ -28,14 +28,15 @@ export const RatingQuestion = ({
   const ratings = Array.from({ length: max - min + 1 }, (_, i) => min + i);
 
   useEffect(() => {
-    onValidationChange(value !== null);
-  }, [value, onValidationChange]);
+    const isValid = value !== null;
+    onValidationChange(isValid);
+    if (isValid) {
+      onSubmit(value);
+    }
+  }, [value, onValidationChange, onSubmit]);
 
   const handleSelect = (rating: number) => {
     setValue(rating);
-    setTimeout(() => {
-      onSubmit(rating);
-    }, 300);
   };
 
   const emojis = ['😞', '😟', '😐', '🙂', '😊', '😄', '😁', '🤩', '😍', '🥰'];

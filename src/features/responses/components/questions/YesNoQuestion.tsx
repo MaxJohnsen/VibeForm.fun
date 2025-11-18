@@ -21,13 +21,16 @@ export const YesNoQuestion = ({
   const noLabel = settings?.noLabel || 'No';
 
   useEffect(() => {
-    onValidationChange(value !== null);
-  }, [value, onValidationChange]);
+    const isValid = value !== null;
+    onValidationChange(isValid);
+    if (isValid) {
+      onSubmit(value);
+    }
+  }, [value, onValidationChange, onSubmit]);
 
   const handleSelect = (selected: boolean) => {
     if (value === selected) return; // Prevent re-submitting same value
     setValue(selected);
-    onSubmit(selected);
   };
 
   return (
