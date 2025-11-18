@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.navigate-back]
 verify_jwt = false
+
+[functions.resume-response]
+verify_jwt = false

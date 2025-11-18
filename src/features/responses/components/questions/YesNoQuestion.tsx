@@ -25,10 +25,9 @@ export const YesNoQuestion = ({
   }, [value, onValidationChange]);
 
   const handleSelect = (selected: boolean) => {
+    if (value === selected) return; // Prevent re-submitting same value
     setValue(selected);
-    setTimeout(() => {
-      onSubmit(selected);
-    }, 300);
+    onSubmit(selected);
   };
 
   return (

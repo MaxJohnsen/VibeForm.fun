@@ -9,6 +9,7 @@ export interface StartResponseData {
   };
   question: any;
   totalQuestions: number;
+  isComplete?: boolean;
 }
 
 export interface SubmitAnswerData {
@@ -28,6 +29,15 @@ export const responsesApi = {
   async startResponse(formId: string): Promise<StartResponseData> {
     const { data, error } = await supabase.functions.invoke('start-response', {
       body: { formId },
+    });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async resumeResponse(sessionToken: string): Promise<StartResponseData> {
+    const { data, error } = await supabase.functions.invoke('resume-response', {
+      body: { sessionToken },
     });
 
     if (error) throw error;

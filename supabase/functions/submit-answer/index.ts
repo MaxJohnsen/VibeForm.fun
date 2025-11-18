@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.1';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -78,14 +78,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Save answer
+    // Save or update answer using UPSERT
     const { error: answerError } = await supabase
       .from('answers')
-      .insert({
+      .upsert({
         response_id: response.id,
         question_id: questionId,
         answer_value: answerValue,
-        is_current: true,
+        answered_at: new Date().toISOString(),
+      }, {
+        onConflict: 'response_id,question_id'
       });
 
     if (answerError) {

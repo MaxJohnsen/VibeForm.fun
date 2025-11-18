@@ -17,13 +17,35 @@ export const useRespondent = (formId: string) => {
   useEffect(() => {
     const initSession = async () => {
       try {
-        // Check for existing session
+        // Check for existing session token in localStorage
         const existingToken = localStorage.getItem(`response_session_${formId}`);
         
         if (existingToken) {
-          // TODO: Add an endpoint to resume session
-          // For now, start a new session
-          await startNewSession();
+          try {
+            // Try to resume existing session
+            const data = await responsesApi.resumeResponse(existingToken);
+            
+            setSessionToken(data.sessionToken);
+            setFormInfo(data.form);
+            setTotalQuestions(data.totalQuestions);
+            
+            if (data.isComplete) {
+              setIsComplete(true);
+              setCurrentQuestion(null);
+              setCanGoBack(false);
+            } else {
+              setCurrentQuestion(data.question);
+              // Enable back button if we have a current question (means we've answered at least one)
+              setCanGoBack(!!data.question);
+            }
+            
+            console.log('Session resumed successfully');
+          } catch (resumeError) {
+            // If resume fails, start a new session
+            console.log('Failed to resume session, starting new one:', resumeError);
+            localStorage.removeItem(`response_session_${formId}`);
+            await startNewSession();
+          }
         } else {
           await startNewSession();
         }
@@ -94,11 +116,17 @@ export const useRespondent = (formId: string) => {
       setCurrentQuestion(data.question);
       setTotalQuestions(data.totalQuestions);
       
-      // Check if this was the first question
-      // Simple check: if we can't go further back, disable the button
-      // In a more complex implementation, you'd track answer count
-    } catch (error) {
+      // Disable back button if we're back at the first question
+      // The navigate-back endpoint will fail if there's only one answer
+      setCanGoBack(true); // Keep enabled until we hit the first question
+    } catch (error: any) {
       console.error('Failed to navigate back:', error);
+      
+      // If we hit the first question, disable back button
+      if (error?.message?.includes('first question') || error?.message?.includes('No previous')) {
+        setCanGoBack(false);
+      }
+      
       toast({
         title: 'Error',
         description: 'Failed to go back. Please try again.',
