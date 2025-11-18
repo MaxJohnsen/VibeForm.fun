@@ -60,32 +60,6 @@ All colors MUST be HSL.
     --gradient-background: linear-gradient(180deg, hsl(220, 25%, 98%), hsl(220, 20%, 95%));
     --gradient-respondent: linear-gradient(135deg, hsl(220, 25%, 98%) 0%, hsl(210, 40%, 96%) 50%, hsl(320, 35%, 96%) 100%);
 
-    /* Respondent background gradients */
-    --gradient-respondent-1: linear-gradient(135deg, 
-      hsla(210, 40%, 98%, 0.8) 0%, 
-      hsla(240, 50%, 98%, 0.6) 50%, 
-      hsla(200, 45%, 97%, 0.8) 100%);
-
-    --gradient-respondent-2: linear-gradient(135deg, 
-      hsla(160, 35%, 98%, 0.8) 0%, 
-      hsla(180, 45%, 98%, 0.6) 50%, 
-      hsla(140, 40%, 97%, 0.8) 100%);
-
-    --gradient-respondent-3: linear-gradient(135deg, 
-      hsla(320, 40%, 98%, 0.8) 0%, 
-      hsla(280, 45%, 98%, 0.6) 50%, 
-      hsla(260, 35%, 97%, 0.8) 100%);
-
-    --gradient-respondent-4: linear-gradient(135deg, 
-      hsla(40, 45%, 98%, 0.8) 0%, 
-      hsla(30, 40%, 98%, 0.6) 50%, 
-      hsla(50, 35%, 97%, 0.8) 100%);
-
-    --gradient-respondent-5: linear-gradient(135deg, 
-      hsla(180, 40%, 98%, 0.8) 0%, 
-      hsla(200, 45%, 98%, 0.6) 50%, 
-      hsla(220, 35%, 97%, 0.8) 100%);
-
     /* Shadows */
     --shadow-soft: 0 4px 24px -4px hsla(220, 20%, 60%, 0.12);
     --shadow-elevated: 0 8px 32px -8px hsla(220, 20%, 50%, 0.16);
@@ -134,56 +108,5 @@ All colors MUST be HSL.
   .hover-elevate:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-elevated);
-  }
-
-  .respondent-bg {
-    position: relative;
-    background: white;
-    transition: background 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .respondent-bg::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 1;
-    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-    animation: gradient-breathe 8s ease-in-out infinite;
-    z-index: 0;
-  }
-
-  .respondent-bg > * {
-    position: relative;
-    z-index: 1;
-  }
-
-  /* Gradient variants */
-  .respondent-bg-1::before { background: var(--gradient-respondent-1); }
-  .respondent-bg-2::before { background: var(--gradient-respondent-2); }
-  .respondent-bg-3::before { background: var(--gradient-respondent-3); }
-  .respondent-bg-4::before { background: var(--gradient-respondent-4); }
-  .respondent-bg-5::before { background: var(--gradient-respondent-5); }
-
-  /* Breathing animation */
-  @keyframes gradient-breathe {
-    0%, 100% {
-      background-size: 100% 100%;
-      background-position: 0% 0%;
-    }
-    50% {
-      background-size: 120% 120%;
-      background-position: 10% 10%;
-    }
-  }
-
-  /* Respect reduced motion preference */
-  @media (prefers-reduced-motion: reduce) {
-    .respondent-bg::before {
-      animation: none;
-    }
-    .respondent-bg,
-    .respondent-bg::before {
-      transition: none;
-    }
   }
 }
