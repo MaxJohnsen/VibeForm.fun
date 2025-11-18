@@ -123,12 +123,23 @@ Deno.serve(async (req) => {
 
     console.log('Session resumed:', { sessionToken, questionId: currentQuestion.id });
 
+    // Fetch existing answer for current question
+    const { data: existingAnswer } = await supabase
+      .from('answers')
+      .select('answer_value')
+      .eq('response_id', response.id)
+      .eq('question_id', currentQuestion.id)
+      .maybeSingle();
+
     return new Response(
       JSON.stringify({
         sessionToken,
         responseId: response.id,
         form: { title: form.title, description: form.description },
-        question: currentQuestion,
+        question: {
+          ...currentQuestion,
+          currentAnswer: existingAnswer?.answer_value || null,
+        },
         totalQuestions: totalQuestions || 0,
         isComplete: false,
       }),

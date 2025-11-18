@@ -124,11 +124,12 @@ export const RespondentPage = () => {
 
           <main className="min-h-screen pt-24 pb-32 px-6 flex items-center justify-center">
             <div className="max-w-3xl w-full">
-              <QuestionRenderer
-                question={currentQuestion}
-                onSubmit={handleQuestionSubmit}
-                onValidationChange={handleValidationChange}
-              />
+          <QuestionRenderer
+            key={currentQuestion.id}
+            question={currentQuestion}
+            onSubmit={handleQuestionSubmit}
+            onValidationChange={handleValidationChange}
+          />
             </div>
           </main>
 

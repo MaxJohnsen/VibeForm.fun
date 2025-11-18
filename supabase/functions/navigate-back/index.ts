@@ -128,10 +128,21 @@ Deno.serve(async (req) => {
 
     console.log('Navigated back to question:', targetQuestionId, '(deleted answer for question:', currentQuestionId, ')');
 
+    // Fetch existing answer for the target question
+    const { data: existingAnswer } = await supabase
+      .from('answers')
+      .select('answer_value')
+      .eq('response_id', response.id)
+      .eq('question_id', targetQuestion.id)
+      .maybeSingle();
+
     return new Response(
       JSON.stringify({
         success: true,
-        question: targetQuestion,
+        question: {
+          ...targetQuestion,
+          currentAnswer: existingAnswer?.answer_value || null,
+        },
         totalQuestions: allQuestions.length,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

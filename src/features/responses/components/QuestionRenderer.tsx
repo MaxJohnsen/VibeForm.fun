@@ -23,6 +23,7 @@ export const QuestionRenderer = ({
     settings: question.settings || {},
     onSubmit,
     onValidationChange,
+    initialValue: question.currentAnswer,
   };
 
   switch (question.type) {
