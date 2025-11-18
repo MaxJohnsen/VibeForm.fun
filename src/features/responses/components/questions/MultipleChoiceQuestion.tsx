@@ -32,7 +32,19 @@ export const MultipleChoiceQuestion = ({
   useEffect(() => {
     const hasSelection = selectedValues.length > 0 || (showOtherInput && otherValue.trim().length > 0);
     onValidationChange(hasSelection);
-  }, [selectedValues, otherValue, showOtherInput, onValidationChange]);
+    
+    // Submit current value to parent
+    if (hasSelection) {
+      const finalValue = showOtherInput && otherValue.trim()
+        ? allowMultiple
+          ? [...selectedValues, otherValue]
+          : otherValue
+        : allowMultiple
+        ? selectedValues
+        : selectedValues[0];
+      onSubmit(finalValue);
+    }
+  }, [selectedValues, otherValue, showOtherInput, onValidationChange, allowMultiple, onSubmit]);
 
   const handleOptionClick = (optionId: string) => {
     if (allowMultiple) {
@@ -44,7 +56,6 @@ export const MultipleChoiceQuestion = ({
     } else {
       if (selectedValues[0] === optionId) return; // Prevent re-submitting same value
       setSelectedValues([optionId]);
-      onSubmit(optionId);
     }
   };
 
@@ -56,16 +67,7 @@ export const MultipleChoiceQuestion = ({
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (selectedValues.length > 0 || (showOtherInput && otherValue.trim()))) {
-      const finalValue = showOtherInput && otherValue.trim()
-        ? allowMultiple
-          ? [...selectedValues, otherValue]
-          : otherValue
-        : allowMultiple
-        ? selectedValues
-        : selectedValues[0];
-      onSubmit(finalValue);
-    }
+    // Enter key handling is now managed by parent RespondentPage
   };
 
   return (

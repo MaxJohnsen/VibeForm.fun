@@ -26,24 +26,20 @@ export const DateQuestion = ({
   );
 
   useEffect(() => {
-    onValidationChange(!!date);
-  }, [date, onValidationChange]);
-
-  const handleSelect = (selectedDate: Date | undefined) => {
-    setDate(selectedDate);
-    if (selectedDate) {
-      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-      setTimeout(() => {
-        onSubmit(formattedDate);
-      }, 300);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && date) {
+    const isValid = !!date;
+    onValidationChange(isValid);
+    if (isValid) {
       const formattedDate = format(date, 'yyyy-MM-dd');
       onSubmit(formattedDate);
     }
+  }, [date, onValidationChange, onSubmit]);
+
+  const handleSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    // Enter key handling is now managed by parent RespondentPage
   };
 
   return (
