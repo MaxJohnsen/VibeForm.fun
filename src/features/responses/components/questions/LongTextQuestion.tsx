@@ -36,8 +36,8 @@ export const LongTextQuestion = ({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
         {label}
       </h2>
 
@@ -49,13 +49,13 @@ export const LongTextQuestion = ({
         maxLength={maxLength}
         autoFocus
         rows={6}
-        className="text-lg resize-none border-border focus-visible:border-primary transition-colors"
+        className="text-base sm:text-lg resize-none border-border focus-visible:border-primary transition-colors"
       />
 
-      <div className="flex justify-between text-sm text-muted-foreground">
-        <span>Press Ctrl + Enter to submit</span>
+      <div className="flex justify-between text-xs sm:text-sm text-muted-foreground">
+        <span className="hidden sm:inline">Press Ctrl + Enter to submit</span>
         {maxLength && (
-          <span>
+          <span className="ml-auto">
             {value.length} / {maxLength}
           </span>
         )}

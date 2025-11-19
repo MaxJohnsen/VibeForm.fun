@@ -34,37 +34,37 @@ export const YesNoQuestion = ({
   };
 
   return (
-    <div className="space-y-12 animate-fade-in">
-      <h2 className="text-4xl md:text-5xl font-bold text-foreground text-center">
+    <div className="space-y-8 sm:space-y-12 animate-fade-in">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground text-center">
         {label}
       </h2>
 
-      <div className="flex gap-4 max-w-md mx-auto">
+      <div className="flex gap-3 sm:gap-4 max-w-md mx-auto">
         <button
           onClick={() => handleSelect(true)}
-          className={`flex-1 p-8 rounded-2xl border-2 transition-all ${
+          className={`flex-1 p-6 sm:p-8 rounded-2xl border-2 transition-all min-h-[120px] ${
             value === true
               ? 'border-primary bg-primary text-primary-foreground shadow-lg scale-105'
               : 'border-border hover:border-primary/50 hover:bg-muted/50'
           }`}
         >
-          <div className="flex flex-col items-center gap-3">
-            <Check className={`h-8 w-8 ${value === true ? 'text-primary-foreground' : 'text-primary'}`} />
-            <span className="text-xl font-medium">{yesLabel}</span>
+          <div className="flex flex-col items-center gap-2 sm:gap-3">
+            <Check className={`h-7 w-7 sm:h-8 sm:w-8 ${value === true ? 'text-primary-foreground' : 'text-primary'}`} />
+            <span className="text-lg sm:text-xl font-medium">{yesLabel}</span>
           </div>
         </button>
 
         <button
           onClick={() => handleSelect(false)}
-          className={`flex-1 p-8 rounded-2xl border-2 transition-all ${
+          className={`flex-1 p-6 sm:p-8 rounded-2xl border-2 transition-all min-h-[120px] ${
             value === false
               ? 'border-destructive bg-destructive text-destructive-foreground shadow-lg scale-105'
               : 'border-border hover:border-destructive/50 hover:bg-muted/50'
           }`}
         >
-          <div className="flex flex-col items-center gap-3">
-            <X className={`h-8 w-8 ${value === false ? 'text-destructive-foreground' : 'text-destructive'}`} />
-            <span className="text-xl font-medium">{noLabel}</span>
+          <div className="flex flex-col items-center gap-2 sm:gap-3">
+            <X className={`h-7 w-7 sm:h-8 sm:w-8 ${value === false ? 'text-destructive-foreground' : 'text-destructive'}`} />
+            <span className="text-lg sm:text-xl font-medium">{noLabel}</span>
           </div>
         </button>
       </div>

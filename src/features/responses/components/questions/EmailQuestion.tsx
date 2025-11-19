@@ -43,8 +43,8 @@ export const EmailQuestion = ({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
         {label}
       </h2>
 
@@ -56,7 +56,7 @@ export const EmailQuestion = ({
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
           autoFocus
-          className={`text-xl py-6 border-b border-t-0 border-x-0 rounded-none focus-visible:ring-0 transition-colors ${
+          className={`text-lg sm:text-xl py-4 sm:py-6 border-b border-t-0 border-x-0 rounded-none focus-visible:ring-0 transition-colors ${
             error ? 'border-destructive focus-visible:border-destructive' : 'focus-visible:border-primary'
           }`}
         />
