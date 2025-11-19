@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, MessageSquare, Share2, MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react';
+import { Clock, MessageSquare, Share2, MoreHorizontal, Trash2, Eye, ExternalLink, CheckCircle, FileEdit, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -7,6 +7,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
@@ -26,7 +28,6 @@ import { ROUTES } from '@/shared/constants/routes';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { SharePopover } from './SharePopover';
-import { StatusMenu } from './StatusMenu';
 import { supabase } from '@/integrations/supabase/client';
 
 interface FormCardProps {
@@ -143,46 +144,10 @@ export const FormCard = ({ form }: FormCardProps) => {
             onClick={() => navigate(ROUTES.getBuilderRoute(form.id))}
             className="flex-1"
           >
-            <Pencil className="h-4 w-4 mr-2" />
-            Edit
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Open Form
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              handlePreview();
-            }}
-            title="Preview form"
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <SharePopover
-            formId={form.id}
-            formTitle={form.title}
-            formStatus={form.status}
-          >
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              title="Share form"
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
-          </SharePopover>
-          <StatusMenu
-            formId={form.id}
-            currentStatus={form.status}
-            questionCount={questionCount}
-            onStatusChange={handleStatusChange}
-          >
-            <Button variant="outline" size="icon" title="Change status">
-              <Badge className="h-4 w-4" />
-            </Button>
-          </StatusMenu>
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -195,10 +160,92 @@ export const FormCard = ({ form }: FormCardProps) => {
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive cursor-pointer">
+            <DropdownMenuContent align="end" className="w-56 bg-background border-border z-50">
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Actions</DropdownMenuLabel>
+              
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePreview();
+                }}
+                className="cursor-pointer"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Form
+              </DropdownMenuItem>
+              
+              <SharePopover
+                formId={form.id}
+                formTitle={form.title}
+                formStatus={form.status}
+              >
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  className="cursor-pointer"
+                  onSelect={(e) => e.preventDefault()}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share Form
+                </DropdownMenuItem>
+              </SharePopover>
+              
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Change Status</DropdownMenuLabel>
+              
+              {form.status !== 'active' && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStatusChange('active');
+                  }}
+                  disabled={questionCount === 0}
+                  className="cursor-pointer"
+                >
+                  <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                  <span className="text-foreground">Activate Form</span>
+                </DropdownMenuItem>
+              )}
+              
+              {form.status !== 'draft' && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStatusChange('draft');
+                  }}
+                  className="cursor-pointer"
+                >
+                  <FileEdit className="h-4 w-4 mr-2 text-blue-600" />
+                  <span className="text-foreground">Move to Draft</span>
+                </DropdownMenuItem>
+              )}
+              
+              {form.status !== 'archived' && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleStatusChange('archived');
+                  }}
+                  className="cursor-pointer"
+                >
+                  <Archive className="h-4 w-4 mr-2 text-orange-600" />
+                  <span className="text-foreground">Archive Form</span>
+                </DropdownMenuItem>
+              )}
+              
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDeleteDialog(true);
+                }} 
+                className="text-destructive cursor-pointer focus:text-destructive"
+              >
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete
+                Delete Form
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
