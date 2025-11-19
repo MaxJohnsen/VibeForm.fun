@@ -1,8 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
 export const useRealtimeResponses = (formId: string, onUpdate: () => void) => {
+  const onUpdateRef = useRef(onUpdate);
+  
+  // Keep ref up to date
+  useEffect(() => {
+    onUpdateRef.current = onUpdate;
+  }, [onUpdate]);
+  
   useEffect(() => {
     const channel = supabase
       .channel('responses-changes')
@@ -20,7 +27,7 @@ export const useRealtimeResponses = (formId: string, onUpdate: () => void) => {
             title: 'New Response',
             description: 'Someone just started filling out your form!',
           });
-          onUpdate();
+          onUpdateRef.current();
         }
       )
       .on(
@@ -40,7 +47,7 @@ export const useRealtimeResponses = (formId: string, onUpdate: () => void) => {
               description: 'Someone just completed your form!',
             });
           }
-          onUpdate();
+          onUpdateRef.current();
         }
       )
       .on(
@@ -60,7 +67,7 @@ export const useRealtimeResponses = (formId: string, onUpdate: () => void) => {
           
           if (response?.form_id === formId) {
             console.log('New answer received for our form:', payload);
-            onUpdate();
+            onUpdateRef.current();
           }
         }
       )
@@ -81,7 +88,7 @@ export const useRealtimeResponses = (formId: string, onUpdate: () => void) => {
           
           if (response?.form_id === formId) {
             console.log('Answer updated for our form:', payload);
-            onUpdate();
+            onUpdateRef.current();
           }
         }
       )
@@ -90,5 +97,5 @@ export const useRealtimeResponses = (formId: string, onUpdate: () => void) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [formId, onUpdate]);
+  }, [formId]);
 };
