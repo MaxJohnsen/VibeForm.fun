@@ -109,13 +109,6 @@ export const RatingQuestion = ({
     );
   };
 
-  const getGridColumns = () => {
-    const count = ratings.length;
-    if (count <= 5) return count;
-    if (count <= 8) return 4;
-    return 5;
-  };
-
   return (
     <div className="space-y-8 sm:space-y-12 animate-fade-in">
       <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground text-center">
@@ -123,10 +116,7 @@ export const RatingQuestion = ({
       </h2>
 
       <div className="space-y-4 sm:space-y-6">
-        <div 
-          className="grid gap-2 sm:gap-3 justify-items-center max-w-2xl mx-auto"
-          style={{ gridTemplateColumns: `repeat(${getGridColumns()}, minmax(44px, 1fr))` }}
-        >
+        <div className="flex flex-wrap gap-2 sm:gap-3 justify-center items-center">
           {ratings.map(renderRating)}
         </div>
 
