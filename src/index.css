@@ -120,16 +120,11 @@ All colors MUST be HSL.
     overflow: hidden;
   }
 
-  /* Remove focus and hover styles on touch devices */
+  /* Remove focus styles on touch devices */
   @media (hover: none) {
     button:focus:not(:focus-visible) {
       outline: none;
       box-shadow: none;
-    }
-    
-    /* Prevent hover backgrounds from sticking on touch */
-    button:hover:not(:active) {
-      background-color: transparent;
     }
   }
 }
