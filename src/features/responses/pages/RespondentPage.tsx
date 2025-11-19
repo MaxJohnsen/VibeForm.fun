@@ -6,6 +6,7 @@ import { CompletionScreen } from '../components/CompletionScreen';
 import { FormHeader } from '../components/FormHeader';
 import { FormNavigation } from '../components/FormNavigation';
 import { WelcomeScreen } from '../components/WelcomeScreen';
+import { LoadingBar } from '../components/LoadingBar';
 import { Loader2 } from 'lucide-react';
 import { debounce } from '@/shared/utils/debounce';
 
@@ -129,6 +130,8 @@ export const RespondentPage = () => {
 
   return (
     <div className="h-[100dvh] bg-gradient-to-br from-background via-background to-primary/5 flex flex-col overflow-hidden">
+      <LoadingBar isLoading={isSubmitting} />
+      
       {!isComplete && currentQuestion && (
         <>
           <FormHeader
