@@ -21,10 +21,6 @@ export const ResponseItem = ({ response, totalQuestions, onClick }: ResponseItem
   const duration = response.completed_at
     ? Math.floor((new Date(response.completed_at).getTime() - new Date(response.started_at).getTime()) / 1000)
     : Math.floor((new Date().getTime() - new Date(response.started_at).getTime()) / 1000);
-  
-  const progressText = isComplete
-    ? `Completed ${answeredCount} questions • ${formatDuration(duration)}`
-    : `Currently at question ${answeredCount + 1}`;
 
   return (
     <div
@@ -47,7 +43,10 @@ export const ResponseItem = ({ response, totalQuestions, onClick }: ResponseItem
           </div>
           
           <p className="text-sm text-muted-foreground">
-            {progressText}
+            {isComplete 
+              ? `Completed ${answeredCount} questions • ${formatDuration(duration)}`
+              : <>Currently at <strong>question {answeredCount + 1}</strong></>
+            }
           </p>
         </div>
         
