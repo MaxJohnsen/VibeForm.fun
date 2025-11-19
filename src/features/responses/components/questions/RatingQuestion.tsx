@@ -116,7 +116,7 @@ export const RatingQuestion = ({
       </h2>
 
       <div className="space-y-4 sm:space-y-6">
-        <div className="flex flex-wrap gap-2 sm:gap-3 justify-center items-center">
+        <div className="flex flex-wrap gap-2 sm:gap-3 justify-evenly items-center max-w-2xl mx-auto">
           {ratings.map(renderRating)}
         </div>
 
