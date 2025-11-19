@@ -1,4 +1,4 @@
-import { ArrowLeft, Eye, Share2 } from 'lucide-react';
+import { ArrowLeft, Eye, Share2, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
@@ -38,6 +38,14 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
       </div>
 
       <div className="flex items-center gap-3">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={() => navigate(ROUTES.getResponsesDashboardRoute(form?.id || ''))}
+        >
+          <BarChart3 className="h-4 w-4 mr-2" />
+          Analytics
+        </Button>
         <Button variant="outline" size="sm" onClick={handlePreview}>
           <Eye className="h-4 w-4 mr-2" />
           Preview

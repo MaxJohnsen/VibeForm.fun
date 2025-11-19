@@ -1,0 +1,43 @@
+import { ResponseWithAnswers } from '../api/analyticsApi';
+import { ResponseItem } from './ResponseItem';
+import { EmptyState } from '@/shared/ui/EmptyState';
+import { FileQuestion } from 'lucide-react';
+
+interface ResponsesListProps {
+  responses: ResponseWithAnswers[];
+  totalQuestions: number;
+}
+
+export const ResponsesList = ({ responses, totalQuestions }: ResponsesListProps) => {
+  if (responses.length === 0) {
+    return (
+      <div className="glass-panel rounded-xl p-8">
+        <EmptyState
+          icon={FileQuestion}
+          title="No responses yet"
+          description="Share your form to start collecting responses. They'll appear here in real-time."
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="glass-panel rounded-xl p-6">
+      <h3 className="text-lg font-semibold mb-4">Recent Responses</h3>
+      <div className="space-y-3">
+        {responses.slice(0, 10).map((response) => (
+          <ResponseItem
+            key={response.id}
+            response={response}
+            totalQuestions={totalQuestions}
+          />
+        ))}
+      </div>
+      {responses.length > 10 && (
+        <p className="text-sm text-muted-foreground text-center mt-4">
+          Showing 10 of {responses.length} responses
+        </p>
+      )}
+    </div>
+  );
+};
