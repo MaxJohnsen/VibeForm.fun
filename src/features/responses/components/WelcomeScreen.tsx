@@ -37,7 +37,7 @@ export const WelcomeScreen = ({
         <Button
           onClick={onStart}
           size="lg"
-          className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 hover-elevate min-h-[48px] touch-manipulation"
+          className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 min-h-[48px] active:scale-95 hover-elevate transition-all"
         >
           Start
           <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
