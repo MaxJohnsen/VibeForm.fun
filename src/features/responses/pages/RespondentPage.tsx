@@ -19,7 +19,7 @@ export const RespondentPage = () => {
 
   if (!formId) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="h-[100dvh] flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
         <div className="max-w-md w-full p-8 text-center">
           <p className="text-destructive text-xl">Invalid form link</p>
         </div>
@@ -40,6 +40,7 @@ export const RespondentPage = () => {
   } = useRespondent(formId);
 
   const isLastQuestion = currentQuestion?.position === totalQuestions - 1;
+  const isFirstQuestion = currentQuestion?.position === 0;
 
   const handleValidationChange = useCallback((isValid: boolean) => {
     setCanProceed(isValid);
@@ -70,11 +71,18 @@ export const RespondentPage = () => {
   );
 
   const handleBack = useCallback(() => {
-    // Clear state before navigating to prevent stale data
-    setCurrentAnswer(null);
-    setCanProceed(false);
-    goBack();
-  }, [goBack]);
+    if (isFirstQuestion) {
+      // Return to welcome screen on first question
+      setShowWelcome(true);
+      setCurrentAnswer(null);
+      setCanProceed(false);
+    } else {
+      // Navigate to previous question
+      setCurrentAnswer(null);
+      setCanProceed(false);
+      goBack();
+    }
+  }, [isFirstQuestion, goBack]);
 
   const handleClose = useCallback(() => {
     if (window.confirm('Are you sure you want to exit? Your progress will be saved.')) {
@@ -97,7 +105,7 @@ export const RespondentPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="h-[100dvh] flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
         <div className="flex items-center justify-center space-x-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="text-xl text-foreground">Loading form...</span>
@@ -108,7 +116,7 @@ export const RespondentPage = () => {
 
   if (showWelcome && formInfo && !isComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="h-[100dvh] bg-gradient-to-br from-background via-background to-primary/5">
         <WelcomeScreen
           formTitle={formInfo.title}
           formDescription={formInfo.description || undefined}
@@ -120,7 +128,7 @@ export const RespondentPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="h-[100dvh] bg-gradient-to-br from-background via-background to-primary/5 flex flex-col overflow-hidden">
       {!isComplete && currentQuestion && (
         <>
           <FormHeader
@@ -129,19 +137,19 @@ export const RespondentPage = () => {
             onClose={handleClose}
           />
 
-          <main className="min-h-screen pt-16 sm:pt-20 md:pt-24 pb-20 sm:pb-24 md:pb-32 px-4 sm:px-6 flex items-center justify-center">
-            <div className="max-w-3xl w-full question-container">
-          <QuestionRenderer
-            key={currentQuestion.id}
-            question={currentQuestion}
-            onSubmit={handleQuestionSubmit}
-            onValidationChange={handleValidationChange}
-          />
+          <main className="flex-1 overflow-y-auto px-4 sm:px-6 flex items-center justify-center">
+            <div className="max-w-3xl w-full py-8 question-container">
+              <QuestionRenderer
+                key={currentQuestion.id}
+                question={currentQuestion}
+                onSubmit={handleQuestionSubmit}
+                onValidationChange={handleValidationChange}
+              />
             </div>
           </main>
 
           <FormNavigation
-            canGoBack={canGoBack}
+            canGoBack={true}
             isLastQuestion={isLastQuestion}
             isSubmitting={isSubmitting}
             canProceed={canProceed}
@@ -152,7 +160,7 @@ export const RespondentPage = () => {
       )}
 
       {isComplete && (
-        <div className="min-h-screen flex items-center justify-center px-6">
+        <div className="flex-1 flex items-center justify-center px-6">
           <div className="max-w-2xl w-full">
             <CompletionScreen formTitle={formInfo?.title || 'this form'} />
           </div>
@@ -160,7 +168,7 @@ export const RespondentPage = () => {
       )}
 
       {!isComplete && !currentQuestion && (
-        <div className="min-h-screen flex items-center justify-center px-6">
+        <div className="flex-1 flex items-center justify-center px-6">
           <div className="text-center py-8">
             <p className="text-xl text-muted-foreground">No questions available</p>
           </div>

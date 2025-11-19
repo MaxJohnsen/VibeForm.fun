@@ -15,7 +15,7 @@ export const WelcomeScreen = ({
   onStart,
 }: WelcomeScreenProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
+    <div className="h-full flex items-center justify-center p-4 sm:p-6">
       <div className="max-w-2xl w-full space-y-6 sm:space-y-8 text-center animate-fade-in">
         <div className="space-y-3 sm:space-y-4">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
@@ -37,7 +37,7 @@ export const WelcomeScreen = ({
         <Button
           onClick={onStart}
           size="lg"
-          className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 hover-elevate min-h-[48px]"
+          className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 hover-elevate min-h-[48px] touch-manipulation"
         >
           Start
           <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
