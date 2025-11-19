@@ -50,9 +50,39 @@ export const useRealtimeResponses = (formId: string, onUpdate: () => void) => {
           schema: 'public',
           table: 'answers',
         },
-        (payload) => {
-          console.log('New answer received:', payload);
-          onUpdate();
+        async (payload) => {
+          // Verify this answer belongs to our form
+          const { data: response } = await supabase
+            .from('responses')
+            .select('form_id')
+            .eq('id', (payload.new as any).response_id)
+            .single();
+          
+          if (response?.form_id === formId) {
+            console.log('New answer received for our form:', payload);
+            onUpdate();
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'answers',
+        },
+        async (payload) => {
+          // Verify this answer belongs to our form
+          const { data: response } = await supabase
+            .from('responses')
+            .select('form_id')
+            .eq('id', (payload.new as any).response_id)
+            .single();
+          
+          if (response?.form_id === formId) {
+            console.log('Answer updated for our form:', payload);
+            onUpdate();
+          }
         }
       )
       .subscribe();
