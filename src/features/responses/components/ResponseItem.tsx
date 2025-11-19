@@ -23,8 +23,8 @@ export const ResponseItem = ({ response, totalQuestions, onClick }: ResponseItem
     : Math.floor((new Date().getTime() - new Date(response.started_at).getTime()) / 1000);
   
   const progressText = isComplete
-    ? `Completed all ${totalQuestions} questions • ${formatDuration(duration)}`
-    : `Answered ${answeredCount} of ${totalQuestions} questions • ${formatDuration(duration)}`;
+    ? `Completed ${answeredCount} questions • ${formatDuration(duration)}`
+    : `Currently at question ${answeredCount + 1}`;
 
   return (
     <div
