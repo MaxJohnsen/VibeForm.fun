@@ -43,6 +43,18 @@ export const useRealtimeResponses = (formId: string, onUpdate: () => void) => {
           onUpdate();
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'answers',
+        },
+        (payload) => {
+          console.log('New answer received:', payload);
+          onUpdate();
+        }
+      )
       .subscribe();
 
     return () => {
