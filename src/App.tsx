@@ -11,6 +11,7 @@ import { FormBuilderPage } from "./features/builder";
 import { RespondentPage } from "./features/responses";
 import { DashboardPage } from "./features/responses/pages/DashboardPage";
 import { ROUTES } from "./shared/constants/routes";
+import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +29,14 @@ const App = () => (
           <Route path={ROUTES.CREATE_FORM} element={<CreateFormPage />} />
           <Route path={ROUTES.BUILDER} element={<FormBuilderPage />} />
           <Route path={ROUTES.RESPONDENT} element={<RespondentPage />} />
-          <Route path={ROUTES.RESPONSES_DASHBOARD} element={<DashboardPage />} />
+          <Route 
+            path={ROUTES.RESPONSES_DASHBOARD} 
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            } 
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
