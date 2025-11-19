@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -54,8 +54,13 @@ export const FormNavigation = ({
             onClick={onNext}
             disabled={!canProceed || isSubmitting}
             size="lg"
-            className="px-6 sm:px-8 h-11 min-w-[100px] sm:min-w-[120px] active:scale-95 transition-transform disabled:opacity-40"
+            className={cn(
+              "px-6 sm:px-8 h-11 min-w-[100px] sm:min-w-[120px] active:scale-95 transition-transform disabled:opacity-40",
+              "flex items-center gap-2",
+              isSubmitting && "animate-pulse opacity-75"
+            )}
           >
+            {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
             {isLastQuestion ? 'Submit' : 'Next'}
           </Button>
         </div>
