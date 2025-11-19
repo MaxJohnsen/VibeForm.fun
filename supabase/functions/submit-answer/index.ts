@@ -48,35 +48,30 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get response record
-    const { data: response, error: responseError } = await supabase
-      .from('responses')
-      .select('*')
-      .eq('session_token', sessionToken)
-      .single();
+    // OPTIMIZATION: Parallelize initial queries - response + current question
+    const [responseResult, questionResult] = await Promise.all([
+      supabase.from('responses').select('*').eq('session_token', sessionToken).single(),
+      supabase.from('questions').select('*').eq('id', questionId).single()
+    ]);
 
-    if (responseError || !response) {
-      console.error('Response not found:', responseError);
+    if (responseResult.error || !responseResult.data) {
+      console.error('Response not found:', responseResult.error);
       return new Response(
         JSON.stringify({ error: 'Invalid session' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get current question
-    const { data: currentQuestion, error: questionError } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('id', questionId)
-      .single();
-
-    if (questionError || !currentQuestion) {
-      console.error('Question not found:', questionError);
+    if (questionResult.error || !questionResult.data) {
+      console.error('Question not found:', questionResult.error);
       return new Response(
         JSON.stringify({ error: 'Question not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const response = responseResult.data;
+    const currentQuestion = questionResult.data;
 
     // Save or update answer using UPSERT
     const { error: answerError } = await supabase
@@ -94,21 +89,6 @@ Deno.serve(async (req) => {
       console.error('Failed to save answer:', answerError);
       return new Response(
         JSON.stringify({ error: 'Failed to save answer' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Get all questions for the form
-    const { data: allQuestions, error: allQuestionsError } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('form_id', response.form_id)
-      .order('position', { ascending: true });
-
-    if (allQuestionsError) {
-      console.error('Failed to fetch questions:', allQuestionsError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to evaluate logic' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -135,19 +115,34 @@ Deno.serve(async (req) => {
         }
       }
 
-      // If no rule matched, apply default action (regardless of whether rules exist)
+      // If no rule matched, apply default action
       if (!isComplete && !nextQuestionId) {
         if (logic.default_action === 'end') {
           isComplete = true;
         } else if (logic.default_target) {
-          // If there's a default target, jump to it (default_action is 'next' with a target)
           nextQuestionId = logic.default_target;
         }
       }
     }
 
-    // If no logic determined next question, go to next in sequence
+    // OPTIMIZATION: Only fetch questions if we need sequential flow
+    // (no logic determined next question yet)
     if (!isComplete && !nextQuestionId) {
+      const { data: allQuestions, error: allQuestionsError } = await supabase
+        .from('questions')
+        .select('id, position')
+        .eq('form_id', response.form_id)
+        .order('position', { ascending: true });
+
+      if (allQuestionsError) {
+        console.error('Failed to fetch questions:', allQuestionsError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to evaluate logic' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      // Find next question in sequence
       const currentIndex = allQuestions.findIndex(q => q.id === questionId);
       if (currentIndex >= 0 && currentIndex < allQuestions.length - 1) {
         nextQuestionId = allQuestions[currentIndex + 1].id;
@@ -156,7 +151,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Update response record
+    // OPTIMIZATION: Parallelize final operations
     const updateData: any = {
       current_question_id: nextQuestionId,
     };
@@ -166,39 +161,49 @@ Deno.serve(async (req) => {
       updateData.completed_at = new Date().toISOString();
     }
 
-    const { error: updateError } = await supabase
-      .from('responses')
-      .update(updateData)
-      .eq('id', response.id);
+    // Build parallel operations array - each query returns a promise when called
+    const parallelOps: Promise<any>[] = [];
+    
+    // Always update response
+    parallelOps.push(
+      (async () => supabase.from('responses').update(updateData).eq('id', response.id))()
+    );
 
-    if (updateError) {
-      console.error('Failed to update response:', updateError);
-    }
-
-    // Get next question if not complete
-    let nextQuestion = null;
+    // Only fetch next question and answer if not complete
     if (!isComplete && nextQuestionId) {
-      const { data, error } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('id', nextQuestionId)
-        .single();
-
-      if (!error && data) {
-        // Check for existing answer for the next question
-        const { data: existingAnswer } = await supabase
-          .from('answers')
-          .select('answer_value')
-          .eq('response_id', response.id)
-          .eq('question_id', data.id)
-          .maybeSingle();
-        
-        nextQuestion = {
-          ...data,
-          currentAnswer: existingAnswer?.answer_value || null,
-        };
-      }
+      parallelOps.push(
+        (async () => supabase.from('questions').select('*').eq('id', nextQuestionId).single())()
+      );
+      parallelOps.push(
+        (async () => supabase.from('answers').select('answer_value').eq('response_id', response.id).eq('question_id', nextQuestionId).maybeSingle())()
+      );
     }
+
+    // Also get total question count
+    parallelOps.push(
+      (async () => supabase.from('questions').select('id', { count: 'exact', head: true }).eq('form_id', response.form_id))()
+    );
+
+    const results = await Promise.all(parallelOps);
+    
+    const updateResult = results[0];
+    const nextQuestionResult = !isComplete && nextQuestionId ? results[1] : null;
+    const existingAnswerResult = !isComplete && nextQuestionId ? results[2] : null;
+    const countResult = results[results.length - 1];
+
+    if (updateResult.error) {
+      console.error('Failed to update response:', updateResult.error);
+    }
+
+    let nextQuestion = null;
+    if (!isComplete && nextQuestionId && nextQuestionResult && !nextQuestionResult.error && nextQuestionResult.data) {
+      nextQuestion = {
+        ...nextQuestionResult.data,
+        currentAnswer: existingAnswerResult?.data?.answer_value || null,
+      };
+    }
+
+    const totalQuestions = countResult.count || 0;
 
     console.log('Answer submitted:', { questionId, nextQuestionId, isComplete });
 
@@ -207,9 +212,9 @@ Deno.serve(async (req) => {
         success: true,
         isComplete,
         nextQuestion,
-        totalQuestions: allQuestions.length,
+        totalQuestions,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }
     );
   } catch (error) {
     console.error('Error in submit-answer:', error);

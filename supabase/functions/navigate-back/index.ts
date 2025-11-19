@@ -39,22 +39,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get all questions for the form
-    const { data: allQuestions, error: questionsError } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('form_id', response.form_id)
-      .order('position', { ascending: true });
-
-    if (questionsError || !allQuestions) {
-      console.error('Failed to fetch questions:', questionsError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch questions' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Delete answer for the current question (if exists)
+    // Delete answer for the current question
     const { error: deleteError } = await supabase
       .from('answers')
       .delete()
@@ -93,59 +78,66 @@ Deno.serve(async (req) => {
       // Navigate to the most recently answered question
       targetQuestionId = lastAnswer.question_id;
     } else {
-      // No more answers, navigate to first question
-      targetQuestionId = allQuestions[0].id;
+      // OPTIMIZATION: Only fetch first question when needed (no more answers)
+      const { data: firstQuestion, error: firstQuestionError } = await supabase
+        .from('questions')
+        .select('id')
+        .eq('form_id', response.form_id)
+        .order('position', { ascending: true })
+        .limit(1)
+        .single();
+
+      if (firstQuestionError || !firstQuestion) {
+        console.error('Failed to fetch first question:', firstQuestionError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to fetch first question' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      targetQuestionId = firstQuestion.id;
     }
 
-    // Get the target question
-    const { data: targetQuestion, error: targetQuestionError } = await supabase
-      .from('questions')
-      .select('*')
-      .eq('id', targetQuestionId)
-      .single();
+    // OPTIMIZATION: Parallelize final operations
+    // 1. Update response record
+    // 2. Fetch target question
+    // 3. Fetch existing answer for target question
+    // 4. Get total question count
+    const [updateResult, targetQuestionResult, existingAnswerResult, countResult] = await Promise.all([
+      (async () => supabase.from('responses').update({
+        current_question_id: targetQuestionId,
+        status: 'in_progress',
+        completed_at: null,
+      }).eq('id', response.id))(),
+      (async () => supabase.from('questions').select('*').eq('id', targetQuestionId).single())(),
+      (async () => supabase.from('answers').select('answer_value').eq('response_id', response.id).eq('question_id', targetQuestionId).maybeSingle())(),
+      (async () => supabase.from('questions').select('id', { count: 'exact', head: true }).eq('form_id', response.form_id))()
+    ]);
 
-    if (targetQuestionError || !targetQuestion) {
-      console.error('Failed to fetch target question:', targetQuestionError);
+    if (updateResult.error) {
+      console.error('Failed to update response:', updateResult.error);
+    }
+
+    if (targetQuestionResult.error || !targetQuestionResult.data) {
+      console.error('Failed to fetch target question:', targetQuestionResult.error);
       return new Response(
         JSON.stringify({ error: 'Failed to fetch target question' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Update response record
-    const { error: updateError } = await supabase
-      .from('responses')
-      .update({
-        current_question_id: targetQuestionId,
-        status: 'in_progress',
-        completed_at: null,
-      })
-      .eq('id', response.id);
-
-    if (updateError) {
-      console.error('Failed to update response:', updateError);
-    }
-
     console.log('Navigated back to question:', targetQuestionId, '(deleted answer for question:', currentQuestionId, ')');
-
-    // Fetch existing answer for the target question
-    const { data: existingAnswer } = await supabase
-      .from('answers')
-      .select('answer_value')
-      .eq('response_id', response.id)
-      .eq('question_id', targetQuestion.id)
-      .maybeSingle();
 
     return new Response(
       JSON.stringify({
         success: true,
         question: {
-          ...targetQuestion,
-          currentAnswer: existingAnswer?.answer_value || null,
+          ...targetQuestionResult.data,
+          currentAnswer: existingAnswerResult.data?.answer_value || null,
         },
-        totalQuestions: allQuestions.length,
+        totalQuestions: countResult.count || 0,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }
     );
   } catch (error) {
     console.error('Error in navigate-back:', error);
