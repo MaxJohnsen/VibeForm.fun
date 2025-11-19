@@ -6,7 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { Form, formsApi } from '@/features/forms/api/formsApi';
-import { ShareDialog } from '@/features/forms/components/ShareDialog';
+import { SharePopover } from '@/features/forms/components/SharePopover';
 import { StatusMenu } from '@/features/forms/components/StatusMenu';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -21,7 +21,6 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [showShareDialog, setShowShareDialog] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
 
   useEffect(() => {
@@ -129,21 +128,19 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
           <Eye className="h-4 w-4 mr-2" />
           Preview
         </Button>
-        <Button size="sm" onClick={() => setShowShareDialog(true)}>
-          <Share2 className="h-4 w-4 mr-2" />
-          Share
-        </Button>
+        {form && (
+          <SharePopover
+            formId={form.id}
+            formTitle={form.title}
+            formStatus={form.status}
+          >
+            <Button size="sm">
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
+            </Button>
+          </SharePopover>
+        )}
       </div>
-      
-      {form && (
-        <ShareDialog
-          formId={form.id}
-          formTitle={form.title}
-          formStatus={form.status}
-          open={showShareDialog}
-          onOpenChange={setShowShareDialog}
-        />
-      )}
     </div>
   );
 };

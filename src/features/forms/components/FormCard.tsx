@@ -25,7 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { ShareDialog } from './ShareDialog';
+import { SharePopover } from './SharePopover';
 import { StatusMenu } from './StatusMenu';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -38,7 +38,6 @@ export const FormCard = ({ form }: FormCardProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showShareDialog, setShowShareDialog] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
 
   useEffect(() => {
@@ -158,17 +157,22 @@ export const FormCard = ({ form }: FormCardProps) => {
           >
             <Eye className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowShareDialog(true);
-            }}
-            title="Share form"
+          <SharePopover
+            formId={form.id}
+            formTitle={form.title}
+            formStatus={form.status}
           >
-            <Share2 className="h-4 w-4" />
-          </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+              title="Share form"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </SharePopover>
           <StatusMenu
             formId={form.id}
             currentStatus={form.status}
@@ -200,15 +204,6 @@ export const FormCard = ({ form }: FormCardProps) => {
           </DropdownMenu>
         </div>
       </GlassCard>
-
-      {/* Share Dialog */}
-      <ShareDialog
-        formId={form.id}
-        formTitle={form.title}
-        formStatus={form.status}
-        open={showShareDialog}
-        onOpenChange={setShowShareDialog}
-      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
