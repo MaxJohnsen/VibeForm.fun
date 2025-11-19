@@ -6,7 +6,6 @@ import { CompletionScreen } from '../components/CompletionScreen';
 import { FormHeader } from '../components/FormHeader';
 import { FormNavigation } from '../components/FormNavigation';
 import { WelcomeScreen } from '../components/WelcomeScreen';
-import { ProgressBar } from '../components/ProgressBar';
 import { Loader2 } from 'lucide-react';
 import { debounce } from '@/shared/utils/debounce';
 
@@ -16,11 +15,6 @@ export const RespondentPage = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [canProceed, setCanProceed] = useState(false);
   const [currentAnswer, setCurrentAnswer] = useState<any>(null);
-  const [previousQuestion, setPreviousQuestion] = useState<any>(null);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [transitionDirection, setTransitionDirection] = useState<'forward' | 'backward'>('forward');
-  const [displayedQuestionId, setDisplayedQuestionId] = useState<string | null>(null);
-  const [justChanged, setJustChanged] = useState(false);
   const isSubmittingRef = useRef(false);
 
   if (!formId) {
@@ -59,18 +53,16 @@ export const RespondentPage = () => {
 
   const handleNext = useCallback(() => {
     if (currentAnswer !== null && !isSubmittingRef.current) {
-      // Freeze current question for slide-out animation
-      setPreviousQuestion(currentQuestion);
-      setIsTransitioning(true);
-      setTransitionDirection('forward');
-      
-      // Submit answer
       isSubmittingRef.current = true;
       submitAnswer(currentAnswer);
       setCurrentAnswer(null);
       setCanProceed(false);
+      // Reset after a short delay to prevent rapid re-submission
+      setTimeout(() => {
+        isSubmittingRef.current = false;
+      }, 500);
     }
-  }, [currentAnswer, submitAnswer, currentQuestion]);
+  }, [currentAnswer, submitAnswer]);
 
   // Debounced version for keyboard input
   const debouncedHandleNext = useCallback(
@@ -85,40 +77,18 @@ export const RespondentPage = () => {
       setCurrentAnswer(null);
       setCanProceed(false);
     } else {
-      // Freeze current question for slide-out animation
-      setPreviousQuestion(currentQuestion);
-      setIsTransitioning(true);
-      setTransitionDirection('backward');
-      
       // Navigate to previous question
       setCurrentAnswer(null);
       setCanProceed(false);
       goBack();
     }
-  }, [isFirstQuestion, goBack, currentQuestion]);
+  }, [isFirstQuestion, goBack]);
 
   const handleClose = useCallback(() => {
     if (window.confirm('Are you sure you want to exit? Your progress will be saved.')) {
       navigate('/');
     }
   }, [navigate]);
-
-  // When new question arrives, update displayed ID and end transition
-  useEffect(() => {
-    if (currentQuestion?.id && currentQuestion.id !== displayedQuestionId) {
-      setDisplayedQuestionId(currentQuestion.id);
-      setIsTransitioning(false);
-      setJustChanged(true);
-      isSubmittingRef.current = false;
-      
-      // Remove fade-in class after animation completes
-      const timer = setTimeout(() => {
-        setJustChanged(false);
-      }, 300);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [currentQuestion?.id, displayedQuestionId]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -161,47 +131,21 @@ export const RespondentPage = () => {
     <div className="h-[100dvh] bg-gradient-to-br from-background via-background to-primary/5 flex flex-col overflow-hidden">
       {!isComplete && currentQuestion && (
         <>
-          <div className="flex-shrink-0">
-            <FormHeader
-              currentQuestion={currentQuestion.position + 1}
-              totalQuestions={totalQuestions}
-              onClose={handleClose}
-            />
-            <div className="px-4 sm:px-6 pt-4">
-              <ProgressBar
-                current={currentQuestion.position + 1}
-                total={totalQuestions}
-              />
-            </div>
-          </div>
+          <FormHeader
+            currentQuestion={currentQuestion.position + 1}
+            totalQuestions={totalQuestions}
+            onClose={handleClose}
+          />
 
           <main className="flex-1 overflow-y-auto px-4 sm:px-6 flex items-center justify-center">
-            {/* Show previous question sliding out */}
-            {isTransitioning && previousQuestion && (
-              <div className={transitionDirection === 'forward' ? 'animate-slide-out-left' : 'animate-slide-out-right'}>
-                <div className="max-w-3xl w-full py-8 question-container">
-                  <QuestionRenderer
-                    question={previousQuestion}
-                    onSubmit={() => {}}
-                    onValidationChange={() => {}}
-                  />
-                </div>
-              </div>
-            )}
-            
-            {/* Show current question only when IDs match */}
-            {!isTransitioning && currentQuestion?.id === displayedQuestionId && (
-              <div className={justChanged ? 'animate-fade-in' : ''}>
-                <div className="max-w-3xl w-full py-8 question-container">
-                  <QuestionRenderer
-                    key={currentQuestion.id}
-                    question={currentQuestion}
-                    onSubmit={handleQuestionSubmit}
-                    onValidationChange={handleValidationChange}
-                  />
-                </div>
-              </div>
-            )}
+            <div className="max-w-3xl w-full py-8 question-container">
+              <QuestionRenderer
+                key={currentQuestion.id}
+                question={currentQuestion}
+                onSubmit={handleQuestionSubmit}
+                onValidationChange={handleValidationChange}
+              />
+            </div>
           </main>
 
           <FormNavigation
