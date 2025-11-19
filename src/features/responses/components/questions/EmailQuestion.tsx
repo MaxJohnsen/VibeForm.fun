@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { validateEmail } from '@/shared/utils/questionValidation';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface EmailQuestionProps {
   label: string;
@@ -19,6 +20,7 @@ export const EmailQuestion = ({
 }: EmailQuestionProps) => {
   const [value, setValue] = useState(initialValue ?? '');
   const [error, setError] = useState('');
+  const isMobile = useIsMobile();
   const placeholder = settings?.placeholder || 'name@example.com';
 
   useEffect(() => {
@@ -36,9 +38,19 @@ export const EmailQuestion = ({
     }
   }, [value, onValidationChange, onSubmit]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && value && !error) {
-      onSubmit(value);
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      
+      if (isMobile) {
+        // On mobile: Just dismiss keyboard
+        e.currentTarget.blur();
+      } else {
+        // On desktop: Submit if valid
+        if (value && !error) {
+          onSubmit(value);
+        }
+      }
     }
   };
 
