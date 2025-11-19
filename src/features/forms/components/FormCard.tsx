@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FileText, Clock, MessageSquare, Share2, MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Clock, MessageSquare, Share2, MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -25,6 +25,9 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { ShareDialog } from './ShareDialog';
+import { StatusMenu } from './StatusMenu';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FormCardProps {
   form: Form;
@@ -35,6 +38,19 @@ export const FormCard = ({ form }: FormCardProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [questionCount, setQuestionCount] = useState(0);
+
+  useEffect(() => {
+    const fetchQuestionCount = async () => {
+      const { count } = await supabase
+        .from('questions')
+        .select('*', { count: 'exact', head: true })
+        .eq('form_id', form.id);
+      setQuestionCount(count || 0);
+    };
+    fetchQuestionCount();
+  }, [form.id]);
 
   const deleteFormMutation = useMutation({
     mutationFn: () => formsApi.deleteForm(form.id),
@@ -53,6 +69,29 @@ export const FormCard = ({ form }: FormCardProps) => {
       });
     },
   });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: (newStatus: 'draft' | 'active' | 'archived') =>
+      formsApi.updateForm(form.id, { status: newStatus }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['forms'] });
+      toast({
+        title: 'Status updated',
+        description: 'Form status has been changed successfully.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleStatusChange = async (newStatus: 'draft' | 'active' | 'archived') => {
+    await updateStatusMutation.mutateAsync(newStatus);
+  };
 
   const handlePreview = () => {
     window.open(ROUTES.getRespondentRoute(form.id), '_blank');
@@ -124,10 +163,22 @@ export const FormCard = ({ form }: FormCardProps) => {
             size="icon"
             onClick={(e) => {
               e.stopPropagation();
+              setShowShareDialog(true);
             }}
+            title="Share form"
           >
             <Share2 className="h-4 w-4" />
           </Button>
+          <StatusMenu
+            formId={form.id}
+            currentStatus={form.status}
+            questionCount={questionCount}
+            onStatusChange={handleStatusChange}
+          >
+            <Button variant="outline" size="icon" title="Change status">
+              <Badge className="h-4 w-4" />
+            </Button>
+          </StatusMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -149,6 +200,15 @@ export const FormCard = ({ form }: FormCardProps) => {
           </DropdownMenu>
         </div>
       </GlassCard>
+
+      {/* Share Dialog */}
+      <ShareDialog
+        formId={form.id}
+        formTitle={form.title}
+        formStatus={form.status}
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
