@@ -22,13 +22,43 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path={ROUTES.HOME} element={<Index />} />
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
-          <Route path={ROUTES.FORMS_HOME} element={<FormsHomePage />} />
-          <Route path={ROUTES.CREATE_FORM} element={<CreateFormPage />} />
-          <Route path={ROUTES.BUILDER} element={<FormBuilderPage />} />
           <Route path={ROUTES.RESPONDENT} element={<RespondentPage />} />
+          
+          {/* Protected Routes */}
+          <Route 
+            path={ROUTES.HOME} 
+            element={
+              <ProtectedRoute>
+                <Index />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path={ROUTES.FORMS_HOME} 
+            element={
+              <ProtectedRoute>
+                <FormsHomePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path={ROUTES.CREATE_FORM} 
+            element={
+              <ProtectedRoute>
+                <CreateFormPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path={ROUTES.BUILDER} 
+            element={
+              <ProtectedRoute>
+                <FormBuilderPage />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path={ROUTES.RESPONSES_DASHBOARD} 
             element={
