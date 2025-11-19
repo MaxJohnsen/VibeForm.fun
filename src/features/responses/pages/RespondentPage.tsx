@@ -6,8 +6,6 @@ import { CompletionScreen } from '../components/CompletionScreen';
 import { FormHeader } from '../components/FormHeader';
 import { FormNavigation } from '../components/FormNavigation';
 import { WelcomeScreen } from '../components/WelcomeScreen';
-import { QuestionTransition } from '../components/QuestionTransition';
-import { QuestionSkeleton } from '../components/QuestionSkeleton';
 import { ProgressBar } from '../components/ProgressBar';
 import { Loader2 } from 'lucide-react';
 import { debounce } from '@/shared/utils/debounce';
@@ -19,12 +17,11 @@ export const RespondentPage = () => {
   const [canProceed, setCanProceed] = useState(false);
   const [currentAnswer, setCurrentAnswer] = useState<any>(null);
   const [previousQuestion, setPreviousQuestion] = useState<any>(null);
-  const [animationPhase, setAnimationPhase] = useState<'idle' | 'sliding-out' | 'loading' | 'fading-in'>('idle');
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionDirection, setTransitionDirection] = useState<'forward' | 'backward'>('forward');
-  const [showSkeleton, setShowSkeleton] = useState(false);
+  const [displayedQuestionId, setDisplayedQuestionId] = useState<string | null>(null);
+  const [justChanged, setJustChanged] = useState(false);
   const isSubmittingRef = useRef(false);
-  const skeletonTimerRef = useRef<NodeJS.Timeout>();
-  const phaseTimerRef = useRef<NodeJS.Timeout>();
 
   if (!formId) {
     return (
@@ -64,22 +61,8 @@ export const RespondentPage = () => {
     if (currentAnswer !== null && !isSubmittingRef.current) {
       // Freeze current question for slide-out animation
       setPreviousQuestion(currentQuestion);
-      
-      // Start slide-out immediately
-      setAnimationPhase('sliding-out');
+      setIsTransitioning(true);
       setTransitionDirection('forward');
-      
-      // After slide-out completes (300ms), enter loading state
-      phaseTimerRef.current = setTimeout(() => {
-        setAnimationPhase('loading');
-        
-        // Show skeleton if still loading after 200ms more
-        skeletonTimerRef.current = setTimeout(() => {
-          if (isSubmittingRef.current) {
-            setShowSkeleton(true);
-          }
-        }, 200);
-      }, 300);
       
       // Submit answer
       isSubmittingRef.current = true;
@@ -104,15 +87,8 @@ export const RespondentPage = () => {
     } else {
       // Freeze current question for slide-out animation
       setPreviousQuestion(currentQuestion);
-      
-      // Start slide-out immediately
-      setAnimationPhase('sliding-out');
+      setIsTransitioning(true);
       setTransitionDirection('backward');
-      
-      // After slide-out completes (300ms), enter loading state
-      phaseTimerRef.current = setTimeout(() => {
-        setAnimationPhase('loading');
-      }, 300);
       
       // Navigate to previous question
       setCurrentAnswer(null);
@@ -127,27 +103,22 @@ export const RespondentPage = () => {
     }
   }, [navigate]);
 
-  // When new question arrives, fade it in
+  // When new question arrives, update displayed ID and end transition
   useEffect(() => {
-    if (currentQuestion && animationPhase === 'loading') {
-      setAnimationPhase('fading-in');
-      setShowSkeleton(false);
+    if (currentQuestion?.id && currentQuestion.id !== displayedQuestionId) {
+      setDisplayedQuestionId(currentQuestion.id);
+      setIsTransitioning(false);
+      setJustChanged(true);
       isSubmittingRef.current = false;
       
-      // Clear any pending timers
-      if (skeletonTimerRef.current) {
-        clearTimeout(skeletonTimerRef.current);
-      }
-      if (phaseTimerRef.current) {
-        clearTimeout(phaseTimerRef.current);
-      }
-      
-      // Return to idle after fade-in completes
-      setTimeout(() => {
-        setAnimationPhase('idle');
+      // Remove fade-in class after animation completes
+      const timer = setTimeout(() => {
+        setJustChanged(false);
       }, 300);
+      
+      return () => clearTimeout(timer);
     }
-  }, [currentQuestion?.id, animationPhase]);
+  }, [currentQuestion?.id, displayedQuestionId]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -205,9 +176,9 @@ export const RespondentPage = () => {
           </div>
 
           <main className="flex-1 overflow-y-auto px-4 sm:px-6 flex items-center justify-center">
-            {/* Slide-out phase: Show frozen previous question */}
-            {animationPhase === 'sliding-out' && previousQuestion && (
-              <QuestionTransition phase="sliding-out" direction={transitionDirection}>
+            {/* Show previous question sliding out */}
+            {isTransitioning && previousQuestion && (
+              <div className={transitionDirection === 'forward' ? 'animate-slide-out-left' : 'animate-slide-out-right'}>
                 <div className="max-w-3xl w-full py-8 question-container">
                   <QuestionRenderer
                     question={previousQuestion}
@@ -215,19 +186,12 @@ export const RespondentPage = () => {
                     onValidationChange={() => {}}
                   />
                 </div>
-              </QuestionTransition>
-            )}
-            
-            {/* Loading phase: Show skeleton or minimal space */}
-            {animationPhase === 'loading' && (
-              <div className={showSkeleton ? 'animate-fade-in max-w-3xl w-full py-8' : 'h-32'}>
-                {showSkeleton ? <QuestionSkeleton /> : null}
               </div>
             )}
             
-            {/* Fade-in or idle phase: Show current question */}
-            {(animationPhase === 'fading-in' || animationPhase === 'idle') && currentQuestion && (
-              <QuestionTransition phase={animationPhase} direction={transitionDirection}>
+            {/* Show current question only when IDs match */}
+            {!isTransitioning && currentQuestion?.id === displayedQuestionId && (
+              <div className={justChanged ? 'animate-fade-in' : ''}>
                 <div className="max-w-3xl w-full py-8 question-container">
                   <QuestionRenderer
                     key={currentQuestion.id}
@@ -236,7 +200,7 @@ export const RespondentPage = () => {
                     onValidationChange={handleValidationChange}
                   />
                 </div>
-              </QuestionTransition>
+              </div>
             )}
           </main>
 
