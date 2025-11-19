@@ -42,7 +42,7 @@ export const YesNoQuestion = ({
       <div className="flex gap-3 sm:gap-4 max-w-md mx-auto">
         <button
           onClick={() => handleSelect(true)}
-          className={`flex-1 p-6 sm:p-8 rounded-2xl border-2 transition-all min-h-[120px] ${
+          className={`flex-1 p-6 sm:p-8 rounded-2xl border-2 transition-[transform,background-color,border-color,box-shadow] duration-200 min-h-[120px] mobile-transform ${
             value === true
               ? 'border-primary bg-primary text-primary-foreground shadow-lg scale-105'
               : 'border-border hover:border-primary/50 hover:bg-muted/50'
@@ -56,7 +56,7 @@ export const YesNoQuestion = ({
 
         <button
           onClick={() => handleSelect(false)}
-          className={`flex-1 p-6 sm:p-8 rounded-2xl border-2 transition-all min-h-[120px] ${
+          className={`flex-1 p-6 sm:p-8 rounded-2xl border-2 transition-[transform,background-color,border-color,box-shadow] duration-200 min-h-[120px] mobile-transform ${
             value === false
               ? 'border-destructive bg-destructive text-destructive-foreground shadow-lg scale-105'
               : 'border-border hover:border-destructive/50 hover:bg-muted/50'

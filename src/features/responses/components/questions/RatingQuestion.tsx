@@ -27,6 +27,12 @@ export const RatingQuestion = ({
 
   const ratings = Array.from({ length: max - min + 1 }, (_, i) => min + i);
 
+  // Prevent auto-focus on mobile after navigation
+  useEffect(() => {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(btn => btn.blur());
+  }, []);
+
   useEffect(() => {
     const isValid = value !== null;
     onValidationChange(isValid);
@@ -37,6 +43,10 @@ export const RatingQuestion = ({
 
   const handleSelect = (rating: number) => {
     setValue(rating);
+    // Remove focus after selection on touch devices
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
   };
 
   const emojis = ['😞', '😟', '😐', '🙂', '😊', '😄', '😁', '🤩', '😍', '🥰'];
@@ -53,7 +63,7 @@ export const RatingQuestion = ({
           onClick={() => handleSelect(rating)}
           onMouseEnter={() => setHoveredValue(rating)}
           onMouseLeave={() => setHoveredValue(null)}
-          className="p-1.5 sm:p-2 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center"
+          className="p-1.5 sm:p-2 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           <Star
             className={`h-8 w-8 sm:h-10 sm:w-10 transition-all ${
@@ -71,7 +81,7 @@ export const RatingQuestion = ({
         <button
           key={rating}
           onClick={() => handleSelect(rating)}
-          className={`text-3xl sm:text-4xl p-2 sm:p-4 transition-all min-w-[44px] min-h-[44px] ${
+          className={`text-3xl sm:text-4xl p-2 sm:p-4 transition-all min-w-[44px] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
             isSelected ? 'scale-125' : 'opacity-60 hover:opacity-100 hover:scale-110'
           }`}
         >
@@ -86,7 +96,7 @@ export const RatingQuestion = ({
         onClick={() => handleSelect(rating)}
         onMouseEnter={() => setHoveredValue(rating)}
         onMouseLeave={() => setHoveredValue(null)}
-        className={`w-11 h-11 sm:w-14 sm:h-14 min-w-[44px] min-h-[44px] rounded-lg border-2 transition-all text-base sm:text-lg font-medium ${
+        className={`w-11 h-11 sm:w-14 sm:h-14 min-w-[44px] min-h-[44px] rounded-lg border-2 transition-all text-base sm:text-lg font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
           isSelected
             ? 'border-primary bg-primary text-primary-foreground shadow-lg scale-110'
             : isHovered

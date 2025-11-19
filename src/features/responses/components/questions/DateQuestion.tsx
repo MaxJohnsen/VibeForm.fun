@@ -25,6 +25,12 @@ export const DateQuestion = ({
     initialValue ? new Date(initialValue) : undefined
   );
 
+  // Prevent auto-focus on mobile after navigation
+  useEffect(() => {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(btn => btn.blur());
+  }, []);
+
   useEffect(() => {
     const isValid = !!date;
     onValidationChange(isValid);
@@ -52,7 +58,7 @@ export const DateQuestion = ({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full max-w-md justify-start text-left font-normal text-base sm:text-lg py-4 sm:py-6 border-b border-t-0 border-x-0 rounded-none hover:border-primary min-h-[44px]"
+            className="w-full max-w-md justify-start text-left font-normal text-base sm:text-lg py-4 sm:py-6 border-b border-t-0 border-x-0 rounded-none hover:border-primary min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
           >
             <CalendarIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
             {date ? format(date, 'PPP') : <span className="text-muted-foreground">Pick a date</span>}
