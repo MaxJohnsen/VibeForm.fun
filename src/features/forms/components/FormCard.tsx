@@ -40,16 +40,25 @@ export const FormCard = ({ form }: FormCardProps) => {
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
+  const [responseCount, setResponseCount] = useState(0);
 
   useEffect(() => {
-    const fetchQuestionCount = async () => {
-      const { count } = await supabase
+    const fetchCounts = async () => {
+      // Fetch question count
+      const { count: qCount } = await supabase
         .from('questions')
         .select('*', { count: 'exact', head: true })
         .eq('form_id', form.id);
-      setQuestionCount(count || 0);
+      setQuestionCount(qCount || 0);
+      
+      // Fetch response count
+      const { count: rCount } = await supabase
+        .from('responses')
+        .select('*', { count: 'exact', head: true })
+        .eq('form_id', form.id);
+      setResponseCount(rCount || 0);
     };
-    fetchQuestionCount();
+    fetchCounts();
   }, [form.id]);
 
   const deleteFormMutation = useMutation({
@@ -134,7 +143,7 @@ export const FormCard = ({ form }: FormCardProps) => {
           </div>
           <div className="flex items-center gap-1">
             <MessageSquare className="h-3 w-3" />
-            <span>234 responses</span>
+            <span>{responseCount} {responseCount === 1 ? 'response' : 'responses'}</span>
           </div>
         </div>
 
