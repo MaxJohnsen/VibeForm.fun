@@ -43,8 +43,8 @@ export const DateQuestion = ({
   };
 
   return (
-    <div className="space-y-8 animate-fade-in" onKeyPress={handleKeyPress}>
-      <h2 className="text-4xl md:text-5xl font-bold text-foreground">
+    <div className="space-y-6 sm:space-y-8 animate-fade-in" onKeyPress={handleKeyPress}>
+      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
         {label}
       </h2>
 
@@ -52,13 +52,13 @@ export const DateQuestion = ({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-full max-w-md justify-start text-left font-normal text-lg py-6 border-b border-t-0 border-x-0 rounded-none hover:border-primary"
+            className="w-full max-w-md justify-start text-left font-normal text-base sm:text-lg py-4 sm:py-6 border-b border-t-0 border-x-0 rounded-none hover:border-primary min-h-[44px]"
           >
-            <CalendarIcon className="mr-2 h-5 w-5" />
+            <CalendarIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
             {date ? format(date, 'PPP') : <span className="text-muted-foreground">Pick a date</span>}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0" align="center" side="bottom">
           <Calendar
             mode="single"
             selected={date}
