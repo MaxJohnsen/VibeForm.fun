@@ -130,7 +130,7 @@ export const RespondentPage = () => {
           />
 
           <main className="min-h-screen pt-16 sm:pt-20 md:pt-24 pb-20 sm:pb-24 md:pb-32 px-4 sm:px-6 flex items-center justify-center">
-            <div className="max-w-3xl w-full">
+            <div className="max-w-3xl w-full question-container">
           <QuestionRenderer
             key={currentQuestion.id}
             question={currentQuestion}

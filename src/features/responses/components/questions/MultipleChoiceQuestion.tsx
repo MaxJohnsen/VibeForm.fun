@@ -29,6 +29,12 @@ export const MultipleChoiceQuestion = ({
   const [otherValue, setOtherValue] = useState('');
   const [showOtherInput, setShowOtherInput] = useState(false);
 
+  // Prevent auto-focus on mobile after navigation
+  useEffect(() => {
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(btn => btn.blur());
+  }, []);
+
   useEffect(() => {
     const hasSelection = selectedValues.length > 0 || (showOtherInput && otherValue.trim().length > 0);
     onValidationChange(hasSelection);
