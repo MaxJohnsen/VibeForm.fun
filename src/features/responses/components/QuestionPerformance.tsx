@@ -182,7 +182,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-4 mb-2">
                     <div className="text-sm font-medium">
-                      Q{question.position}. {question.label}
+                      Q{question.position + 1}. {question.label}
                     </div>
                     <div className="flex flex-col items-end shrink-0">
                       <div className={cn('text-sm font-medium whitespace-nowrap', dropoffColor)}>
