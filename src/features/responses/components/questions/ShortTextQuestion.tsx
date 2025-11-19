@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ShortTextQuestionProps {
   label: string;
@@ -17,6 +18,7 @@ export const ShortTextQuestion = ({
   onValidationChange,
 }: ShortTextQuestionProps) => {
   const [value, setValue] = useState(initialValue ?? '');
+  const isMobile = useIsMobile();
   const isRequired = settings?.required !== false;
   const placeholder = settings?.placeholder || 'Type your answer here...';
   const maxLength = settings?.maxLength;
@@ -29,9 +31,19 @@ export const ShortTextQuestion = ({
     }
   }, [value, isRequired, onValidationChange, onSubmit]);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && value.trim()) {
-      onSubmit(value);
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      
+      if (isMobile) {
+        // On mobile: Just dismiss keyboard
+        e.currentTarget.blur();
+      } else {
+        // On desktop: Submit if valid
+        if (value.trim()) {
+          onSubmit(value);
+        }
+      }
     }
   };
 
