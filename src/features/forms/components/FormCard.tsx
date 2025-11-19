@@ -100,13 +100,13 @@ export const FormCard = ({ form }: FormCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-green-50 text-green-700 border-green-300';
       case 'draft':
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-blue-50 text-blue-700 border-blue-300';
       case 'archived':
-        return 'bg-orange-100 text-orange-700 border-orange-200';
+        return 'bg-orange-50 text-orange-700 border-orange-300';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-gray-50 text-gray-700 border-gray-300';
     }
   };
 

@@ -68,13 +68,13 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-green-50 text-green-700 border-green-300';
       case 'draft':
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-blue-50 text-blue-700 border-blue-300';
       case 'archived':
-        return 'bg-orange-100 text-orange-700 border-orange-200';
+        return 'bg-orange-50 text-orange-700 border-orange-300';
       default:
-        return 'bg-gray-100 text-gray-700 border-gray-200';
+        return 'bg-gray-50 text-gray-700 border-gray-300';
     }
   };
 
@@ -105,6 +105,14 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
       </div>
 
       <div className="flex items-center gap-3">
+        {form && (
+          <StatusMenu
+            formId={form.id}
+            currentStatus={form.status}
+            questionCount={questionCount}
+            onStatusChange={handleStatusChange}
+          />
+        )}
         <Button 
           variant="outline" 
           size="sm" 
@@ -121,14 +129,6 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
           <Share2 className="h-4 w-4 mr-2" />
           Share
         </Button>
-        {form && (
-          <StatusMenu
-            formId={form.id}
-            currentStatus={form.status}
-            questionCount={questionCount}
-            onStatusChange={handleStatusChange}
-          />
-        )}
       </div>
       
       {form && (

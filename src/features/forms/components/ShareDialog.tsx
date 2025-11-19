@@ -84,15 +84,15 @@ export const ShareDialog = ({ formId, formTitle, formStatus, open, onOpenChange 
           </DialogDescription>
         </DialogHeader>
 
-        {formStatus !== 'active' && (
-          <Alert>
-            <AlertDescription>
-              This form is currently {formStatus}. Activate it to start collecting responses.
+        {formStatus !== 'active' ? (
+          <Alert className="bg-orange-50 border-orange-200">
+            <AlertDescription className="text-orange-800">
+              <div className="font-semibold mb-1">Form is {formStatus}</div>
+              <p className="text-sm">You need to activate this form before you can share it with respondents. Change the status to "Active" to enable sharing.</p>
             </AlertDescription>
           </Alert>
-        )}
-
-        <Tabs defaultValue="link" className="w-full">
+        ) : (
+          <Tabs defaultValue="link" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="link">Link</TabsTrigger>
             <TabsTrigger value="qr">QR Code</TabsTrigger>
@@ -141,6 +141,7 @@ export const ShareDialog = ({ formId, formTitle, formStatus, open, onOpenChange 
             </Button>
           </TabsContent>
         </Tabs>
+        )}
       </DialogContent>
     </Dialog>
   );
