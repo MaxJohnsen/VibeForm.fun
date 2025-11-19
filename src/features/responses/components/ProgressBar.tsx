@@ -14,7 +14,7 @@ export const ProgressBar = ({ current, total }: ProgressBarProps) => {
       </div>
       <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
         <div
-          className="h-full bg-primary transition-all duration-300 ease-out"
+          className="h-full bg-primary transition-all duration-[600ms] ease-spring"
           style={{ width: `${percentage}%` }}
         />
       </div>
