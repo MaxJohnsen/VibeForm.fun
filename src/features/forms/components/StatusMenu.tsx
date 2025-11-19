@@ -99,11 +99,11 @@ export const StatusMenu = ({
             <DropdownMenuItem
               onClick={() => handleStatusClick('active')}
               disabled={questionCount === 0}
-              className="flex-col items-start py-3 cursor-pointer"
+              className="flex-col items-start py-3 cursor-pointer hover:bg-green-50/50 focus:bg-green-50/50 data-[disabled]:opacity-50"
             >
               <div className="flex items-center w-full">
                 <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
-                <span className="font-medium">Activate Form</span>
+                <span className="font-medium text-foreground">Activate Form</span>
               </div>
               <span className="text-xs text-muted-foreground ml-6 mt-1">
                 Make live and start collecting responses
@@ -114,11 +114,11 @@ export const StatusMenu = ({
           {currentStatus !== 'draft' && (
             <DropdownMenuItem
               onClick={() => handleStatusClick('draft')}
-              className="flex-col items-start py-3 cursor-pointer"
+              className="flex-col items-start py-3 cursor-pointer hover:bg-blue-50/50 focus:bg-blue-50/50"
             >
               <div className="flex items-center w-full">
                 <FileEdit className="h-4 w-4 mr-2 text-blue-600" />
-                <span className="font-medium">Move to Draft</span>
+                <span className="font-medium text-foreground">Move to Draft</span>
               </div>
               <span className="text-xs text-muted-foreground ml-6 mt-1">
                 Continue editing before going live
@@ -129,11 +129,11 @@ export const StatusMenu = ({
           {currentStatus !== 'archived' && (
             <DropdownMenuItem
               onClick={() => handleStatusClick('archived')}
-              className="flex-col items-start py-3 cursor-pointer"
+              className="flex-col items-start py-3 cursor-pointer hover:bg-orange-50/50 focus:bg-orange-50/50"
             >
               <div className="flex items-center w-full">
                 <Archive className="h-4 w-4 mr-2 text-orange-600" />
-                <span className="font-medium">Archive Form</span>
+                <span className="font-medium text-foreground">Archive Form</span>
               </div>
               <span className="text-xs text-muted-foreground ml-6 mt-1">
                 Stop accepting new responses
