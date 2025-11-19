@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Eye, Share2, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { Form, formsApi } from '@/features/forms/api/formsApi';
@@ -106,12 +107,15 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
 
       <div className="flex items-center gap-3">
         {form && (
-          <StatusMenu
-            formId={form.id}
-            currentStatus={form.status}
-            questionCount={questionCount}
-            onStatusChange={handleStatusChange}
-          />
+          <>
+            <StatusMenu
+              formId={form.id}
+              currentStatus={form.status}
+              questionCount={questionCount}
+              onStatusChange={handleStatusChange}
+            />
+            <Separator orientation="vertical" className="h-6" />
+          </>
         )}
         <Button 
           variant="outline" 
