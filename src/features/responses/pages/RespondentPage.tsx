@@ -38,6 +38,7 @@ export const RespondentPage = () => {
     canGoBack,
     submitAnswer,
     goBack,
+    resetResponse,
   } = useRespondent(formId);
 
   const isLastQuestion = currentQuestion?.position === totalQuestions - 1;
@@ -86,10 +87,18 @@ export const RespondentPage = () => {
   }, [isFirstQuestion, goBack]);
 
   const handleClose = useCallback(() => {
-    if (window.confirm('Are you sure you want to exit? Your progress will be saved.')) {
-      navigate('/');
+    if (window.confirm('Are you sure you want to restart? Your progress will be lost.')) {
+      resetResponse();
+      setShowWelcome(true);
+      setCurrentAnswer(null);
+      setCanProceed(false);
     }
-  }, [navigate]);
+  }, [resetResponse]);
+
+  const handleRestart = useCallback(() => {
+    resetResponse();
+    setShowWelcome(true);
+  }, [resetResponse]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -165,7 +174,10 @@ export const RespondentPage = () => {
       {isComplete && (
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="max-w-2xl w-full">
-            <CompletionScreen formTitle={formInfo?.title || 'this form'} />
+            <CompletionScreen 
+              formTitle={formInfo?.title || 'this form'} 
+              onRestart={handleRestart}
+            />
           </div>
         </div>
       )}

@@ -113,20 +113,17 @@ export const useRespondent = (formId: string) => {
     setIsSubmitting(true);
     try {
       const data = await responsesApi.navigateBack(sessionToken, currentQuestion.id);
-      setCurrentQuestion(data.question);
-      setTotalQuestions(data.totalQuestions);
       
-      // Disable back button if we're back at the first question
-      // The navigate-back endpoint will fail if there's only one answer
-      setCanGoBack(true); // Keep enabled until we hit the first question
-    } catch (error: any) {
-      console.error('Failed to navigate back:', error);
-      
-      // If we hit the first question, disable back button
-      if (error?.message?.includes('first question') || error?.message?.includes('No previous')) {
-        setCanGoBack(false);
+      if (data.question) {
+        setCurrentQuestion(data.question);
+        
+        // Disable back button if we're at the first question
+        if (data.question.position === 0) {
+          setCanGoBack(false);
+        }
       }
-      
+    } catch (error) {
+      console.error('Failed to navigate back:', error);
       toast({
         title: 'Error',
         description: 'Failed to go back. Please try again.',
@@ -137,8 +134,19 @@ export const useRespondent = (formId: string) => {
     }
   };
 
+  const resetResponse = () => {
+    // Clear localStorage
+    localStorage.removeItem(`response_session_${formId}`);
+    
+    // Reset all state
+    setSessionToken(null);
+    setCurrentQuestion(null);
+    setIsComplete(false);
+    setCanGoBack(false);
+    setIsSubmitting(false);
+  };
+
   return {
-    sessionToken,
     currentQuestion,
     formInfo,
     totalQuestions,
@@ -148,5 +156,6 @@ export const useRespondent = (formId: string) => {
     canGoBack,
     submitAnswer,
     goBack,
+    resetResponse,
   };
 };
