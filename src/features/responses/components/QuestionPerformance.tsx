@@ -8,6 +8,7 @@ interface QuestionPerformanceProps {
     label: string;
     type: string;
     position: number;
+    settings?: any;
   }>;
   responses: Array<{
     status: string;
@@ -47,13 +48,15 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
         const ratingValues = answers
           .map(a => Number(a.answer_value))
           .filter(v => !isNaN(v));
+        const maxScale = question.settings?.max || 10;
         const avgRating = ratingValues.length > 0
           ? ratingValues.reduce((sum, v) => sum + v, 0) / ratingValues.length
           : 0;
         
-        // Create star visualization
-        const fullStars = Math.floor(avgRating);
-        const hasHalfStar = avgRating % 1 >= 0.5;
+        // Normalize to 5-star scale for visualization
+        const normalizedRating = (avgRating / maxScale) * 5;
+        const fullStars = Math.floor(normalizedRating);
+        const hasHalfStar = normalizedRating % 1 >= 0.5;
         
         visual = (
           <div className="flex items-center gap-1 text-yellow-500">
@@ -70,8 +73,8 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
             ))}
           </div>
         );
-        metric = avgRating.toFixed(1);
-        details = `Based on ${ratingValues.length} ratings`;
+        metric = ratingValues.length > 0 ? `${avgRating.toFixed(1)}/${maxScale}` : `No ratings (scale: 1-${maxScale})`;
+        details = ratingValues.length > 0 ? `Based on ${ratingValues.length} ratings` : '';
         break;
         
       case 'yes_no':
@@ -206,11 +209,6 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                         {visual}
                       </div>
                     )}
-                    
-                    <div className="text-xs text-muted-foreground pt-1">
-                      {reachedCount} {reachedCount === 1 ? 'respondent' : 'respondents'} reached this question
-                      {droppedOffCount > 0 && ` • ${droppedOffCount} dropped off here`}
-                    </div>
                   </div>
                 </div>
               </div>

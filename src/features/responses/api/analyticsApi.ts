@@ -52,7 +52,7 @@ export const analyticsApi = {
     // Fetch all questions for this form
     const { data: questions, error: questionsError } = await supabase
       .from('questions')
-      .select('*')
+      .select('id, label, type, position, settings')
       .eq('form_id', formId)
       .order('position', { ascending: true });
 
