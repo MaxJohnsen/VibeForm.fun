@@ -1,8 +1,15 @@
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Eye, Share2, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
-import { Form } from '@/features/forms/api/formsApi';
+import { Form, formsApi } from '@/features/forms/api/formsApi';
+import { ShareDialog } from '@/features/forms/components/ShareDialog';
+import { StatusMenu } from '@/features/forms/components/StatusMenu';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BuilderTopBarProps {
   form: Form | null;
@@ -11,10 +18,63 @@ interface BuilderTopBarProps {
 
 export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [questionCount, setQuestionCount] = useState(0);
+
+  useEffect(() => {
+    if (!form) return;
+    const fetchQuestionCount = async () => {
+      const { count } = await supabase
+        .from('questions')
+        .select('*', { count: 'exact', head: true })
+        .eq('form_id', form.id);
+      setQuestionCount(count || 0);
+    };
+    fetchQuestionCount();
+  }, [form?.id]);
+
+  const updateStatusMutation = useMutation({
+    mutationFn: (newStatus: 'draft' | 'active' | 'archived') =>
+      formsApi.updateForm(form!.id, { status: newStatus }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['forms'] });
+      queryClient.invalidateQueries({ queryKey: ['form', form?.id] });
+      toast({
+        title: 'Status updated',
+        description: 'Form status has been changed successfully.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  const handleStatusChange = async (newStatus: 'draft' | 'active' | 'archived') => {
+    await updateStatusMutation.mutateAsync(newStatus);
+  };
 
   const handlePreview = () => {
     if (form) {
       window.open(ROUTES.getRespondentRoute(form.id), '_blank');
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-700 border-green-200';
+      case 'draft':
+        return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'archived':
+        return 'bg-orange-100 text-orange-700 border-orange-200';
+      default:
+        return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
@@ -28,12 +88,19 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <div>
-          <h1 className="font-semibold text-lg">{form?.title || 'Untitled Form'}</h1>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <div className={`h-2 w-2 rounded-full ${isSaving ? 'bg-muted-foreground animate-pulse' : 'bg-green-500'}`} />
-            <span>{isSaving ? 'Saving...' : 'Saved'}</span>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="font-semibold text-lg">{form?.title || 'Untitled Form'}</h1>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className={`h-2 w-2 rounded-full ${isSaving ? 'bg-muted-foreground animate-pulse' : 'bg-green-500'}`} />
+              <span>{isSaving ? 'Saving...' : 'Saved'}</span>
+            </div>
           </div>
+          {form && (
+            <Badge className={`${getStatusColor(form.status)} capitalize rounded-full px-3 py-1 text-xs font-medium border`}>
+              {form.status}
+            </Badge>
+          )}
         </div>
       </div>
 
@@ -50,11 +117,29 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
           <Eye className="h-4 w-4 mr-2" />
           Preview
         </Button>
-        <Button size="sm">
+        <Button size="sm" onClick={() => setShowShareDialog(true)}>
           <Share2 className="h-4 w-4 mr-2" />
           Share
         </Button>
+        {form && (
+          <StatusMenu
+            formId={form.id}
+            currentStatus={form.status}
+            questionCount={questionCount}
+            onStatusChange={handleStatusChange}
+          />
+        )}
       </div>
+      
+      {form && (
+        <ShareDialog
+          formId={form.id}
+          formTitle={form.title}
+          formStatus={form.status}
+          open={showShareDialog}
+          onOpenChange={setShowShareDialog}
+        />
+      )}
     </div>
   );
 };
