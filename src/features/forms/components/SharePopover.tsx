@@ -43,7 +43,8 @@ export const SharePopover = ({ formId, formTitle, formStatus, children }: ShareP
   };
 
   const handleDownloadQR = () => {
-    const svg = document.getElementById('qr-code-svg-popover');
+    // Use the high-resolution QR code for download
+    const svg = document.getElementById('qr-code-svg-download');
     if (!svg) return;
 
     const svgData = new XMLSerializer().serializeToString(svg);
@@ -52,9 +53,23 @@ export const SharePopover = ({ formId, formTitle, formStatus, children }: ShareP
     const img = new Image();
 
     img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx?.drawImage(img, 0, 0);
+      // Set canvas to high resolution (2048x2048)
+      const size = 2048;
+      canvas.width = size;
+      canvas.height = size;
+      
+      // Add white background for better QR code scanning
+      if (ctx) {
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, size, size);
+        
+        // Add padding (8% on each side)
+        const padding = size * 0.08;
+        const qrSize = size - padding * 2;
+        ctx.drawImage(img, padding, padding, qrSize, qrSize);
+      }
+      
+      // Export as high-quality PNG
       const pngFile = canvas.toDataURL('image/png');
 
       const downloadLink = document.createElement('a');
@@ -64,7 +79,7 @@ export const SharePopover = ({ formId, formTitle, formStatus, children }: ShareP
 
       toast({
         title: 'QR code downloaded',
-        description: 'The QR code has been saved to your device',
+        description: 'High-resolution QR code (2048×2048) saved',
       });
     };
 
@@ -131,6 +146,15 @@ export const SharePopover = ({ formId, formTitle, formStatus, children }: ShareP
                     size={140}
                     level="H"
                     className="bg-white p-2 rounded"
+                  />
+                </div>
+                {/* Hidden High-Res QR Code for download */}
+                <div className="sr-only">
+                  <QRCodeSVG
+                    id="qr-code-svg-download"
+                    value={shareUrl}
+                    size={2048}
+                    level="H"
                   />
                 </div>
                 <Button
