@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Eye, Share2, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Eye, Share2, BarChart3, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+} from '@/components/ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { Form, formsApi } from '@/features/forms/api/formsApi';
@@ -11,6 +19,7 @@ import { StatusMenu } from '@/features/forms/components/StatusMenu';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BuilderTopBarProps {
   form: Form | null;
@@ -21,6 +30,7 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [questionCount, setQuestionCount] = useState(0);
 
   useEffect(() => {
@@ -78,6 +88,90 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
     }
   };
 
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="h-14 border-b border-border/50 glass-panel flex items-center justify-between px-4">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="-ml-2"
+            onClick={() => navigate(ROUTES.FORMS_HOME)}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex-1 min-w-0">
+            <h1 className="font-semibold text-base truncate">{form?.title || 'Untitled Form'}</h1>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className={`h-1.5 w-1.5 rounded-full ${isSaving ? 'bg-muted-foreground animate-pulse' : 'bg-green-500'}`} />
+              <span>{isSaving ? 'Saving...' : 'Saved'}</span>
+              {form && (
+                <>
+                  <span>•</span>
+                  <Badge className={`${getStatusColor(form.status)} capitalize rounded-full px-2 py-0 text-[10px] font-medium border h-4`}>
+                    {form.status}
+                  </Badge>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {form && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handlePreview}>
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Form
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(ROUTES.getResponsesDashboardRoute(form.id))}>
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Share</DropdownMenuLabel>
+              <div className="px-2 py-1">
+                <SharePopover
+                  formId={form.id}
+                  formTitle={form.title}
+                  formStatus={form.status}
+                >
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share Form
+                  </Button>
+                </SharePopover>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+              <div className="px-2 py-1">
+                <StatusMenu
+                  formId={form.id}
+                  currentStatus={form.status}
+                  questionCount={questionCount}
+                  onStatusChange={handleStatusChange}
+                >
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    Status: <span className="capitalize ml-1">{form.status}</span>
+                  </Button>
+                </StatusMenu>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop Layout
   return (
     <div className="h-16 border-b border-border/50 glass-panel flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
@@ -116,9 +210,9 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
             <Separator orientation="vertical" className="h-6" />
           </>
         )}
-        <Button 
-          variant="outline" 
-          size="sm" 
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => navigate(ROUTES.getResponsesDashboardRoute(form?.id || ''))}
         >
           <BarChart3 className="h-4 w-4 mr-2" />
@@ -144,3 +238,5 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
     </div>
   );
 };
+
+

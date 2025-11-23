@@ -35,7 +35,7 @@ export const ConditionBuilder = ({
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="z-[200]">
             {operators.map((op) => (
               <SelectItem key={op} value={op}>
                 {isYesNoQuestion ? 'Answer is' : getOperatorLabel(op)}
@@ -55,7 +55,7 @@ export const ConditionBuilder = ({
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select answer..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="true">Yes (true)</SelectItem>
                   <SelectItem value="false">No (false)</SelectItem>
                 </SelectContent>

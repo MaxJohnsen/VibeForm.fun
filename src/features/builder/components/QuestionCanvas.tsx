@@ -49,8 +49,8 @@ const DropZone = ({
   return (
     <div
       ref={setNodeRef}
-      className={`h-12 my-2 flex items-center justify-center transition-all duration-200 ${
-        isOver 
+      className={`h-10 md:h-12 my-1 md:my-2 flex items-center justify-center transition-all duration-200 ${
+        isOver
           ? 'bg-primary/10 border-2 border-dashed border-primary rounded-xl' 
           : 'border-2 border-dashed border-transparent'
       }`}
@@ -106,8 +106,8 @@ export const QuestionCanvas = ({
   }
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto scroll-smooth">
-      <div className="max-w-3xl mx-auto space-y-4 animate-fade-in">
+    <div className="flex-1 p-4 md:p-8 overflow-y-auto scroll-smooth">
+      <div className="max-w-3xl mx-auto space-y-3 md:space-y-4 animate-fade-in">
         <SortableContext
           items={questions.map((q) => q.id)}
           strategy={verticalListSortingStrategy}

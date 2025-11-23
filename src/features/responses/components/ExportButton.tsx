@@ -50,9 +50,10 @@ export const ExportButton = ({ formId, formTitle }: ExportButtonProps) => {
       size="sm"
       onClick={handleExport}
       disabled={isExporting}
+      className="h-8 md:h-9 px-2 md:px-4"
     >
-      <Download className="h-4 w-4 mr-2" />
-      {isExporting ? 'Exporting...' : 'Export CSV'}
+      <Download className="h-4 w-4 md:mr-2" />
+      <span className="hidden md:inline">{isExporting ? 'Exporting...' : 'Export CSV'}</span>
     </Button>
   );
 };

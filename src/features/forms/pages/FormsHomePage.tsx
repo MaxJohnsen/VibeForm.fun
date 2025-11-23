@@ -62,29 +62,30 @@ export const FormsHomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <AppSidebar />
-      
-      <div className="ml-16 px-8 py-8">
+
+      <div className="ml-0 md:ml-16 px-4 md:px-8 py-4 md:py-8 pb-24 md:pb-8">
         {/* Header */}
-        <div className="flex flex-col gap-6 mb-8">
-          <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Your Projects</h1>
-              <p className="text-muted-foreground">
+              <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2">Your Projects</h1>
+              <p className="text-muted-foreground hidden md:block">
                 Create beautiful conversational forms
               </p>
             </div>
             <Button
-              size="lg"
+              size="default"
               onClick={() => navigate(ROUTES.CREATE_FORM)}
-              className="gap-2 rounded-full px-6"
+              className="gap-2 rounded-full px-4 md:px-6"
             >
               <Plus className="h-5 w-5" />
-              Create New Form
+              <span className="hidden md:inline">Create New Form</span>
+              <span className="md:hidden">New</span>
             </Button>
           </div>
 
           {/* Search and Filters */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <div className="flex-1">
               <SearchBar
                 placeholder="Search your forms..."
@@ -92,56 +93,59 @@ export const FormsHomePage = () => {
                 onChange={setSearchQuery}
               />
             </div>
-            
-            {/* Filter Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <Filter className="h-4 w-4" />
-                  Filter
-                  {filterType !== 'all' && (
-                    <span className="ml-1 text-xs text-muted-foreground">
-                      ({filterType})
-                    </span>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setFilterType('all')}>
-                  All Forms
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterType('active')}>
-                  Active
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterType('draft')}>
-                  Draft
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterType('archived')}>
-                  Archived
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
 
-            {/* Sort Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
-                  <ArrowUpDown className="h-4 w-4" />
-                  Sort
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setSortType('updated')}>
-                  Last Updated
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortType('created')}>
-                  Date Created
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortType('title')}>
-                  Title (A-Z)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Filter Dropdown */}
+            <div className="flex gap-2 md:contents">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="gap-2 md:w-auto md:px-4 shrink-0">
+                    <Filter className="h-4 w-4" />
+                    <span className="hidden md:inline">Filter</span>
+                    {filterType !== 'all' && (
+                      <span className="hidden md:inline ml-1 text-xs text-muted-foreground">
+                        ({filterType})
+                      </span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setFilterType('all')}>
+                    All Forms
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterType('active')}>
+                    Active
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterType('draft')}>
+                    Draft
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setFilterType('archived')}>
+                    Archived
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Sort Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon" className="gap-2 md:w-auto md:px-4 shrink-0">
+                    <ArrowUpDown className="h-4 w-4" />
+                    <span className="hidden md:inline">Sort</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setSortType('updated')}>
+                    Last Updated
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortType('created')}>
+                    Date Created
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortType('title')}>
+                    Title (A-Z)
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+            </div>
           </div>
         </div>
 
@@ -152,6 +156,6 @@ export const FormsHomePage = () => {
           onCreateNew={() => navigate(ROUTES.CREATE_FORM)}
         />
       </div>
-    </div>
+    </div >
   );
 };

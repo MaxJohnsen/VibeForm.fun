@@ -18,7 +18,7 @@ export const RatingQuestion = ({
 }: RatingQuestionProps) => {
   const [value, setValue] = useState<number | null>(initialValue ?? null);
   const [hoveredValue, setHoveredValue] = useState<number | null>(null);
-  
+
   const min = settings?.min || 1;
   const max = settings?.max || 10;
   const scaleType = settings?.scaleType || 'numbers';
@@ -66,11 +66,10 @@ export const RatingQuestion = ({
           className="p-1.5 sm:p-2 transition-all min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           <Star
-            className={`h-8 w-8 sm:h-10 sm:w-10 transition-all ${
-              isSelected || isInRange
+            className={`h-8 w-8 sm:h-10 sm:w-10 transition-all ${isSelected || isInRange
                 ? 'fill-primary text-primary scale-110'
                 : 'text-border hover:text-primary/50'
-            }`}
+              }`}
           />
         </button>
       );
@@ -81,9 +80,8 @@ export const RatingQuestion = ({
         <button
           key={rating}
           onClick={() => handleSelect(rating)}
-          className={`text-3xl sm:text-4xl p-2 sm:p-4 transition-all min-w-[44px] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
-            isSelected ? 'scale-125' : 'opacity-60 hover:opacity-100 hover:scale-110'
-          }`}
+          className={`text-3xl sm:text-4xl p-2 sm:p-4 transition-all min-w-[44px] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${isSelected ? 'scale-125' : 'opacity-60 hover:opacity-100 hover:scale-110'
+            }`}
         >
           {emojis[rating - 1]}
         </button>
@@ -96,13 +94,12 @@ export const RatingQuestion = ({
         onClick={() => handleSelect(rating)}
         onMouseEnter={() => setHoveredValue(rating)}
         onMouseLeave={() => setHoveredValue(null)}
-        className={`w-11 h-11 sm:w-14 sm:h-14 min-w-[44px] min-h-[44px] rounded-lg border-2 transition-all text-base sm:text-lg font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
-          isSelected
+        className={`w-11 h-11 sm:w-14 sm:h-14 min-w-[44px] min-h-[44px] rounded-lg border-2 transition-all text-base sm:text-lg font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${isSelected
             ? 'border-primary bg-primary text-primary-foreground shadow-lg scale-110'
             : isHovered
-            ? 'border-primary/50 bg-primary/10'
-            : 'border-border hover:border-primary/50 hover:bg-muted/50'
-        }`}
+              ? 'border-primary/50 bg-primary/10'
+              : 'border-border hover:border-primary/50 hover:bg-muted/50'
+          }`}
       >
         {rating}
       </button>

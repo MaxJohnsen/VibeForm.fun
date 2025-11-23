@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { GripVertical, Trash2, Mail, Phone, Calendar, Star, GitBranch, ArrowRight } from 'lucide-react';
+import { GripVertical, Trash2, Mail, Phone, Calendar, Star, GitBranch, ArrowRight, MoreHorizontal } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -48,7 +49,8 @@ export const QuestionCard = ({
   allQuestions,
 }: QuestionCardProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  
+  const isMobile = useIsMobile();
+
   const {
     attributes,
     listeners,
@@ -56,7 +58,7 @@ export const QuestionCard = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ 
+  } = useSortable({
     id: question.id,
     transition: {
       duration: 200,
@@ -75,7 +77,7 @@ export const QuestionCard = ({
   // Get logic summary for badge
   const getLogicSummary = () => {
     if (!hasLogic) return '';
-    
+
     const targets: string[] = [];
     logic.rules?.forEach(rule => {
       if (rule.action.type === 'jump' && rule.action.target_question_id) {
@@ -88,10 +90,10 @@ export const QuestionCard = ({
         targets.push('End');
       }
     });
-    
+
     const ruleCount = logic.rules?.length || 0;
     const uniqueTargets = [...new Set(targets)];
-    
+
     if (uniqueTargets.length === 0) return `${ruleCount} rule${ruleCount > 1 ? 's' : ''}`;
     return `${ruleCount} rule${ruleCount > 1 ? 's' : ''} → ${uniqueTargets.join(', ')}`;
   };
@@ -103,7 +105,7 @@ export const QuestionCard = ({
         data-question-id={question.id}
         style={style}
         className={cn(
-          'relative glass-panel p-6 rounded-xl transition-all duration-200 group',
+          'relative glass-panel p-3 md:p-4 rounded-xl transition-all duration-200 group',
           isSelected
             ? '!border !border-primary shadow-xl shadow-primary/40 ring-4 ring-primary/10'
             : '!border !border-border/30 hover:!border-border',
@@ -113,12 +115,12 @@ export const QuestionCard = ({
         onClick={!isDragging ? onSelect : undefined}
       >
         {/* Action Buttons - Top Right */}
-        <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <div className="absolute top-2 right-2 md:top-3 md:right-3 flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
           {onOpenLogic && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 hidden md:flex"
               onMouseDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.preventDefault();
@@ -130,11 +132,11 @@ export const QuestionCard = ({
               <GitBranch className="h-4 w-4 text-primary" />
             </Button>
           )}
-          
+
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 hidden md:flex"
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.preventDefault();
@@ -144,7 +146,7 @@ export const QuestionCard = ({
           >
             <Trash2 className="h-4 w-4 text-destructive" />
           </Button>
-          
+
           <div
             {...attributes}
             {...listeners}
@@ -156,15 +158,15 @@ export const QuestionCard = ({
         </div>
 
         {/* Question Number */}
-        <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary mb-3">
+        <div className="flex-shrink-0 w-6 h-6 md:w-7 md:h-7 rounded-lg bg-primary/10 flex items-center justify-center text-xs md:text-sm font-semibold text-primary mb-2 md:mb-3">
           {index + 1}
         </div>
 
         {/* Question Label */}
-        <div className="text-base font-medium text-foreground mb-4">
+        <div className="text-base font-medium text-foreground mb-3 md:mb-4">
           {question.label}
         </div>
-        
+
         {/* Preview Input */}
         <div>
           {question.type === 'short_text' && (
@@ -174,7 +176,7 @@ export const QuestionCard = ({
               className="opacity-50 border-border/50"
             />
           )}
-          
+
           {question.type === 'long_text' && (
             <Textarea
               placeholder="Your answer..."
@@ -183,17 +185,17 @@ export const QuestionCard = ({
               rows={2}
             />
           )}
-          
+
           {question.type === 'multiple_choice' && (() => {
             const settings = question.settings as MultipleChoiceSettings;
             const options = settings?.options || [];
             const allowMultiple = settings?.allowMultiple || false;
             const allowOther = settings?.allowOther || false;
-            
+
             return (
               <div className="space-y-2">
                 {options.map((option) => (
-                  <div key={option.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/50 opacity-50">
+                  <div key={option.id} className="flex items-center gap-3 p-2 md:p-3 rounded-lg border border-border/50 opacity-50">
                     <div className={cn(
                       "w-4 h-4 border-2 border-muted-foreground",
                       allowMultiple ? "rounded" : "rounded-full"
@@ -201,9 +203,9 @@ export const QuestionCard = ({
                     <span className="text-sm text-muted-foreground">{option.text}</span>
                   </div>
                 ))}
-                
+
                 {allowOther && (
-                  <div className="flex items-center gap-3 p-3 rounded-lg border border-border/50 opacity-50">
+                  <div className="flex items-center gap-3 p-2 md:p-3 rounded-lg border border-border/50 opacity-50">
                     <div className={cn(
                       "w-4 h-4 border-2 border-muted-foreground",
                       allowMultiple ? "rounded" : "rounded-full"
@@ -214,22 +216,22 @@ export const QuestionCard = ({
               </div>
             );
           })()}
-          
+
           {question.type === 'yes_no' && (() => {
             const settings = question.settings as YesNoSettings;
             const yesLabel = settings?.yesLabel || 'Yes';
             const noLabel = settings?.noLabel || 'No';
             const buttonStyle = settings?.buttonStyle || 'pills';
-            
+
             const getButtonClasses = (isYes: boolean) => {
               const baseClasses = "flex-1 py-2 px-4 text-sm font-medium opacity-50 transition-all";
-              
+
               switch (buttonStyle) {
                 case 'pills':
                   return cn(
                     baseClasses,
                     "rounded-full border-2",
-                    isYes 
+                    isYes
                       ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-600 dark:text-emerald-400"
                       : "border-border/30 bg-muted/5 text-muted-foreground"
                   );
@@ -251,7 +253,7 @@ export const QuestionCard = ({
                   );
               }
             };
-            
+
             return (
               <div className="flex gap-3">
                 <button disabled className={getButtonClasses(true)}>
@@ -263,7 +265,7 @@ export const QuestionCard = ({
               </div>
             );
           })()}
-          
+
           {question.type === 'rating' && (() => {
             const settings = question.settings as RatingSettings;
             const scaleType = settings?.scaleType || 'stars';
@@ -271,10 +273,16 @@ export const QuestionCard = ({
             const max = settings?.max || 10;
             const minLabel = settings?.minLabel;
             const maxLabel = settings?.maxLabel;
-            
+
             const scaleLength = max - min + 1;
             const scaleArray = Array.from({ length: scaleLength }, (_, i) => min + i);
-            
+
+            // On mobile, if more than 6 items, show first 3, ellipsis, last 3
+            const shouldTruncate = isMobile && scaleLength > 6;
+            const displayArray = shouldTruncate
+              ? [...scaleArray.slice(0, 3), 'ellipsis' as const, ...scaleArray.slice(-3)]
+              : scaleArray;
+
             const ScaleIcon = ({ value }: { value: number }) => {
               switch (scaleType) {
                 case 'stars':
@@ -285,26 +293,42 @@ export const QuestionCard = ({
                       <span className="text-sm font-medium text-muted-foreground">{value}</span>
                     </div>
                   );
-                case 'emoji':
+                case 'emoji': {
                   const emojiMap = ['😞', '😕', '😐', '🙂', '😊', '😄', '🤩', '🥳', '🤩', '🎉'];
                   const emojiIndex = Math.min(Math.floor((value - min) / scaleLength * 9), 9);
                   return <span className="text-2xl">{emojiMap[emojiIndex]}</span>;
+                }
               }
             };
-            
+
             return (
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-1 opacity-50">
-                  {scaleArray.map((value) => (
-                    <div key={value} className="flex flex-col items-center gap-1">
-                      <ScaleIcon value={value} />
-                      {scaleType !== 'numbers' && (
-                        <span className="text-xs text-muted-foreground">{value}</span>
-                      )}
-                    </div>
-                  ))}
+                  {displayArray.map((value, idx) => {
+                    if (value === 'ellipsis') {
+                      return (
+                        <div key="ellipsis" className="flex flex-col items-center gap-1 px-1">
+                          <div className="h-6 w-6 flex items-center justify-center">
+                            <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
+                          </div>
+                          {scaleType !== 'numbers' && (
+                            <span className="text-xs text-muted-foreground invisible">•</span>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div key={value} className="flex flex-col items-center gap-1">
+                        <ScaleIcon value={value as number} />
+                        {scaleType !== 'numbers' && (
+                          <span className="text-xs text-muted-foreground">{value}</span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                
+
                 {(minLabel || maxLabel) && (
                   <div className="flex items-center justify-between text-xs text-muted-foreground opacity-50">
                     <span>{minLabel || ''}</span>
@@ -314,12 +338,12 @@ export const QuestionCard = ({
               </div>
             );
           })()}
-          
+
           {question.type === 'email' && (() => {
             const settings = question.settings as EmailSettings;
             const placeholder = settings?.placeholder || 'email@example.com';
             const requireConfirmation = settings?.requireConfirmation || false;
-            
+
             return (
               <div className="space-y-3">
                 <div className="relative">
@@ -330,7 +354,7 @@ export const QuestionCard = ({
                     className="opacity-50 border-border/50 pl-10"
                   />
                 </div>
-                
+
                 {requireConfirmation && (
                   <div className="relative">
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
@@ -344,13 +368,13 @@ export const QuestionCard = ({
               </div>
             );
           })()}
-          
+
           {question.type === 'phone' && (() => {
             const settings = question.settings as PhoneSettings;
             const placeholder = settings?.placeholder || (
               settings?.format === 'INTERNATIONAL' ? '+1 555 123 4567' : '(555) 123-4567'
             );
-            
+
             return (
               <div className="relative">
                 <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
@@ -362,7 +386,7 @@ export const QuestionCard = ({
               </div>
             );
           })()}
-          
+
           {question.type === 'date' && (() => {
             const settings = question.settings as DateSettings;
             const format = settings?.format || 'MM/DD/YYYY';
@@ -370,13 +394,13 @@ export const QuestionCard = ({
             const disableFuture = settings?.disableFuture || false;
             const minDate = settings?.minDate;
             const maxDate = settings?.maxDate;
-            
+
             const constraints = [];
             if (disablePast) constraints.push('No past dates');
             if (disableFuture) constraints.push('No future dates');
             if (minDate) constraints.push(`From ${minDate}`);
             if (maxDate) constraints.push(`Until ${maxDate}`);
-            
+
             return (
               <div className="space-y-2">
                 <div className="relative">
@@ -387,7 +411,7 @@ export const QuestionCard = ({
                     className="opacity-50 border-border/50 pl-10"
                   />
                 </div>
-                
+
                 {constraints.length > 0 && (
                   <div className="text-xs text-muted-foreground opacity-50 pl-1">
                     {constraints.join(' • ')}
@@ -399,8 +423,8 @@ export const QuestionCard = ({
         </div>
 
         {/* Logic Summary Section */}
-        <LogicSummary 
-          logic={logic || { rules: [], default_action: 'next' }} 
+        <LogicSummary
+          logic={logic || { rules: [], default_action: 'next' }}
           allQuestions={allQuestions}
           currentQuestion={question}
         />

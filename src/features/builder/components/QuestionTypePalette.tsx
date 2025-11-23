@@ -4,14 +4,15 @@ import { useDraggable } from '@dnd-kit/core';
 
 interface QuestionTypePaletteProps {
   onSelectType: (type: string) => void;
+  className?: string;
 }
 
-const DraggableQuestionType = ({ 
-  questionType, 
-  onSelectType 
-}: { 
-  questionType: typeof QUESTION_TYPES[0], 
-  onSelectType: (type: string) => void 
+const DraggableQuestionType = ({
+  questionType,
+  onSelectType
+}: {
+  questionType: typeof QUESTION_TYPES[0],
+  onSelectType: (type: string) => void
 }) => {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `palette-${questionType.type}`,
@@ -28,6 +29,7 @@ const DraggableQuestionType = ({
       ref={setNodeRef}
       {...listeners}
       {...attributes}
+      onClick={() => onSelectType(questionType.type)}
       className={cn(
         'w-full text-left p-4 rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all duration-200 group cursor-grab active:cursor-grabbing',
         isDragging && 'opacity-50'
@@ -53,12 +55,12 @@ const DraggableQuestionType = ({
   );
 };
 
-export const QuestionTypePalette = ({ onSelectType }: QuestionTypePaletteProps) => {
+export const QuestionTypePalette = ({ onSelectType, className }: QuestionTypePaletteProps) => {
   return (
-    <div className="w-64 border-r border-border/50 glass-panel p-6 overflow-y-auto">
+    <div className={cn("w-64 border-r border-border/50 glass-panel p-6 overflow-y-auto", className)}>
       <div className="mb-4">
         <h2 className="font-semibold">Question Types</h2>
-        <p className="text-xs text-muted-foreground mt-1">Drag to add</p>
+        <p className="text-xs text-muted-foreground mt-1">Drag or tap to add</p>
       </div>
       <div className="space-y-2">
         {QUESTION_TYPES.map((questionType) => (

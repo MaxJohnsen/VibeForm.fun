@@ -22,16 +22,16 @@ export const AppSidebar = () => {
   };
 
   return (
-    <div className="fixed left-0 top-0 h-screen w-16 glass-panel border-r border-border/50 flex flex-col items-center py-6">
-      {/* Logo */}
-      <div className="mb-8">
+    <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border/50 glass-panel flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-6 z-50">
+      {/* Logo - Hidden on mobile */}
+      <div className="hidden md:block mb-8">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 flex items-center justify-center shadow-lg">
           <Waves className="h-6 w-6 text-white" />
         </div>
       </div>
 
-      {/* Top Navigation */}
-      <div className="flex-1 flex flex-col gap-4">
+      {/* Navigation Items */}
+      <div className="flex flex-row md:flex-col gap-4 md:flex-1">
         <button
           onClick={() => navigate(ROUTES.FORMS_HOME)}
           className={cn(
@@ -56,7 +56,7 @@ export const AppSidebar = () => {
             <User className="h-5 w-5" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="right" align="end" className="w-56">
+        <DropdownMenuContent side="top" align="end" className="w-56 md:mb-0 mb-2">
           <div className="px-2 py-1.5 text-sm">
             <div className="font-medium">Account</div>
             <div className="text-xs text-muted-foreground truncate">{user?.email}</div>

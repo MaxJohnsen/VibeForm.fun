@@ -154,8 +154,8 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
   };
 
   return (
-    <div className="glass-panel rounded-xl p-6">
-      <h3 className="text-lg font-semibold mb-4">Question Performance</h3>
+    <div className="glass-panel rounded-xl p-4 md:p-6">
+      <h3 className="text-lg font-semibold mb-3 md:mb-4">Question Performance</h3>
       <div className="space-y-6">
         {questions.map((question) => {
           const { visual, metric, details, dropoffRate, reachedCount, droppedOffCount } = getQuestionMetrics(question);
@@ -174,17 +174,19 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
             <div key={question.id} className="space-y-3 pb-6 border-b border-border/50 last:border-0 last:pb-0">
               <div className="flex items-start gap-3">
                 {Icon && (
-                  <div className={cn("rounded-lg p-2 shrink-0", questionType?.colorClass)}>
+                  <div className={cn("rounded-lg p-2 shrink-0 hidden sm:block", questionType?.colorClass)}>
                     <Icon className="h-4 w-4" />
                   </div>
                 )}
                 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-4 mb-2">
-                    <div className="text-sm font-medium">
-                      Q{question.position + 1}. {question.label}
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-4 mb-2">
+                    <div className="text-sm font-medium break-words">
+                      <span className="sm:hidden font-bold mr-1">Q{question.position + 1}.</span>
+                      <span className="hidden sm:inline">Q{question.position + 1}. </span>
+                      {question.label}
                     </div>
-                    <div className="flex flex-col items-end shrink-0">
+                    <div className="hidden sm:flex flex-col items-end shrink-0">
                       <div className={cn('text-sm font-medium whitespace-nowrap', dropoffColor)}>
                         {dropoffRate.toFixed(0)}%
                       </div>
@@ -195,9 +197,17 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                   </div>
                   
                   <div className="space-y-2">
-                    <div className="flex items-baseline gap-2">
-                      <div className="text-lg font-semibold">
-                        {metric}
+                    <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+                      <div className="flex items-baseline gap-2">
+                        <div className="text-lg font-semibold">
+                          {metric}
+                        </div>
+                        <div className="sm:hidden flex items-center gap-1 text-xs">
+                          <span className="text-muted-foreground">•</span>
+                          <span className={cn('font-medium', dropoffColor)}>
+                            {dropoffRate.toFixed(0)}% drop-off
+                          </span>
+                        </div>
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {details}

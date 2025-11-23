@@ -11,7 +11,7 @@ interface ResponsesListProps {
 export const ResponsesList = ({ responses, totalQuestions }: ResponsesListProps) => {
   if (responses.length === 0) {
     return (
-      <div className="glass-panel rounded-xl p-8">
+      <div className="glass-panel rounded-xl p-6 md:p-8">
         <EmptyState
           icon={FileQuestion}
           title="No responses yet"
@@ -22,8 +22,8 @@ export const ResponsesList = ({ responses, totalQuestions }: ResponsesListProps)
   }
 
   return (
-    <div className="glass-panel rounded-xl p-6">
-      <h3 className="text-lg font-semibold mb-4">Recent Responses</h3>
+    <div className="glass-panel rounded-xl p-4 md:p-6">
+      <h3 className="text-lg font-semibold mb-3 md:mb-4">Recent Responses</h3>
       <div className="space-y-3">
         {responses.slice(0, 10).map((response) => (
           <ResponseItem

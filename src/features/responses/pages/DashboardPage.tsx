@@ -46,33 +46,36 @@ export const DashboardPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Top Bar */}
-      <div className="border-b border-border/50 glass-panel">
-        <div className="max-w-7xl mx-auto px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+      <div className="border-b border-border/50 glass-panel sticky top-0 z-10 backdrop-blur-xl bg-background/50">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 md:py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 md:gap-4 min-w-0">
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
+                className="shrink-0 -ml-2 md:ml-0"
                 onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <div>
-                <h1 className="text-xl font-semibold">{form?.title || 'Form'} - Analytics</h1>
-                <p className="text-sm text-muted-foreground">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base md:text-xl font-semibold truncate">{form?.title || 'Form'}</h1>
+                <p className="text-xs md:text-sm text-muted-foreground truncate hidden sm:block">
                   Real-time response tracking and statistics
                 </p>
               </div>
             </div>
-            <ExportButton formId={formId!} formTitle={form?.title || 'Form'} />
+            <div className="shrink-0">
+              <ExportButton formId={formId!} formTitle={form?.title || 'Form'} />
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-8 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-8 space-y-4 md:space-y-8">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
           <StatisticsCard
             icon={CheckCircle2}
             label="Completion Rate"
@@ -94,12 +97,16 @@ export const DashboardPage = () => {
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Responses */}
-          <ResponsesList responses={responses} totalQuestions={questions.length} />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+          {/* Question Performance - First on mobile */}
+          <div className="order-1 lg:order-2">
+            <QuestionPerformance questions={questions} responses={responses} />
+          </div>
 
-          {/* Question Performance */}
-          <QuestionPerformance questions={questions} responses={responses} />
+          {/* Recent Responses - Second on mobile */}
+          <div className="order-2 lg:order-1">
+            <ResponsesList responses={responses} totalQuestions={questions.length} />
+          </div>
         </div>
       </div>
     </div>

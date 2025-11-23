@@ -76,7 +76,7 @@ export const LogicRuleCard = ({
       {/* Conditions */}
       <div className="space-y-3">
         <div className="text-xs font-medium text-muted-foreground uppercase">IF</div>
-        
+
         {rule.conditions.map((condition, index) => (
           <div key={index}>
             {index > 0 && (
@@ -91,7 +91,7 @@ export const LogicRuleCard = ({
                   <SelectTrigger className="w-20 h-7 text-xs">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="z-[200]">
                     <SelectItem value="AND">AND</SelectItem>
                     <SelectItem value="OR">OR</SelectItem>
                   </SelectContent>
@@ -99,7 +99,7 @@ export const LogicRuleCard = ({
                 <div className="flex-1 h-px bg-border" />
               </div>
             )}
-            
+
             <ConditionBuilder
               condition={condition}
               questionType={questionType}
@@ -124,7 +124,7 @@ export const LogicRuleCard = ({
       {/* Action */}
       <div className="space-y-2">
         <div className="text-xs font-medium text-muted-foreground uppercase">THEN</div>
-        
+
         <div className="flex items-center gap-2">
           <Select
             value={rule.action.type}
@@ -140,7 +140,7 @@ export const LogicRuleCard = ({
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-[200]">
               <SelectItem value="jump">Go to</SelectItem>
               <SelectItem value="end">End form</SelectItem>
             </SelectContent>
@@ -161,7 +161,7 @@ export const LogicRuleCard = ({
               <SelectTrigger className="flex-1">
                 <SelectValue placeholder="Select question..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[200]">
                 {availableQuestions.map((q) => (
                   <SelectItem key={q.id} value={q.id}>
                     Q{q.position + 1}: {q.label}
