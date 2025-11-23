@@ -43,6 +43,11 @@ export const useAuth = () => {
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    const { error } = await authApi.signInWithGoogle();
+    return { error };
+  };
+
   return {
     user,
     session,
@@ -50,5 +55,6 @@ export const useAuth = () => {
     signUp,
     signIn,
     signOut,
+    signInWithGoogle,
   };
 };
