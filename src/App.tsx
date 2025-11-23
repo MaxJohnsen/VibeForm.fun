@@ -9,7 +9,7 @@ import { LoginPage, SignupPage } from "./features/auth";
 import { FormsHomePage, CreateFormPage } from "./features/forms";
 import { FormBuilderPage } from "./features/builder";
 import { RespondentPage } from "./features/responses";
-import { DashboardPage } from "./features/responses/pages/DashboardPage";
+import { DashboardPage } from "./features/analytics";
 import { ROUTES } from "./shared/constants/routes";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 
@@ -25,47 +25,47 @@ const App = () => (
           <Route path={ROUTES.LOGIN} element={<LoginPage />} />
           <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
           <Route path={ROUTES.RESPONDENT} element={<RespondentPage />} />
-          
+
           {/* Protected Routes */}
-          <Route 
-            path={ROUTES.HOME} 
+          <Route
+            path={ROUTES.HOME}
             element={
               <ProtectedRoute>
                 <Index />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path={ROUTES.FORMS_HOME} 
+          <Route
+            path={ROUTES.FORMS_HOME}
             element={
               <ProtectedRoute>
                 <FormsHomePage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path={ROUTES.CREATE_FORM} 
+          <Route
+            path={ROUTES.CREATE_FORM}
             element={
               <ProtectedRoute>
                 <CreateFormPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path={ROUTES.BUILDER} 
+          <Route
+            path={ROUTES.BUILDER}
             element={
               <ProtectedRoute>
                 <FormBuilderPage />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path={ROUTES.RESPONSES_DASHBOARD} 
+          <Route
+            path={ROUTES.RESPONSES_DASHBOARD}
             element={
               <ProtectedRoute>
                 <DashboardPage />
               </ProtectedRoute>
-            } 
+            }
           />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
