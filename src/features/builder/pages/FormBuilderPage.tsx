@@ -270,7 +270,9 @@ export const FormBuilderPage = () => {
           const newItems = [...items];
           const [removed] = newItems.splice(oldIndex, 1);
           newItems.splice(newIndex, 0, removed);
-          return newItems;
+          
+          // Update position properties to match new array indices
+          return newItems.map((q, idx) => ({ ...q, position: idx }));
         });
       }
     }
