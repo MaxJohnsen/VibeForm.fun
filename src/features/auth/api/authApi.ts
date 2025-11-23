@@ -33,4 +33,18 @@ export const authApi = {
     const { data, error } = await supabase.auth.getSession();
     return { session: data.session, error };
   },
+
+  signInWithGoogle: async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+    return { data, error };
+  },
 };
