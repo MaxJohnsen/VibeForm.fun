@@ -194,13 +194,27 @@ export const FormBuilderPage = () => {
     [selectedQuestionId, debouncedSettingsUpdate]
   );
 
-  const handleDeleteQuestion = (id: string) => {
+  const handleDeleteQuestion = async (id: string) => {
+    // Close logic modal if we're deleting the question being edited
+    if (logicEditingQuestionId === id) {
+      setLogicModalOpen(false);
+      setLogicEditingQuestionId(null);
+    }
+
+    // Clear selection if we're deleting the selected question
     if (selectedQuestionId === id) {
       const index = questions.findIndex((q) => q.id === id);
       const nextQuestion = questions[index + 1] || questions[index - 1];
       setSelectedQuestionId(nextQuestion?.id || null);
     }
-    deleteQuestion(id);
+    
+    setIsSaving(true);
+    try {
+      await deleteQuestion(id);
+    } finally {
+      // Keep showing saving state briefly for smooth UX
+      setTimeout(() => setIsSaving(false), 300);
+    }
   };
 
   const handleOpenLogic = (questionId: string) => {
@@ -491,9 +505,9 @@ export const FormBuilderPage = () => {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
+              onClick={async () => {
                 if (deleteConfirmationId) {
-                  handleDeleteQuestion(deleteConfirmationId);
+                  await handleDeleteQuestion(deleteConfirmationId);
                   setDeleteConfirmationId(null);
                   // If deleting the currently selected question on mobile, close the sheet
                   if (isMobile && selectedQuestionId === deleteConfirmationId) {

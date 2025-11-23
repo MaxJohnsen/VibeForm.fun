@@ -69,12 +69,42 @@ export const questionsApi = {
   },
 
   async deleteQuestion(id: string): Promise<void> {
-    const { error } = await supabase
+    // First, get the question to know its position and form_id
+    const { data: questionToDelete, error: fetchError } = await supabase
+      .from('questions')
+      .select('position, form_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) throw fetchError;
+    if (!questionToDelete) throw new Error('Question not found');
+
+    // Delete the question
+    const { error: deleteError } = await supabase
       .from('questions')
       .delete()
       .eq('id', id);
 
-    if (error) throw error;
+    if (deleteError) throw deleteError;
+
+    // Update positions of all questions that came after it
+    const { data: questionsToUpdate, error: fetchUpdateError } = await supabase
+      .from('questions')
+      .select('id, position')
+      .eq('form_id', questionToDelete.form_id)
+      .gt('position', questionToDelete.position);
+
+    if (fetchUpdateError) throw fetchUpdateError;
+
+    // Decrement positions for all questions after the deleted one
+    if (questionsToUpdate && questionsToUpdate.length > 0) {
+      const updates = questionsToUpdate.map(q => ({
+        id: q.id,
+        position: q.position - 1
+      }));
+      
+      await this.reorderQuestions(updates);
+    }
   },
 
   async reorderQuestions(updates: { id: string; position: number }[]): Promise<void> {

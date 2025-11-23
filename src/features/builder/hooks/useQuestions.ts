@@ -76,7 +76,7 @@ export const useQuestions = (formId: string) => {
     error: questionsQuery.error,
     createQuestion: createQuestionMutation.mutateAsync,
     updateQuestion: updateQuestionMutation.mutate,
-    deleteQuestion: deleteQuestionMutation.mutate,
+    deleteQuestion: deleteQuestionMutation.mutateAsync,
     reorderQuestions: reorderQuestionsMutation.mutate,
   };
 };
