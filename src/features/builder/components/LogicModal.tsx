@@ -60,6 +60,9 @@ export const LogicModal = ({
   const questionTypeInfo = QUESTION_TYPES.find((t) => t.type === question.type);
   const availableQuestions = allQuestions.filter((q) => q.id !== question.id);
 
+  // Generate a key that changes when any question position changes
+  const questionsPositionKey = availableQuestions.map(q => `${q.id}:${q.position}`).join('|');
+
   // Shared content JSX
   const logicContentJSX = (
     <>
@@ -142,6 +145,7 @@ export const LogicModal = ({
             <>
               <span className="text-sm text-muted-foreground">or jump to</span>
               <Select
+                key={`default-select-${questionsPositionKey}`}
                 value={logic.default_target || 'none'}
                 onValueChange={(value) => {
                   updateDefaultAction('next', value === 'none' ? undefined : value);

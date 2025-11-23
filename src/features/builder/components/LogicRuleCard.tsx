@@ -53,6 +53,9 @@ export const LogicRuleCard = ({
 
   const availableQuestions = allQuestions.filter((q) => q.id !== currentQuestionId);
 
+  // Generate a key that changes when any question position changes
+  const questionsPositionKey = availableQuestions.map(q => `${q.id}:${q.position}`).join('|');
+
   return (
     <div className="border border-border/50 rounded-xl p-4 space-y-4 bg-muted/30">
       {/* Header */}
@@ -148,6 +151,7 @@ export const LogicRuleCard = ({
 
           {rule.action.type === 'jump' && (
             <Select
+              key={`jump-select-${questionsPositionKey}`}
               value={rule.action.target_question_id || ''}
               onValueChange={(value) => {
                 onUpdateRule(rule.id, {
