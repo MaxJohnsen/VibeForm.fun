@@ -1,73 +1,107 @@
-# Welcome to your Lovable project
+# VibeForm.fun
 
-## Project info
+Welcome to **VibeForm.fun**! 🚀
 
-**URL**: https://lovable.dev/projects/74582f2d-814c-4126-b140-5acb9e04e5b6
+This repo is part of a talk I gave at the **Minus 1** event in Oslo on November 20, 2025. The presentation, titled **"Klarer vi å utfordre en enhjørning på én kveld?"** (Can we challenge a unicorn in one evening?), focused on the power of high-level AI coding platforms.
 
-## How can I edit this code?
+During the talk, we "live" (well, pre-recorded live) vibe coded this simple, open-source Typeform alternative using **Lovable** and **Supabase**. The goal was to show how fast you can build an almost production-ready app with the right tools and a bit of AI magic.
 
-There are several ways of editing your application.
+<div align="center">
+  <img src="./prompts/imgs/demo-0.png" alt="VibeForm Dashboard" height="300" />
+  &nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="./prompts/imgs/demo-1.png" alt="VibeForm Builder" height="300" />
+</div>
 
-**Use Lovable**
+## Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/74582f2d-814c-4126-b140-5acb9e04e5b6) and start prompting.
+We went from zero to hero in just a few hours. Here's what we built:
 
-Changes made via Lovable will be committed automatically to this repo.
+1.  **Login/Signup**: Secure authentication powered by Supabase.
+2.  **Dashboard & Form Builder**: A drag-and-drop interface to create forms. Started simple, then we iterated to make it robust and user-friendly.
+3.  **Rich Question Types**: Extended the builder with multiple question types (Rating, Text, Multiple Choice, etc.).
+4.  **Logic Rules**: Implemented advanced branching and question flow, allowing for dynamic forms that adapt to user input.
+5.  **Public Response Page**: A sleek, public-facing page for users to answer forms.
+6.  **Real-time Analytics**: A dashboard to view responses and question performance in real-time.
 
-**Use your preferred IDE**
+> **Note**: Since the talk, I've continued to polish the app (e.g., making it mobile-friendly), but the prompt history below reflects the journey during the "challenge".
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Setup & Run
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Want to run this yourself? Here's how to get started.
 
-Follow these steps:
+### Prerequisites
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+-   Node.js & npm
+-   Supabase CLI (for local development)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
+1.  **Clone the repo**:
+    ```bash
+    git clone <YOUR_GIT_URL>
+    cd VibeForm.fun
+    ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+2.  **Install dependencies**:
+    ```bash
+    npm install
+    ```
 
-**Edit a file directly in GitHub**
+3.  **Configure Environment Variables**:
+    The `.env` file is included in the repo for your convenience.
+    
+    > **Note on Security**: You might notice the `.env` file is committed. This is intentional for this demo. The keys inside (`VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`) are **public client-side keys**. In a Supabase app, security is handled via **Row Level Security (RLS)** policies in the database, not by hiding these keys. It is safe to expose them in the client.
+    >
+    > **Important**: To run this project with your own backend, you **must update these values** in the `.env` file to match your own Supabase project credentials.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+4.  **Start the development server**:
+    ```bash
+    npm run dev
+    ```
 
-**Use GitHub Codespaces**
+### Supabase Backend
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This project uses Supabase for the database and auth. To run it locally or deploy it to your own project:
 
-## What technologies are used for this project?
+1.  **Local Development**:
+    ```bash
+    supabase start
+    ```
+    This will spin up a local Supabase instance.
 
-This project is built with:
+2.  **Migrations**:
+    The database schema is managed via migrations. You can find them in the `supabase/migrations` folder. Apply them with:
+    ```bash
+    supabase migration up
+    ```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+3.  **Edge Functions**:
+    We use Supabase Edge Functions for some backend logic (like handling form submissions securely).
+    ```bash
+    supabase functions serve
+    ```
 
-## How can I deploy this project?
+## Prompt History
 
-Simply open [Lovable](https://lovable.dev/projects/74582f2d-814c-4126-b140-5acb9e04e5b6) and click on Share -> Publish.
+Curious how we built this? I've documented the most important prompts used to generate the app in Lovable. It's structured by feature, starting with the UI mockups and moving through the major functionality. Note that this isn't an exhaustive log of every single interaction, but covers the key prompts that drove the development.
 
-## Can I connect a custom domain to my Lovable project?
+> **Pro Tip**: Most of these prompts were executed in **Chat Mode** (rather than just the builder) to force the AI to generate a detailed implementation plan before writing code.
 
-Yes, you can!
+Check out the **[Prompts Directory](./prompts/)** or jump to a specific section:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+-   **[UI Mockups (UXPilot)](./prompts/ux-pilot.md)**
+-   **[1. Login & Signup (Initial Project Prompt)](./prompts/01-login-signup.md)**
+-   **[2. Dashboard & Form Builder](./prompts/02-dashboard-builder.md)**
+-   **[3. Extending Question Types](./prompts/03-question-types.md)**
+-   **[4. Logic Rules](./prompts/04-logic-rules.md)**
+-   **[5. Public Page & Edge Functions](./prompts/05-public-page.md)**
+-   **[6. Real-time Analytics](./prompts/06-analytics.md)**
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Each section contains the **Initial Prompt** that kicked off the feature, followed by the smaller **Fixes** and refinements we made along the way.
+
+## Links
+
+-   **Webapp**: [vibeform.fun](https://vibeform.fun)
+-   **Presentation**: *[Link coming soon]*
+-   **Lovable Project**: [View on Lovable](https://lovable.dev/projects/74582f2d-814c-4126-b140-5acb9e04e5b6)
+
