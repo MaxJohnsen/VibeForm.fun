@@ -14,7 +14,7 @@ During the talk, we "live" (well, pre-recorded live) vibe coded this simple, ope
 
 ## Features
 
-We went from zero to hero in just a few hours. Here's what we built:
+Here is what we built:
 
 1.  **Login/Signup**: Secure authentication powered by Supabase.
 2.  **Dashboard & Form Builder**: A drag-and-drop interface to create forms. Started simple, then we iterated to make it robust and user-friendly.
