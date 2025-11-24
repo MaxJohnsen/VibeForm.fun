@@ -74,6 +74,9 @@ export const QuestionCard = ({
   const logic = question.logic as QuestionLogic | undefined;
   const hasLogic = logic && (logic.rules?.length > 0 || logic.default_target || logic.default_action === 'end');
 
+  // Generate a key that changes when any question position changes
+  const questionsPositionKey = allQuestions.map(q => `${q.id}:${q.position}`).join('|');
+
   // Get logic summary for badge
   const getLogicSummary = () => {
     if (!hasLogic) return '';
@@ -424,6 +427,7 @@ export const QuestionCard = ({
 
         {/* Logic Summary Section */}
         <LogicSummary
+          key={`logic-summary-${question.id}-${questionsPositionKey}`}
           logic={logic || { rules: [], default_action: 'next' }}
           allQuestions={allQuestions}
           currentQuestion={question}
