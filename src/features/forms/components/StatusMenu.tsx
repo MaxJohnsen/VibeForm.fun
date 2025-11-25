@@ -86,10 +86,10 @@ export const StatusMenu = ({
               size="sm" 
               className="gap-2 hover:bg-accent hover:text-accent-foreground transition-colors"
             >
-              <span className="text-xs text-muted-foreground">Status:</span>
+              <span className="text-xs opacity-70">Status:</span>
               {getStatusIcon(currentStatus)}
               <span className="font-medium capitalize">{currentStatus}</span>
-              <ChevronDown className="h-3.5 w-3.5 ml-1 text-muted-foreground" />
+              <ChevronDown className="h-3.5 w-3.5 ml-1 opacity-70" />
             </Button>
           )}
         </DropdownMenuTrigger>
