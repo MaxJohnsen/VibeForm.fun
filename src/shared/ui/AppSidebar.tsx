@@ -17,7 +17,11 @@ export const AppSidebar = () => {
   const { signOut, user } = useAuth();
 
   const handleSignOut = async () => {
-    await signOut();
+    try {
+      await signOut();
+    } catch (error) {
+      console.warn('Sign out error (proceeding anyway):', error);
+    }
     navigate(ROUTES.LOGIN);
   };
 

@@ -25,8 +25,17 @@ export const authApi = {
   },
 
   signOut: async () => {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    // Try global sign out first to invalidate server session
+    const { error } = await supabase.auth.signOut({ scope: 'global' });
+    
+    // If global sign out fails (e.g., session already expired), 
+    // fall back to local to ensure client cleanup
+    if (error) {
+      await supabase.auth.signOut({ scope: 'local' });
+    }
+    
+    // Always return success since the user wanted to sign out
+    return { error: null };
   },
 
   getSession: async () => {
