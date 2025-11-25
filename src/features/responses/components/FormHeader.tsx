@@ -1,4 +1,4 @@
-import { X, Waves } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface FormHeaderProps {
@@ -15,10 +15,11 @@ export const FormHeader = ({ currentQuestion, totalQuestions, onClose }: FormHea
       <div className="px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand - Simplified on mobile */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 flex items-center justify-center shadow-lg">
-            <Waves className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+          <div className="relative">
+            <span className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
+              VibeForm
+            </span>
           </div>
-          <span className="hidden sm:inline font-semibold text-foreground">VibeForm</span>
         </div>
 
         {/* Progress - Centered and responsive */}
