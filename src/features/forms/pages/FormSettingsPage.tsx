@@ -357,8 +357,8 @@ export const FormSettingsPage = () => {
               fullWidth
             >
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground flex-shrink-0 font-mono">
+                <div className="flex gap-2 w-full">
+                  <span className="text-sm text-muted-foreground flex-shrink-0 font-mono self-center">
                     {window.location.origin}/f/
                   </span>
                   <div className="flex-1 relative">
@@ -374,13 +374,33 @@ export const FormSettingsPage = () => {
                     {slugStatus === 'checking' && (
                       <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
                     )}
-                    {slugStatus === 'available' && (
+                    {slugStatus === 'available' && slug && (
                       <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
                     )}
                     {slugStatus === 'taken' && (
                       <X className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-destructive" />
                     )}
                   </div>
+                  <Button
+                    onClick={() => handleCopyUrl(true)}
+                    variant="outline"
+                    size="icon"
+                    disabled={!slug || slugStatus !== 'available'}
+                    className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
+                    title="Copy to clipboard"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    onClick={() => handleOpenUrl(true)}
+                    variant="outline"
+                    size="icon"
+                    disabled={!slug || slugStatus !== 'available'}
+                    className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
+                    title="Open in new tab"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
                 </div>
                 
                 {slugError && (
@@ -394,29 +414,6 @@ export const FormSettingsPage = () => {
                   <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-500 animate-fade-in">
                     <Check className="h-4 w-4 flex-shrink-0" />
                     <span>This slug is available!</span>
-                  </div>
-                )}
-
-                {slug && slugStatus === 'available' && (
-                  <div className="flex gap-2 pt-1">
-                    <Button
-                      onClick={() => handleCopyUrl(true)}
-                      variant="outline"
-                      size="sm"
-                      className="hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      <Copy className="h-3.5 w-3.5 mr-2" />
-                      Copy Custom Link
-                    </Button>
-                    <Button
-                      onClick={() => handleOpenUrl(true)}
-                      variant="outline"
-                      size="sm"
-                      className="hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5 mr-2" />
-                      Open Custom Link
-                    </Button>
                   </div>
                 )}
                 
