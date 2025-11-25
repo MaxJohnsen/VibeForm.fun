@@ -6,6 +6,8 @@ export interface StartResponseData {
   form: {
     title: string;
     description: string | null;
+    intro_settings?: Record<string, any>;
+    end_settings?: Record<string, any>;
   };
   question: any;
   totalQuestions: number;
