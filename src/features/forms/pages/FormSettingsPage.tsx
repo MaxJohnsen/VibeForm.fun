@@ -27,15 +27,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { SettingsCard } from '@/shared/ui/SettingsCard';
 import { SettingsRow } from '@/shared/ui/SettingsRow';
+import { LanguageSelector } from '@/shared/ui/LanguageSelector';
 import { StatusMenu } from '../components/StatusMenu';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTES } from '@/shared/constants/routes';
@@ -43,7 +37,7 @@ import QRCode from 'react-qr-code';
 import { supabase } from '@/integrations/supabase/client';
 import { debounce } from '@/shared/utils/debounce';
 import { validateSlug, formatSlug } from '@/shared/utils/slugValidation';
-import { languageNames, SupportedLanguage } from '@/shared/constants/translations';
+import { SupportedLanguage } from '@/shared/constants/translations';
 
 export const FormSettingsPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -369,24 +363,13 @@ export const FormSettingsPage = () => {
               label="Language"
               description="Set the language for form interface elements"
             >
-              <Select
-                value={form.language || 'en'}
-                onValueChange={(value) => {
-                  updateFormMutation.mutate({ language: value });
+              <LanguageSelector
+                value={(form.language as SupportedLanguage) || 'en'}
+                onChange={(language) => {
+                  updateFormMutation.mutate({ language });
                 }}
-              >
-                <SelectTrigger className="w-full sm:w-[240px] h-11">
-                  <Globe className="h-4 w-4 mr-2 flex-shrink-0" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {(Object.keys(languageNames) as SupportedLanguage[]).map((code) => (
-                    <SelectItem key={code} value={code}>
-                      {languageNames[code]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                className="w-full sm:w-[240px]"
+              />
             </SettingsRow>
 
             {/* Custom Slug */}

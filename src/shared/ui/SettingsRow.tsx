@@ -20,9 +20,9 @@ export const SettingsRow = ({
     <div className={cn('py-5 px-6', className)}>
       <div className={cn(
         'flex flex-col gap-3',
-        !fullWidth && 'md:flex-row md:items-start md:justify-between'
+        !fullWidth && 'md:flex-row md:items-center md:justify-between'
       )}>
-        <div className={cn('min-w-0', !fullWidth && 'md:flex-1 md:max-w-[200px] md:pt-2')}>
+        <div className={cn('min-w-0', !fullWidth && 'md:flex-1 md:max-w-[200px]')}>
           <label className="text-sm font-semibold text-foreground block">
             {label}
           </label>
