@@ -120,7 +120,6 @@ export const RespondentPage = () => {
       <div className="h-[100dvh] bg-gradient-to-br from-background via-background to-primary/5">
         <WelcomeScreen
           formTitle={formInfo.title}
-          formDescription={formInfo.description || undefined}
           introSettings={formInfo.intro_settings}
           totalQuestions={totalQuestions}
           onStart={() => setShowWelcome(false)}

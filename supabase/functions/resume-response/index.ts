@@ -73,7 +73,6 @@ Deno.serve(async (req) => {
           responseId: response.id,
           form: { 
             title: form.title, 
-            description: form.description,
             intro_settings: form.intro_settings || {},
             end_settings: form.end_settings || {},
           },
@@ -142,7 +141,6 @@ Deno.serve(async (req) => {
         responseId: response.id,
         form: { 
           title: form.title, 
-          description: form.description,
           intro_settings: form.intro_settings || {},
           end_settings: form.end_settings || {},
         },

@@ -60,8 +60,8 @@ export const CreateFormPage = () => {
             />
 
             <TextInput
-              label="Description (Optional)"
-              placeholder="What is this form for?"
+              label="Internal Description (Optional)"
+              placeholder="Internal notes about this form (not shown to respondents)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
