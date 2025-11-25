@@ -54,6 +54,8 @@ export const FormBuilderPage = () => {
   const [logicModalOpen, setLogicModalOpen] = useState(false);
   const [logicEditingQuestionId, setLogicEditingQuestionId] = useState<string | null>(null);
   const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
+  const [localIntroSettings, setLocalIntroSettings] = useState<IntroSettings>(defaultIntroSettings);
+  const [localEndSettings, setLocalEndSettings] = useState<EndSettings>(defaultEndSettings);
 
   const { updateForm } = useForms();
 
@@ -71,19 +73,23 @@ export const FormBuilderPage = () => {
     reorderQuestions,
   } = useQuestions(formId!);
 
-  const introSettings = useMemo<IntroSettings>(() => 
-    (form?.intro_settings && Object.keys(form.intro_settings).length > 0)
-      ? form.intro_settings as IntroSettings
-      : defaultIntroSettings,
-    [form?.intro_settings]
-  );
+  // Sync intro settings when form data changes
+  useEffect(() => {
+    if (form?.intro_settings && Object.keys(form.intro_settings).length > 0) {
+      setLocalIntroSettings(form.intro_settings as IntroSettings);
+    } else {
+      setLocalIntroSettings(defaultIntroSettings);
+    }
+  }, [form?.intro_settings]);
 
-  const endSettings = useMemo<EndSettings>(() => 
-    (form?.end_settings && Object.keys(form.end_settings).length > 0)
-      ? form.end_settings as EndSettings
-      : defaultEndSettings,
-    [form?.end_settings]
-  );
+  // Sync end settings when form data changes
+  useEffect(() => {
+    if (form?.end_settings && Object.keys(form.end_settings).length > 0) {
+      setLocalEndSettings(form.end_settings as EndSettings);
+    } else {
+      setLocalEndSettings(defaultEndSettings);
+    }
+  }, [form?.end_settings]);
 
   // Derive selectedQuestion from tempQuestions for instant UI updates
   const selectedQuestion = useMemo(
@@ -251,6 +257,7 @@ export const FormBuilderPage = () => {
 
   const handleUpdateIntroSettings = useCallback(
     (settings: IntroSettings) => {
+      setLocalIntroSettings(settings);
       debouncedIntroUpdate(settings);
     },
     [debouncedIntroUpdate]
@@ -258,6 +265,7 @@ export const FormBuilderPage = () => {
 
   const handleUpdateEndSettings = useCallback(
     (settings: EndSettings) => {
+      setLocalEndSettings(settings);
       debouncedEndUpdate(settings);
     },
     [debouncedEndUpdate]
@@ -419,8 +427,8 @@ export const FormBuilderPage = () => {
 
           <QuestionCanvas
             formTitle={form?.title || 'Untitled Form'}
-            introSettings={introSettings}
-            endSettings={endSettings}
+            introSettings={localIntroSettings}
+            endSettings={localEndSettings}
             questions={tempQuestions}
             selectedItemId={selectedItemId}
             onSelectItem={setSelectedItemId}
@@ -436,14 +444,14 @@ export const FormBuilderPage = () => {
               <div className="w-80 border-l border-border/50 glass-panel h-full overflow-y-auto p-6">
                 <IntroPropertiesPanel
                   formTitle={form?.title || 'Untitled Form'}
-                  settings={introSettings}
+                  settings={localIntroSettings}
                   onUpdate={handleUpdateIntroSettings}
                 />
               </div>
             ) : selectedItemId === 'end' ? (
               <div className="w-80 border-l border-border/50 glass-panel h-full overflow-y-auto p-6">
                 <EndPropertiesPanel
-                  settings={endSettings}
+                  settings={localEndSettings}
                   onUpdate={handleUpdateEndSettings}
                 />
               </div>
@@ -542,14 +550,14 @@ export const FormBuilderPage = () => {
                 <div className="flex-1 overflow-y-auto bg-background p-4 pb-20">
                   <IntroPropertiesPanel
                     formTitle={form?.title || 'Untitled Form'}
-                    settings={introSettings}
+                    settings={localIntroSettings}
                     onUpdate={handleUpdateIntroSettings}
                   />
                 </div>
               ) : selectedItemId === 'end' ? (
                 <div className="flex-1 overflow-y-auto bg-background p-4 pb-20">
                   <EndPropertiesPanel
-                    settings={endSettings}
+                    settings={localEndSettings}
                     onUpdate={handleUpdateEndSettings}
                   />
                 </div>
