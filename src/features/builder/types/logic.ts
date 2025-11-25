@@ -45,6 +45,7 @@ export interface QuestionLogic {
 // Helper function to get available operators for a question type
 export const getOperatorsForQuestionType = (questionType: QuestionType): LogicOperator[] => {
   const operatorMap: Record<QuestionType, LogicOperator[]> = {
+    respondent_name: ['equals', 'not_equals', 'contains', 'not_contains', 'is_empty', 'is_not_empty'],
     short_text: ['equals', 'not_equals', 'contains', 'not_contains', 'is_empty', 'is_not_empty'],
     long_text: ['equals', 'not_equals', 'contains', 'not_contains', 'is_empty', 'is_not_empty'],
     multiple_choice: ['equals', 'not_equals', 'contains'],

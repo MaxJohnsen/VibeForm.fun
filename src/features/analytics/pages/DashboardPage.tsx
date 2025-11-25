@@ -106,7 +106,7 @@ export const DashboardPage = () => {
 
           {/* Recent Responses - Second on mobile */}
           <div className="order-2 lg:order-1">
-            <ResponsesList responses={responses} totalQuestions={questions.length} />
+            <ResponsesList responses={responses} totalQuestions={questions.length} questions={questions} />
           </div>
         </div>
       </div>

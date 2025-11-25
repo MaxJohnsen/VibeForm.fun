@@ -1,3 +1,4 @@
+import { RespondentNameQuestion } from './questions/RespondentNameQuestion';
 import { ShortTextQuestion } from './questions/ShortTextQuestion';
 import { LongTextQuestion } from './questions/LongTextQuestion';
 import { MultipleChoiceQuestion } from './questions/MultipleChoiceQuestion';
@@ -27,6 +28,9 @@ export const QuestionRenderer = ({
   };
 
   switch (question.type) {
+    case 'respondent_name':
+      return <RespondentNameQuestion {...commonProps} />;
+    
     case 'short_text':
       return <ShortTextQuestion {...commonProps} />;
     

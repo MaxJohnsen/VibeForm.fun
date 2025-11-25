@@ -127,6 +127,20 @@ export const FormBuilderPage = () => {
   );
 
   const handleAddQuestion = async (type: string, position?: number) => {
+    // Check for single-instance validation for respondent_name
+    if (type === 'respondent_name') {
+      const existingNameQuestion = questions.find((q) => q.type === 'respondent_name');
+      if (existingNameQuestion) {
+        const { toast } = await import('@/hooks/use-toast');
+        toast({
+          title: 'Only one Respondent Name field allowed',
+          description: 'Use Short Text for additional name fields.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       const questionType = type as QuestionType;
