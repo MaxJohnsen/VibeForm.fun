@@ -1,8 +1,11 @@
 
 import { QuestionCard } from './QuestionCard';
+import { IntroCard } from './IntroCard';
+import { EndCard } from './EndCard';
 import { EmptyState } from '@/shared/ui/EmptyState';
 
 import { Question } from '../api/questionsApi';
+import { IntroSettings, EndSettings } from '../types/screenSettings';
 import { FileQuestion, MousePointer2 } from 'lucide-react';
 import {
   closestCenter,
@@ -21,9 +24,12 @@ import {
 } from '@dnd-kit/sortable';
 
 interface QuestionCanvasProps {
+  formTitle: string;
+  introSettings: IntroSettings;
+  endSettings: EndSettings;
   questions: Question[];
-  selectedQuestionId: string | null;
-  onSelectQuestion: (id: string) => void;
+  selectedItemId: string | null;
+  onSelectItem: (id: string) => void;
   onDeleteQuestion: (id: string) => void;
   onReorderQuestions: (questions: Question[]) => void;
   onOpenLogic?: (questionId: string) => void;
@@ -66,9 +72,12 @@ const DropZone = ({
 };
 
 export const QuestionCanvas = ({
+  formTitle,
+  introSettings,
+  endSettings,
   questions,
-  selectedQuestionId,
-  onSelectQuestion,
+  selectedItemId,
+  onSelectItem,
   onDeleteQuestion,
   onReorderQuestions,
   onOpenLogic,
@@ -108,19 +117,27 @@ export const QuestionCanvas = ({
   return (
     <div className="flex-1 p-4 md:p-8 overflow-y-auto scroll-smooth">
       <div className="max-w-3xl mx-auto space-y-3 md:space-y-4 animate-fade-in">
+        {/* Intro Card - Always First */}
+        <IntroCard
+          formTitle={formTitle}
+          settings={introSettings}
+          isSelected={selectedItemId === 'intro'}
+          onSelect={() => onSelectItem('intro')}
+        />
+
         <SortableContext
           items={questions.map((q) => q.id)}
           strategy={verticalListSortingStrategy}
         >
-          <DropZone id="drop-start" position="start" isActive={showDropZones} />
+          <DropZone id="drop-after-intro" position={0} isActive={showDropZones} />
           
           {questions.map((question, index) => (
             <div key={question.id}>
               <QuestionCard
                 question={question}
                 index={index}
-                isSelected={selectedQuestionId === question.id}
-                onSelect={() => onSelectQuestion(question.id)}
+                isSelected={selectedItemId === question.id}
+                onSelect={() => onSelectItem(question.id)}
                 onDelete={() => onDeleteQuestion(question.id)}
                 onOpenLogic={onOpenLogic ? () => onOpenLogic(question.id) : undefined}
                 allQuestions={questions}
@@ -133,6 +150,13 @@ export const QuestionCanvas = ({
             </div>
           ))}
         </SortableContext>
+
+        {/* End Card - Always Last */}
+        <EndCard
+          settings={endSettings}
+          isSelected={selectedItemId === 'end'}
+          onSelect={() => onSelectItem('end')}
+        />
 
         <DragOverlay>
           {activeQuestion ? (

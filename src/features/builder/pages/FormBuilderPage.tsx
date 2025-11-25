@@ -5,11 +5,14 @@ import { BuilderTopBar } from '../components/BuilderTopBar';
 import { QuestionTypePalette } from '../components/QuestionTypePalette';
 import { QuestionCanvas } from '../components/QuestionCanvas';
 import { PropertiesPanel } from '../components/PropertiesPanel';
+import { IntroPropertiesPanel } from '../components/IntroPropertiesPanel';
+import { EndPropertiesPanel } from '../components/EndPropertiesPanel';
 import { LogicModal } from '../components/LogicModal';
 import { useQuestions } from '../hooks/useQuestions';
 import { formsApi } from '@/features/forms/api/formsApi';
 import { QuestionType } from '@/shared/constants/questionTypes';
 import { QuestionLogic } from '../types/logic';
+import { IntroSettings, EndSettings, defaultIntroSettings, defaultEndSettings } from '../types/screenSettings';
 import { debounce } from '@/shared/utils/debounce';
 import { getDefaultSettings } from '../types/questionSettings';
 import {
@@ -39,17 +42,20 @@ import {
 } from '@/components/ui/alert-dialog';
 
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useForms } from '@/features/forms/hooks/useForms';
 
 export const FormBuilderPage = () => {
   const { formId } = useParams<{ formId: string }>();
   const isMobile = useIsMobile();
-  const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [tempQuestions, setTempQuestions] = useState<any[]>([]);
   const [logicModalOpen, setLogicModalOpen] = useState(false);
   const [logicEditingQuestionId, setLogicEditingQuestionId] = useState<string | null>(null);
   const [deleteConfirmationId, setDeleteConfirmationId] = useState<string | null>(null);
+
+  const { updateForm } = useForms();
 
   const { data: form } = useQuery({
     queryKey: ['form', formId],
@@ -65,23 +71,40 @@ export const FormBuilderPage = () => {
     reorderQuestions,
   } = useQuestions(formId!);
 
-  // Derive selectedQuestion from tempQuestions for instant UI updates
-  const selectedQuestion = useMemo(
-    () => tempQuestions.find((q) => q.id === selectedQuestionId) ?? null,
-    [tempQuestions, selectedQuestionId]
+  const introSettings = useMemo<IntroSettings>(() => 
+    (form?.intro_settings && Object.keys(form.intro_settings).length > 0)
+      ? form.intro_settings as IntroSettings
+      : defaultIntroSettings,
+    [form?.intro_settings]
   );
 
-  // Sync tempQuestions with questions from React Query (guarded to prevent infinite loops)
+  const endSettings = useMemo<EndSettings>(() => 
+    (form?.end_settings && Object.keys(form.end_settings).length > 0)
+      ? form.end_settings as EndSettings
+      : defaultEndSettings,
+    [form?.end_settings]
+  );
+
+  // Derive selectedQuestion from tempQuestions for instant UI updates
+  const selectedQuestion = useMemo(
+    () => {
+      if (!selectedItemId || selectedItemId === 'intro' || selectedItemId === 'end') {
+        return null;
+      }
+      return tempQuestions.find((q) => q.id === selectedItemId) ?? null;
+    },
+    [tempQuestions, selectedItemId]
+  );
+
+  // Sync tempQuestions with questions from React Query
   useEffect(() => {
     setTempQuestions((prev) => {
-      // Create signature to compare actual content, not references
       const createSignature = (arr: any[]) =>
         arr.map((q) => `${q.id}|${q.label}|${JSON.stringify(q.settings)}`).join('||');
 
       const prevSig = createSignature(prev);
       const newSig = createSignature(questions);
 
-      // Only update if content actually changed
       return prevSig === newSig ? prev : questions;
     });
   }, [questions]);
@@ -103,7 +126,6 @@ export const FormBuilderPage = () => {
       const questionType = type as QuestionType;
       const targetPosition = position !== undefined ? position : questions.length;
 
-      // Reorder existing questions first if inserting in the middle
       if (position !== undefined && position < questions.length) {
         const updates = questions
           .filter((q) => q.position >= position)
@@ -123,16 +145,15 @@ export const FormBuilderPage = () => {
         settings: getDefaultSettings(questionType),
       });
 
-      // Only auto-select on desktop, not on mobile
       if (!isMobile) {
-        setSelectedQuestionId(newQuestion.id);
+        setSelectedItemId(newQuestion.id);
       }
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Debounced save function - only saves after user stops typing for 800ms
+  // Debounced save for question label
   const debouncedUpdate = useMemo(
     () =>
       debounce((id: string, label: string) => {
@@ -149,7 +170,7 @@ export const FormBuilderPage = () => {
     [updateQuestion]
   );
 
-  // Debounced settings update
+  // Debounced save for question settings
   const debouncedSettingsUpdate = useMemo(
     () =>
       debounce((id: string, settings: Record<string, any>) => {
@@ -166,53 +187,98 @@ export const FormBuilderPage = () => {
     [updateQuestion]
   );
 
+  // Debounced save for intro settings
+  const debouncedIntroUpdate = useMemo(
+    () =>
+      debounce((settings: IntroSettings) => {
+        if (!formId) return;
+        setIsSaving(true);
+        updateForm(
+          { id: formId, data: { intro_settings: settings } },
+          {
+            onSettled: () => {
+              setTimeout(() => setIsSaving(false), 300);
+            },
+          }
+        );
+      }, 800),
+    [formId, updateForm]
+  );
+
+  // Debounced save for end settings
+  const debouncedEndUpdate = useMemo(
+    () =>
+      debounce((settings: EndSettings) => {
+        if (!formId) return;
+        setIsSaving(true);
+        updateForm(
+          { id: formId, data: { end_settings: settings } },
+          {
+            onSettled: () => {
+              setTimeout(() => setIsSaving(false), 300);
+            },
+          }
+        );
+      }, 800),
+    [formId, updateForm]
+  );
+
   const handleUpdateLabel = useCallback(
     (label: string) => {
-      if (!selectedQuestionId) return;
+      if (!selectedItemId || selectedItemId === 'intro' || selectedItemId === 'end') return;
 
-      // Optimistic local update for instant UI feedback
       setTempQuestions((prev) =>
-        prev.map((q) => (q.id === selectedQuestionId ? { ...q, label } : q))
+        prev.map((q) => (q.id === selectedItemId ? { ...q, label } : q))
       );
 
-      debouncedUpdate(selectedQuestionId, label);
+      debouncedUpdate(selectedItemId, label);
     },
-    [selectedQuestionId, debouncedUpdate]
+    [selectedItemId, debouncedUpdate]
   );
 
   const handleUpdateSettings = useCallback(
     (settings: Record<string, any>) => {
-      if (!selectedQuestionId) return;
+      if (!selectedItemId || selectedItemId === 'intro' || selectedItemId === 'end') return;
 
-      // Optimistic local update for instant UI feedback
       setTempQuestions((prev) =>
-        prev.map((q) => (q.id === selectedQuestionId ? { ...q, settings } : q))
+        prev.map((q) => (q.id === selectedItemId ? { ...q, settings } : q))
       );
 
-      debouncedSettingsUpdate(selectedQuestionId, settings);
+      debouncedSettingsUpdate(selectedItemId, settings);
     },
-    [selectedQuestionId, debouncedSettingsUpdate]
+    [selectedItemId, debouncedSettingsUpdate]
+  );
+
+  const handleUpdateIntroSettings = useCallback(
+    (settings: IntroSettings) => {
+      debouncedIntroUpdate(settings);
+    },
+    [debouncedIntroUpdate]
+  );
+
+  const handleUpdateEndSettings = useCallback(
+    (settings: EndSettings) => {
+      debouncedEndUpdate(settings);
+    },
+    [debouncedEndUpdate]
   );
 
   const handleDeleteQuestion = async (id: string) => {
-    // Close logic modal if we're deleting the question being edited
     if (logicEditingQuestionId === id) {
       setLogicModalOpen(false);
       setLogicEditingQuestionId(null);
     }
 
-    // Clear selection if we're deleting the selected question
-    if (selectedQuestionId === id) {
+    if (selectedItemId === id) {
       const index = questions.findIndex((q) => q.id === id);
       const nextQuestion = questions[index + 1] || questions[index - 1];
-      setSelectedQuestionId(nextQuestion?.id || null);
+      setSelectedItemId(nextQuestion?.id || null);
     }
     
     setIsSaving(true);
     try {
       await deleteQuestion(id);
     } finally {
-      // Keep showing saving state briefly for smooth UX
       setTimeout(() => setIsSaving(false), 300);
     }
   };
@@ -225,7 +291,6 @@ export const FormBuilderPage = () => {
   const handleSaveLogic = async (logic: QuestionLogic) => {
     if (!logicEditingQuestionId) return;
 
-    // Optimistic local update for instant UI feedback
     setTempQuestions((prev) =>
       prev.map((q) => (q.id === logicEditingQuestionId ? { ...q, logic } : q))
     );
@@ -258,7 +323,6 @@ export const FormBuilderPage = () => {
 
     if (!over) return;
 
-    // Only handle reordering if dragging a question (not from palette)
     if (!active.id.toString().startsWith('palette-')) {
       if (active.id !== over.id) {
         setTempQuestions((items) => {
@@ -271,7 +335,6 @@ export const FormBuilderPage = () => {
           const [removed] = newItems.splice(oldIndex, 1);
           newItems.splice(newIndex, 0, removed);
           
-          // Update position properties to match new array indices
           return newItems.map((q, idx) => ({ ...q, position: idx }));
         });
       }
@@ -288,22 +351,18 @@ export const FormBuilderPage = () => {
       return;
     }
 
-    // Handle dropping from palette
     if (active.id.toString().startsWith('palette-')) {
       const questionType = active.data.current?.type;
       if (!questionType) return;
 
       let position = 0;
 
-      // Determine position based on drop target
       if (over.id === 'empty-canvas') {
         position = 0;
-      } else if (over.id === 'drop-start') {
+      } else if (over.id === 'drop-after-intro') {
         position = 0;
       } else if (over.id.toString().startsWith('drop-after-')) {
-        // Get the array index from the drop zone ID
         const arrayIndex = parseInt(over.id.toString().replace('drop-after-', ''));
-        // Find the question at this index in tempQuestions and use its position
         const questionAtIndex = tempQuestions[arrayIndex];
         if (questionAtIndex) {
           position = questionAtIndex.position + 1;
@@ -311,10 +370,8 @@ export const FormBuilderPage = () => {
           position = tempQuestions.length;
         }
       } else {
-        // Dropped on a question - insert after it
         const targetQuestion = questions.find((q) => q.id === over.id);
         if (targetQuestion) {
-          // Find the index in the sorted array
           const sortedQuestions = [...questions].sort((a, b) => a.position - b.position);
           const targetIndex = sortedQuestions.findIndex((q) => q.id === targetQuestion.id);
           position = targetIndex + 1;
@@ -325,7 +382,6 @@ export const FormBuilderPage = () => {
 
       await handleAddQuestion(questionType, position);
     } else {
-      // Handle reordering existing questions
       const originalIds = questions.map((q) => q.id).join('|');
       const newIds = tempQuestions.map((q) => q.id).join('|');
 
@@ -362,9 +418,12 @@ export const FormBuilderPage = () => {
           </div>
 
           <QuestionCanvas
+            formTitle={form?.title || 'Untitled Form'}
+            introSettings={introSettings}
+            endSettings={endSettings}
             questions={tempQuestions}
-            selectedQuestionId={selectedQuestionId}
-            onSelectQuestion={setSelectedQuestionId}
+            selectedItemId={selectedItemId}
+            onSelectItem={setSelectedItemId}
             onDeleteQuestion={handleDeleteQuestion}
             onReorderQuestions={handleReorderQuestions}
             onOpenLogic={handleOpenLogic}
@@ -373,7 +432,22 @@ export const FormBuilderPage = () => {
 
           {/* Desktop Properties Panel */}
           <div className="hidden md:block h-full">
-            {selectedQuestion ? (
+            {selectedItemId === 'intro' ? (
+              <div className="w-80 border-l border-border/50 glass-panel h-full overflow-y-auto p-6">
+                <IntroPropertiesPanel
+                  formTitle={form?.title || 'Untitled Form'}
+                  settings={introSettings}
+                  onUpdate={handleUpdateIntroSettings}
+                />
+              </div>
+            ) : selectedItemId === 'end' ? (
+              <div className="w-80 border-l border-border/50 glass-panel h-full overflow-y-auto p-6">
+                <EndPropertiesPanel
+                  settings={endSettings}
+                  onUpdate={handleUpdateEndSettings}
+                />
+              </div>
+            ) : selectedQuestion ? (
               <PropertiesPanel
                 question={selectedQuestion}
                 onUpdateLabel={handleUpdateLabel}
@@ -402,9 +476,9 @@ export const FormBuilderPage = () => {
                       <circle cx="12" cy="12" r="3" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">No Question Selected</h3>
+                  <h3 className="font-semibold text-lg mb-2">Select to Edit</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Click on any question from the canvas to view and edit its properties, settings, and logic rules.
+                    Click on intro, end, or any question to edit properties
                   </p>
                 </div>
               </div>
@@ -429,8 +503,6 @@ export const FormBuilderPage = () => {
               <QuestionTypePalette
                 onSelectType={(type) => {
                   handleAddQuestion(type);
-                  // Close sheet logic would go here if we had control over open state
-                  // For now, user can close it manually or we can add state control
                 }}
                 className="w-full border-none h-full"
               />
@@ -438,30 +510,50 @@ export const FormBuilderPage = () => {
           </Sheet>
 
           {/* Mobile Properties Sheet */}
-          <Sheet open={!!selectedQuestionId && isMobile} onOpenChange={(open) => !open && setSelectedQuestionId(null)}>
+          <Sheet open={!!selectedItemId && isMobile} onOpenChange={(open) => !open && setSelectedItemId(null)}>
             <SheetContent side="bottom" className="h-[100dvh] w-full p-0 bg-background z-[100] flex flex-col border-none">
-              <SheetTitle className="sr-only">Question Properties</SheetTitle>
+              <SheetTitle className="sr-only">Properties</SheetTitle>
               <SheetDescription className="sr-only">
-                Edit properties for the selected question
+                Edit properties
               </SheetDescription>
 
               {/* Mobile Header */}
               <div className="flex items-center justify-between p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive hover:text-destructive hover:bg-destructive/10 -ml-2"
-                  onClick={() => selectedQuestionId && setDeleteConfirmationId(selectedQuestionId)}
-                >
-                  <Trash2 className="h-5 w-5" />
-                </Button>
-                <h3 className="font-semibold text-lg">Edit Question</h3>
-                <Button onClick={() => setSelectedQuestionId(null)}>
+                {selectedItemId && selectedItemId !== 'intro' && selectedItemId !== 'end' && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10 -ml-2"
+                    onClick={() => selectedItemId && setDeleteConfirmationId(selectedItemId)}
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </Button>
+                )}
+                {(selectedItemId === 'intro' || selectedItemId === 'end') && <div className="w-10" />}
+                <h3 className="font-semibold text-lg">
+                  {selectedItemId === 'intro' ? 'Intro Screen' : selectedItemId === 'end' ? 'End Screen' : 'Edit Question'}
+                </h3>
+                <Button onClick={() => setSelectedItemId(null)}>
                   Done
                 </Button>
               </div>
 
-              {selectedQuestion ? (
+              {selectedItemId === 'intro' ? (
+                <div className="flex-1 overflow-y-auto bg-background p-4 pb-20">
+                  <IntroPropertiesPanel
+                    formTitle={form?.title || 'Untitled Form'}
+                    settings={introSettings}
+                    onUpdate={handleUpdateIntroSettings}
+                  />
+                </div>
+              ) : selectedItemId === 'end' ? (
+                <div className="flex-1 overflow-y-auto bg-background p-4 pb-20">
+                  <EndPropertiesPanel
+                    settings={endSettings}
+                    onUpdate={handleUpdateEndSettings}
+                  />
+                </div>
+              ) : selectedQuestion ? (
                 <PropertiesPanel
                   question={selectedQuestion}
                   onUpdateLabel={handleUpdateLabel}
@@ -473,7 +565,7 @@ export const FormBuilderPage = () => {
                 />
               ) : (
                 <div className="flex items-center justify-center h-full text-muted-foreground">
-                  Loading properties...
+                  Loading...
                 </div>
               )}
             </SheetContent>
@@ -484,7 +576,7 @@ export const FormBuilderPage = () => {
       {/* Logic Modal */}
       {(() => {
         const logicQuestion = questions.find((q) => q.id === logicEditingQuestionId);
-        return logicEditingQuestionId && logicQuestion ? (
+        return logicQuestion ? (
           <LogicModal
             open={logicModalOpen}
             onOpenChange={setLogicModalOpen}
@@ -496,25 +588,24 @@ export const FormBuilderPage = () => {
       })()}
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={!!deleteConfirmationId} onOpenChange={(open) => !open && setDeleteConfirmationId(null)}>
-        <AlertDialogContent className="z-[150]">
+      <AlertDialog
+        open={!!deleteConfirmationId}
+        onOpenChange={(open) => !open && setDeleteConfirmationId(null)}
+      >
+        <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete question?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Question</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this question. This action cannot be undone.
+              Are you sure you want to delete this question? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={async () => {
+              onClick={() => {
                 if (deleteConfirmationId) {
-                  await handleDeleteQuestion(deleteConfirmationId);
+                  handleDeleteQuestion(deleteConfirmationId);
                   setDeleteConfirmationId(null);
-                  // If deleting the currently selected question on mobile, close the sheet
-                  if (isMobile && selectedQuestionId === deleteConfirmationId) {
-                    setSelectedQuestionId(null);
-                  }
                 }
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"

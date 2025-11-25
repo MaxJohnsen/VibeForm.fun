@@ -57,7 +57,9 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          end_settings: Json | null
           id: string
+          intro_settings: Json | null
           slug: string | null
           status: string | null
           title: string
@@ -67,7 +69,9 @@ export type Database = {
         Insert: {
           created_at?: string | null
           description?: string | null
+          end_settings?: Json | null
           id?: string
+          intro_settings?: Json | null
           slug?: string | null
           status?: string | null
           title: string
@@ -77,7 +81,9 @@ export type Database = {
         Update: {
           created_at?: string | null
           description?: string | null
+          end_settings?: Json | null
           id?: string
+          intro_settings?: Json | null
           slug?: string | null
           status?: string | null
           title?: string
