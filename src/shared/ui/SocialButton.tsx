@@ -13,6 +13,7 @@ export const SocialButton = forwardRef<HTMLButtonElement, SocialButtonProps>(
     return (
       <button
         ref={ref}
+        type="button"
         className={cn(
           'w-full px-4 py-3 rounded-xl font-medium',
           'flex items-center justify-center gap-2',
