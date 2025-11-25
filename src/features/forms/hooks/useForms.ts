@@ -32,8 +32,9 @@ export const useForms = () => {
   const updateFormMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateFormData }) =>
       formsApi.updateForm(id, data),
-    onSuccess: () => {
+    onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['forms'] });
+      queryClient.invalidateQueries({ queryKey: ['form', id] });
     },
     onError: (error: Error) => {
       toast({
