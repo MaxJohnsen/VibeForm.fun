@@ -2,40 +2,34 @@ import { useState } from 'react';
 import QRCodeSVG from 'react-qr-code';
 import { Copy, Check, Download, ExternalLink } from 'lucide-react';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTES } from '@/shared/constants/routes';
 
-interface SharePopoverProps {
+interface ShareDialogProps {
   formId: string;
   formTitle: string;
   formStatus: 'draft' | 'active' | 'archived';
-  children: React.ReactNode;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export const SharePopover = ({ 
+export const ShareDialog = ({ 
   formId, 
   formTitle, 
   formStatus, 
-  children,
-  open: externalOpen,
-  onOpenChange: externalOnOpenChange 
-}: SharePopoverProps) => {
+  open,
+  onOpenChange
+}: ShareDialogProps) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
-  const [internalOpen, setInternalOpen] = useState(false);
   const shareUrl = `${window.location.origin}${ROUTES.getRespondentRoute(formId)}`;
-
-  // Use external state if provided, otherwise use internal state
-  const open = externalOpen !== undefined ? externalOpen : internalOpen;
-  const setOpen = externalOnOpenChange || setInternalOpen;
 
   const handleCopy = async () => {
     try {
@@ -56,7 +50,6 @@ export const SharePopover = ({
   };
 
   const handleDownloadQR = () => {
-    // Use the high-resolution QR code for download
     const svg = document.getElementById('qr-code-svg-download');
     if (!svg) return;
 
@@ -66,23 +59,19 @@ export const SharePopover = ({
     const img = new Image();
 
     img.onload = () => {
-      // Set canvas to high resolution (2048x2048)
       const size = 2048;
       canvas.width = size;
       canvas.height = size;
       
-      // Add white background for better QR code scanning
       if (ctx) {
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, size, size);
         
-        // Add padding (8% on each side)
         const padding = size * 0.08;
         const qrSize = size - padding * 2;
         ctx.drawImage(img, padding, padding, qrSize, qrSize);
       }
       
-      // Export as high-quality PNG
       const pngFile = canvas.toDataURL('image/png');
 
       const downloadLink = document.createElement('a');
@@ -100,29 +89,13 @@ export const SharePopover = ({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        {children}
-      </PopoverTrigger>
-      <PopoverContent 
-        className="w-80 p-0 bg-background border-border z-50" 
-        align="end"
-        onPointerDownOutside={(e) => {
-          // Prevent closing when clicking outside if it's on the trigger
-          const target = e.target as HTMLElement;
-          if (target.closest('[role="menuitem"]')) {
-            e.preventDefault();
-          }
-        }}
-      >
-        <div className="p-4 space-y-4">
-          <div>
-            <h3 className="font-semibold text-sm mb-1">Share Form</h3>
-            <p className="text-xs text-muted-foreground">
-              Share this form with respondents
-            </p>
-          </div>
-
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Share Form</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
           {formStatus !== 'active' ? (
             <Alert className="bg-orange-50 border-orange-200 dark:bg-orange-950/20 dark:border-orange-900">
               <AlertDescription className="text-orange-800 dark:text-orange-200">
@@ -171,7 +144,6 @@ export const SharePopover = ({
                     className="bg-white p-2 rounded"
                   />
                 </div>
-                {/* Hidden High-Res QR Code for download */}
                 <div className="sr-only">
                   <QRCodeSVG
                     id="qr-code-svg-download"
@@ -193,7 +165,7 @@ export const SharePopover = ({
             </div>
           )}
         </div>
-      </PopoverContent>
-    </Popover>
+      </DialogContent>
+    </Dialog>
   );
 };
