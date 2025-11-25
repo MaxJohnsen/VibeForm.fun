@@ -15,8 +15,8 @@ export const slugSchema = z
   .min(3, 'Slug must be at least 3 characters')
   .max(50, 'Slug must be less than 50 characters')
   .regex(
-    /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/,
-    'Slug can only contain lowercase letters, numbers, and hyphens. Must start and end with a letter or number.'
+    /^[a-z0-9-]+$/,
+    'Slug can only contain lowercase letters, numbers, and hyphens'
   )
   .refine(
     (slug) => !RESERVED_SLUGS.includes(slug),
@@ -42,7 +42,6 @@ export const formatSlug = (input: string): string => {
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9-]/g, '-') // Replace invalid chars with hyphens
-    .replace(/^-+|-+$/g, '') // Remove leading/trailing hyphens
     .replace(/-+/g, '-') // Replace multiple hyphens with single
     .slice(0, 50); // Enforce max length
 };
