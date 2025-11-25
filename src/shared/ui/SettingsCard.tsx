@@ -11,7 +11,8 @@ export const SettingsCard = forwardRef<HTMLDivElement, SettingsCardProps>(
       <div
         ref={ref}
         className={cn(
-          'glass-panel rounded-2xl divide-y divide-border/50',
+          'glass-panel rounded-2xl divide-y divide-border/30 shadow-sm',
+          'animate-fade-in',
           className
         )}
         {...props}
