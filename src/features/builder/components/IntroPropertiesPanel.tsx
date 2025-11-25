@@ -1,7 +1,7 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Sparkles } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { IntroSettings } from '../types/screenSettings';
 import { RichTextEditor } from '@/shared/ui';
 
@@ -18,11 +18,11 @@ export const IntroPropertiesPanel = ({
 }: IntroPropertiesPanelProps) => {
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3 pb-4 border-b">
-        <div className="rounded-lg bg-primary/10 p-2">
-          <Sparkles className="h-5 w-5 text-primary" />
+      <div className="flex items-center gap-4 pb-4 border-b">
+        <div className="rounded-xl bg-primary/10 p-3 flex items-center justify-center">
+          <Play className="h-6 w-6 text-primary" />
         </div>
-        <div>
+        <div className="flex-1">
           <h2 className="text-lg font-semibold">Intro Screen</h2>
           <p className="text-sm text-muted-foreground">
             Customize your welcome screen
