@@ -7,3 +7,4 @@ export { AppSidebar } from './AppSidebar';
 export { SettingsSection } from './SettingsSection';
 export { SettingsCard } from './SettingsCard';
 export { SettingsRow } from './SettingsRow';
+export { RichTextEditor } from './RichTextEditor';

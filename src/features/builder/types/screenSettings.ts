@@ -1,6 +1,6 @@
 export interface IntroSettings {
   title?: string;
-  description?: string;
+  description?: string; // HTML content from rich text editor
   buttonText?: string;
   showQuestionCount?: boolean;
   showEstimatedTime?: boolean;

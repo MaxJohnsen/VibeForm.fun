@@ -1,9 +1,9 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Sparkles } from 'lucide-react';
 import { IntroSettings } from '../types/screenSettings';
+import { RichTextEditor } from '@/shared/ui';
 
 interface IntroPropertiesPanelProps {
   formTitle: string;
@@ -46,17 +46,15 @@ export const IntroPropertiesPanel = ({
 
         <div className="space-y-2">
           <Label htmlFor="intro-description">Description</Label>
-          <Textarea
-            id="intro-description"
-            placeholder="Add a description for your form..."
+          <RichTextEditor
             value={settings.description || ''}
-            onChange={(e) =>
-              onUpdate({ ...settings, description: e.target.value })
+            onChange={(value) =>
+              onUpdate({ ...settings, description: value })
             }
-            rows={4}
+            placeholder="Add a description for your form..."
           />
           <p className="text-xs text-muted-foreground">
-            Explain what this form is about
+            Explain what this form is about (supports rich text)
           </p>
         </div>
 
