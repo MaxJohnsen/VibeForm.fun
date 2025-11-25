@@ -244,37 +244,41 @@ export const FormSettingsPage = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-10">
-        <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
+        <div className="max-w-3xl mx-auto space-y-8">
           {/* Main Settings Card */}
           <SettingsCard>
             {/* Form Name */}
-            <SettingsRow label="Form Name">
+            <SettingsRow 
+              label="Form Name"
+              description="The title of your form"
+            >
               <Input
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Enter form name"
-                className="w-full"
+                className="h-11 text-base"
               />
             </SettingsRow>
 
             {/* Description */}
-            <div className="py-4 px-5">
-              <label className="text-sm font-medium text-foreground block mb-3">
-                Description
-              </label>
+            <SettingsRow 
+              label="Description"
+              description="Help respondents understand your form"
+              fullWidth
+            >
               <Textarea
                 value={description}
                 onChange={(e) => handleDescriptionChange(e.target.value)}
-                placeholder="Enter form description (optional)"
-                className="w-full min-h-[80px] resize-none"
+                placeholder="Add an optional description for your form..."
+                className="min-h-[100px] resize-none text-base leading-relaxed"
               />
-            </div>
+            </SettingsRow>
 
             {/* Status */}
             <SettingsRow 
               label="Status" 
-              description={questionCount === 0 ? 'Add at least one question to activate' : undefined}
+              description={questionCount === 0 ? 'Add questions to activate your form' : 'Control who can access your form'}
             >
               <StatusMenu
                 formId={formId!}
@@ -285,18 +289,22 @@ export const FormSettingsPage = () => {
             </SettingsRow>
 
             {/* Form URL */}
-            <SettingsRow label="Share URL">
+            <SettingsRow 
+              label="Public Link"
+              description="Share this link with respondents"
+            >
               <div className="flex gap-2 w-full">
                 <Input
                   value={shareUrl}
                   readOnly
-                  className="flex-1 bg-muted/50 text-xs font-mono"
+                  className="flex-1 bg-muted/30 text-sm font-mono h-11"
                 />
                 <Button
                   onClick={handleCopyUrl}
                   variant="outline"
                   size="icon"
-                  className="flex-shrink-0 h-10 w-10"
+                  className="flex-shrink-0 h-11 w-11 hover:bg-primary/5 hover:border-primary/20 transition-all"
+                  title="Copy to clipboard"
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -304,7 +312,8 @@ export const FormSettingsPage = () => {
                   onClick={handleOpenUrl}
                   variant="outline"
                   size="icon"
-                  className="flex-shrink-0 h-10 w-10"
+                  className="flex-shrink-0 h-11 w-11 hover:bg-primary/5 hover:border-primary/20 transition-all"
+                  title="Open in new tab"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </Button>
@@ -312,46 +321,53 @@ export const FormSettingsPage = () => {
             </SettingsRow>
 
             {/* QR Code */}
-            <SettingsRow label="QR Code">
-              <div className="flex items-center gap-3">
-                <div className="bg-white p-2 rounded-lg flex-shrink-0 border shadow-sm">
+            <SettingsRow 
+              label="QR Code"
+              description="Let people scan to open your form"
+            >
+              <div className="flex items-center gap-4">
+                <div className="bg-white p-3 rounded-xl flex-shrink-0 border-2 border-border/50 shadow-sm">
                   <QRCode
                     id="qr-code-svg"
                     value={shareUrl}
-                    size={64}
+                    size={80}
                     level="H"
                   />
                 </div>
                 <Button
                   onClick={handleDownloadQR}
                   variant="outline"
-                  size="sm"
+                  className="hover:bg-primary/5 hover:border-primary/20 transition-all"
                 >
                   <Download className="h-4 w-4 mr-2" />
-                  Download
+                  Download PNG
                 </Button>
               </div>
             </SettingsRow>
           </SettingsCard>
 
           {/* Danger Zone Card */}
-          <SettingsCard className="border-destructive/30 bg-destructive/5">
-            <div className="py-4 px-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex-1">
-                <h3 className="text-sm font-medium text-destructive">Delete Form</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Permanently delete this form and all its data
-                </p>
+          <SettingsCard className="border-destructive/20 bg-destructive/[0.02]">
+            <div className="py-5 px-6">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-destructive flex items-center gap-2">
+                    <Trash2 className="h-4 w-4" />
+                    Delete Form
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                    Permanently delete this form, all questions, and response data. This action cannot be undone.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setDeleteDialogOpen(true)}
+                  variant="destructive"
+                  size="sm"
+                  className="flex-shrink-0 sm:mt-0.5"
+                >
+                  Delete Form
+                </Button>
               </div>
-              <Button
-                onClick={() => setDeleteDialogOpen(true)}
-                variant="destructive"
-                size="sm"
-                className="flex-shrink-0 sm:self-start"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Form
-              </Button>
             </div>
           </SettingsCard>
         </div>
