@@ -91,7 +91,17 @@ export const SharePopover = ({ formId, formTitle, formStatus, children }: ShareP
       <PopoverTrigger asChild>
         {children}
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0 bg-background border-border z-50" align="end">
+      <PopoverContent 
+        className="w-80 p-0 bg-background border-border z-50" 
+        align="end"
+        onPointerDownOutside={(e) => {
+          // Prevent closing when clicking outside if it's on the trigger
+          const target = e.target as HTMLElement;
+          if (target.closest('[role="menuitem"]')) {
+            e.preventDefault();
+          }
+        }}
+      >
         <div className="p-4 space-y-4">
           <div>
             <h3 className="font-semibold text-sm mb-1">Share Form</h3>
