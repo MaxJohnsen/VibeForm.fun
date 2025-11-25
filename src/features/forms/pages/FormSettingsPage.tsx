@@ -1,22 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
-  FileText,
-  ToggleLeft,
-  Share2,
-  Trash2,
   Loader2,
   Copy,
   ExternalLink,
   Download,
+  Trash2,
 } from 'lucide-react';
 import { formsApi } from '../api/formsApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,12 +23,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { SettingsSection } from '@/shared/ui/SettingsSection';
+import { SettingsCard } from '@/shared/ui/SettingsCard';
+import { SettingsRow } from '@/shared/ui/SettingsRow';
 import { StatusMenu } from '../components/StatusMenu';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTES } from '@/shared/constants/routes';
 import QRCode from 'react-qr-code';
 import { supabase } from '@/integrations/supabase/client';
+import { debounce } from '@/shared/utils/debounce';
 
 export const FormSettingsPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -44,6 +42,7 @@ export const FormSettingsPage = () => {
   const [description, setDescription] = useState('');
   const [questionCount, setQuestionCount] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
   const { data: form, isLoading } = useQuery({
     queryKey: ['form', formId],
@@ -76,10 +75,8 @@ export const FormSettingsPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['form', formId] });
       queryClient.invalidateQueries({ queryKey: ['forms'] });
-      toast({
-        title: 'Success',
-        description: 'Form updated successfully',
-      });
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2000);
     },
     onError: (error: Error) => {
       toast({
@@ -87,6 +84,7 @@ export const FormSettingsPage = () => {
         description: error.message,
         variant: 'destructive',
       });
+      setSaveStatus('idle');
     },
   });
 
@@ -128,16 +126,29 @@ export const FormSettingsPage = () => {
     },
   });
 
-  const handleSaveTitle = () => {
-    if (title !== form?.title) {
-      updateFormMutation.mutate({ title });
+  // Debounced auto-save
+  const debouncedSave = useCallback(
+    debounce((field: 'title' | 'description', value: string) => {
+      setSaveStatus('saving');
+      if (field === 'title' && value.trim()) {
+        updateFormMutation.mutate({ title: value });
+      } else if (field === 'description') {
+        updateFormMutation.mutate({ description: value });
+      }
+    }, 1000),
+    []
+  );
+
+  const handleTitleChange = (value: string) => {
+    setTitle(value);
+    if (value.trim()) {
+      debouncedSave('title', value);
     }
   };
 
-  const handleSaveDescription = () => {
-    if (description !== form?.description) {
-      updateFormMutation.mutate({ description });
-    }
+  const handleDescriptionChange = (value: string) => {
+    setDescription(value);
+    debouncedSave('description', value);
   };
 
   const handleStatusChange = async (newStatus: 'draft' | 'active' | 'archived') => {
@@ -205,190 +216,145 @@ export const FormSettingsPage = () => {
   const shareUrl = `${window.location.origin}${ROUTES.getRespondentRoute(formId!)}`;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top Bar */}
-      <div className="border-b border-border/50 glass-panel sticky top-0 z-10 backdrop-blur-xl bg-background/50">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 md:py-4">
-          <div className="flex items-center gap-2 md:gap-4 min-w-0">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      {/* Sticky Top Bar */}
+      <div className="sticky top-0 z-10 backdrop-blur-xl bg-background/50 border-b border-border/50">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
+          <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="icon"
-              className="shrink-0 -ml-2 md:ml-0"
               onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
+              className="h-9 w-9 rounded-xl"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-base md:text-xl font-semibold truncate">{form.title}</h1>
-              <p className="text-xs md:text-sm text-muted-foreground truncate hidden sm:block">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-semibold text-foreground truncate">
+                {form.title}
+              </h1>
+              <p className="text-sm text-muted-foreground">
                 Form Settings
+                {saveStatus === 'saving' && ' · Saving...'}
+                {saveStatus === 'saved' && ' · Saved'}
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-8 space-y-4 md:space-y-6">
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-6 md:py-10">
+        <div className="max-w-2xl mx-auto space-y-6">
+          {/* Main Settings Card */}
+          <SettingsCard>
+            {/* Form Name */}
+            <SettingsRow label="Form Name">
+              <Input
+                value={title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="Enter form name"
+                className="w-full"
+              />
+            </SettingsRow>
 
-        {/* General Section */}
-        <SettingsSection
-          icon={FileText}
-          title="General"
-          description="Basic information about your form"
-        >
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="form-title" className="text-sm font-medium">
-                Form Name
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  id="form-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter form name"
-                  className="flex-1"
-                />
-                <Button
-                  onClick={handleSaveTitle}
-                  disabled={title === form.title || !title.trim()}
-                  variant="outline"
-                  size="sm"
-                >
-                  Save
-                </Button>
-              </div>
+            {/* Description */}
+            <div className="py-4 px-5">
+              <label className="text-sm font-medium text-foreground block mb-3">
+                Description
+              </label>
+              <Textarea
+                value={description}
+                onChange={(e) => handleDescriptionChange(e.target.value)}
+                placeholder="Enter form description (optional)"
+                className="w-full min-h-[80px] resize-none"
+              />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="form-description" className="text-sm font-medium">
-                Description (Optional)
-              </Label>
-              <div className="flex gap-2 items-start">
-                <Textarea
-                  id="form-description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter a description..."
-                  rows={3}
-                  className="flex-1 resize-none"
-                />
-                <Button
-                  onClick={handleSaveDescription}
-                  disabled={description === (form.description || '')}
-                  variant="outline"
-                  size="sm"
-                >
-                  Save
-                </Button>
-              </div>
-            </div>
-          </div>
-        </SettingsSection>
-
-        {/* Status Section */}
-        <SettingsSection
-          icon={ToggleLeft}
-          title="Status"
-          description="Control form availability"
-        >
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                Current Status:
-              </span>
+            {/* Status */}
+            <SettingsRow 
+              label="Status" 
+              description={questionCount === 0 ? 'Add at least one question to activate' : undefined}
+            >
               <StatusMenu
                 formId={formId!}
                 currentStatus={form.status}
                 questionCount={questionCount}
                 onStatusChange={handleStatusChange}
               />
-            </div>
-            {questionCount === 0 && (
-              <p className="text-xs text-muted-foreground flex items-start gap-2">
-                <span className="text-blue-500">ℹ️</span>
-                Forms must have at least one question to activate
-              </p>
-            )}
-          </div>
-        </SettingsSection>
+            </SettingsRow>
 
-        {/* Sharing Section */}
-        <SettingsSection
-          icon={Share2}
-          title="Sharing"
-          description="Share your form with respondents"
-        >
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Form URL</Label>
-              <div className="flex gap-2">
+            {/* Form URL */}
+            <SettingsRow label="Share URL">
+              <div className="flex gap-2 w-full">
                 <Input
                   value={shareUrl}
                   readOnly
-                  className="flex-1 font-mono text-xs bg-muted/30"
+                  className="flex-1 bg-muted/50 text-xs font-mono"
                 />
-                <Button 
-                  onClick={handleCopyUrl} 
-                  variant="outline" 
+                <Button
+                  onClick={handleCopyUrl}
+                  variant="outline"
                   size="icon"
-                  className="shrink-0"
+                  className="flex-shrink-0 h-10 w-10"
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
-                <Button 
-                  onClick={handleOpenUrl} 
-                  variant="outline" 
+                <Button
+                  onClick={handleOpenUrl}
+                  variant="outline"
                   size="icon"
-                  className="shrink-0"
+                  className="flex-shrink-0 h-10 w-10"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </Button>
               </div>
-            </div>
+            </SettingsRow>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">QR Code</Label>
-              <div className="flex items-center gap-4">
-                <div className="bg-white p-3 rounded-lg border shadow-sm">
+            {/* QR Code */}
+            <SettingsRow label="QR Code">
+              <div className="flex items-center gap-3">
+                <div className="bg-white p-2 rounded-lg flex-shrink-0 border shadow-sm">
                   <QRCode
                     id="qr-code-svg"
                     value={shareUrl}
-                    size={100}
+                    size={64}
                     level="H"
                   />
                 </div>
-                <Button onClick={handleDownloadQR} variant="outline" size="sm">
+                <Button
+                  onClick={handleDownloadQR}
+                  variant="outline"
+                  size="sm"
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Download
                 </Button>
               </div>
-            </div>
-          </div>
-        </SettingsSection>
+            </SettingsRow>
+          </SettingsCard>
 
-        {/* Danger Zone */}
-        <SettingsSection
-          icon={Trash2}
-          title="Danger Zone"
-          description="Irreversible actions"
-          variant="danger"
-        >
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground flex-1">
-              Permanently delete this form and all responses. This action cannot be undone.
-            </p>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete Form
-            </Button>
-          </div>
-        </SettingsSection>
+          {/* Danger Zone Card */}
+          <SettingsCard className="border-destructive/30 bg-destructive/5">
+            <div className="py-4 px-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-destructive">Delete Form</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Permanently delete this form and all its data
+                </p>
+              </div>
+              <Button
+                onClick={() => setDeleteDialogOpen(true)}
+                variant="destructive"
+                size="sm"
+                className="flex-shrink-0 sm:self-start"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Form
+              </Button>
+            </div>
+          </SettingsCard>
+        </div>
       </div>
 
       {/* Delete Confirmation Dialog */}

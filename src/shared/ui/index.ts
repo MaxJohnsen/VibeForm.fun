@@ -5,3 +5,5 @@ export { SearchBar } from './SearchBar';
 export { EmptyState } from './EmptyState';
 export { AppSidebar } from './AppSidebar';
 export { SettingsSection } from './SettingsSection';
+export { SettingsCard } from './SettingsCard';
+export { SettingsRow } from './SettingsRow';
