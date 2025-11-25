@@ -199,63 +199,6 @@ export const FormCard = ({ form }: FormCardProps) => {
                   Share Form
                 </DropdownMenuItem>
               </SharePopover>
-              
-              <DropdownMenuSeparator />
-              
-              <DropdownMenuLabel className="text-xs text-muted-foreground">Change Status</DropdownMenuLabel>
-              
-              {form.status !== 'active' && (
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleStatusChange('active');
-                  }}
-                  disabled={questionCount === 0}
-                  className="cursor-pointer"
-                >
-                  <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
-                  <span className="text-foreground">Activate Form</span>
-                </DropdownMenuItem>
-              )}
-              
-              {form.status !== 'draft' && (
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleStatusChange('draft');
-                  }}
-                  className="cursor-pointer"
-                >
-                  <FileEdit className="h-4 w-4 mr-2 text-blue-600" />
-                  <span className="text-foreground">Move to Draft</span>
-                </DropdownMenuItem>
-              )}
-              
-              {form.status !== 'archived' && (
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleStatusChange('archived');
-                  }}
-                  className="cursor-pointer"
-                >
-                  <Archive className="h-4 w-4 mr-2 text-orange-600" />
-                  <span className="text-foreground">Archive Form</span>
-                </DropdownMenuItem>
-              )}
-              
-              <DropdownMenuSeparator />
-              
-              <DropdownMenuItem 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowDeleteDialog(true);
-                }} 
-                className="text-destructive cursor-pointer focus:text-destructive"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Form
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
