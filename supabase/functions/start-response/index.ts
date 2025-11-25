@@ -25,11 +25,16 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify form exists and is active
+    console.log('Starting response for form:', formId);
+
+    // Check if formId is a UUID or a slug
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(formId);
+
+    // Verify form exists and is active - try by UUID first, then by slug
     const { data: form, error: formError } = await supabase
       .from('forms')
       .select('id, title, description, status')
-      .eq('id', formId)
+      .or(isUUID ? `id.eq.${formId}` : `slug.eq.${formId}`)
       .single();
 
     if (formError || !form) {
@@ -47,11 +52,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get first question
+    // Get first question (use form.id from the database, not the input formId which might be a slug)
     const { data: questions, error: questionsError } = await supabase
       .from('questions')
       .select('*')
-      .eq('form_id', formId)
+      .eq('form_id', form.id)
       .order('position', { ascending: true });
 
     if (questionsError || !questions || questions.length === 0) {
@@ -67,11 +72,11 @@ Deno.serve(async (req) => {
     // Generate session token
     const sessionToken = uuidv4();
 
-    // Create response record
+    // Create response record (use form.id from database)
     const { data: response, error: responseError } = await supabase
       .from('responses')
       .insert({
-        form_id: formId,
+        form_id: form.id,
         session_token: sessionToken,
         current_question_id: firstQuestion.id,
         status: 'in_progress',

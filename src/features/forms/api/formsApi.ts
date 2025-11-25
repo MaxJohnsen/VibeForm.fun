@@ -6,6 +6,7 @@ export interface Form {
   title: string;
   description: string | null;
   status: 'draft' | 'active' | 'archived';
+  slug: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -19,6 +20,7 @@ export interface UpdateFormData {
   title?: string;
   description?: string;
   status?: 'draft' | 'active' | 'archived';
+  slug?: string | null;
 }
 
 export const formsApi = {
@@ -80,5 +82,22 @@ export const formsApi = {
       .eq('id', id);
 
     if (error) throw error;
+  },
+
+  async checkSlugAvailability(slug: string, formId?: string): Promise<boolean> {
+    let query = supabase
+      .from('forms')
+      .select('id')
+      .eq('slug', slug);
+
+    // If updating an existing form, exclude it from the check
+    if (formId) {
+      query = query.neq('id', formId);
+    }
+
+    const { data, error } = await query.maybeSingle();
+
+    if (error) throw error;
+    return data === null; // Available if no data found
   },
 };

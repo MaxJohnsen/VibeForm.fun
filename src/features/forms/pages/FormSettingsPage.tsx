@@ -8,6 +8,9 @@ import {
   ExternalLink,
   Download,
   Trash2,
+  Check,
+  X,
+  AlertCircle,
 } from 'lucide-react';
 import { formsApi } from '../api/formsApi';
 import { Button } from '@/components/ui/button';
@@ -31,6 +34,7 @@ import { ROUTES } from '@/shared/constants/routes';
 import QRCode from 'react-qr-code';
 import { supabase } from '@/integrations/supabase/client';
 import { debounce } from '@/shared/utils/debounce';
+import { validateSlug, formatSlug } from '@/shared/utils/slugValidation';
 
 export const FormSettingsPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -40,6 +44,9 @@ export const FormSettingsPage = () => {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [slug, setSlug] = useState('');
+  const [slugError, setSlugError] = useState('');
+  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle');
   const [questionCount, setQuestionCount] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
@@ -54,6 +61,7 @@ export const FormSettingsPage = () => {
     if (form) {
       setTitle(form.title);
       setDescription(form.description || '');
+      setSlug(form.slug || '');
     }
   }, [form]);
 
@@ -70,7 +78,7 @@ export const FormSettingsPage = () => {
   }, [formId]);
 
   const updateFormMutation = useMutation({
-    mutationFn: (data: { title?: string; description?: string }) =>
+    mutationFn: (data: { title?: string; description?: string; slug?: string | null }) =>
       formsApi.updateForm(formId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['form', formId] });
@@ -151,21 +159,75 @@ export const FormSettingsPage = () => {
     debouncedSave('description', value);
   };
 
+  // Debounced slug availability check
+  const checkSlugAvailability = useCallback(
+    debounce(async (slugValue: string) => {
+      if (!slugValue) {
+        setSlugStatus('idle');
+        return;
+      }
+
+      const validation = validateSlug(slugValue);
+      if (!validation.valid) {
+        setSlugError(validation.error || 'Invalid slug format');
+        setSlugStatus('idle');
+        return;
+      }
+
+      setSlugStatus('checking');
+      setSlugError('');
+
+      try {
+        const isAvailable = await formsApi.checkSlugAvailability(slugValue, formId);
+        if (isAvailable) {
+          setSlugStatus('available');
+          setSaveStatus('saving');
+          updateFormMutation.mutate({ slug: slugValue });
+        } else {
+          setSlugStatus('taken');
+          setSlugError('This slug is already taken');
+        }
+      } catch (error) {
+        console.error('Error checking slug availability:', error);
+        setSlugError('Failed to check availability');
+        setSlugStatus('idle');
+      }
+    }, 800),
+    [formId]
+  );
+
+  const handleSlugChange = (value: string) => {
+    const formatted = formatSlug(value);
+    setSlug(formatted);
+    setSlugError('');
+    
+    if (!formatted) {
+      setSlugStatus('idle');
+      setSaveStatus('saving');
+      updateFormMutation.mutate({ slug: null });
+      return;
+    }
+
+    checkSlugAvailability(formatted);
+  };
+
   const handleStatusChange = async (newStatus: 'draft' | 'active' | 'archived') => {
     await updateStatusMutation.mutateAsync(newStatus);
   };
 
-  const handleCopyUrl = () => {
-    const shareUrl = `${window.location.origin}${ROUTES.getRespondentRoute(formId!)}`;
+  const handleCopyUrl = (isCustom: boolean = false) => {
+    const identifier = isCustom && slug ? slug : formId!;
+    const shareUrl = `${window.location.origin}${ROUTES.getRespondentRoute(identifier)}`;
     navigator.clipboard.writeText(shareUrl);
     toast({
       title: 'Copied!',
-      description: 'Form URL copied to clipboard',
+      description: `${isCustom ? 'Custom' : 'Default'} URL copied to clipboard`,
     });
   };
 
-  const handleOpenUrl = () => {
-    window.open(ROUTES.getRespondentRoute(formId!), '_blank');
+  const handleOpenUrl = (isCustom: boolean = false) => {
+    const identifier = isCustom && slug ? slug : formId!;
+    window.open(ROUTES.getRespondentRoute(identifier), '_blank');
   };
 
   const handleDownloadQR = () => {
@@ -288,10 +350,86 @@ export const FormSettingsPage = () => {
               />
             </SettingsRow>
 
-            {/* Form URL */}
+            {/* Custom Slug */}
             <SettingsRow 
-              label="Public Link"
-              description="Share this link with respondents"
+              label="Custom Link"
+              description="Create a memorable link (optional)"
+              fullWidth
+            >
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground flex-shrink-0 font-mono">
+                    {window.location.origin}/f/
+                  </span>
+                  <div className="flex-1 relative">
+                    <Input
+                      value={slug}
+                      onChange={(e) => handleSlugChange(e.target.value)}
+                      placeholder="my-custom-link"
+                      className={`h-11 text-base font-mono pr-10 ${
+                        slugError ? 'border-destructive' : 
+                        slugStatus === 'available' ? 'border-green-500' : ''
+                      }`}
+                    />
+                    {slugStatus === 'checking' && (
+                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                    )}
+                    {slugStatus === 'available' && (
+                      <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                    )}
+                    {slugStatus === 'taken' && (
+                      <X className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-destructive" />
+                    )}
+                  </div>
+                </div>
+                
+                {slugError && (
+                  <div className="flex items-start gap-2 text-sm text-destructive animate-fade-in">
+                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <span>{slugError}</span>
+                  </div>
+                )}
+                
+                {slugStatus === 'available' && slug && (
+                  <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-500 animate-fade-in">
+                    <Check className="h-4 w-4 flex-shrink-0" />
+                    <span>This slug is available!</span>
+                  </div>
+                )}
+
+                {slug && slugStatus === 'available' && (
+                  <div className="flex gap-2 pt-1">
+                    <Button
+                      onClick={() => handleCopyUrl(true)}
+                      variant="outline"
+                      size="sm"
+                      className="hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      <Copy className="h-3.5 w-3.5 mr-2" />
+                      Copy Custom Link
+                    </Button>
+                    <Button
+                      onClick={() => handleOpenUrl(true)}
+                      variant="outline"
+                      size="sm"
+                      className="hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5 mr-2" />
+                      Open Custom Link
+                    </Button>
+                  </div>
+                )}
+                
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Use lowercase letters, numbers, and hyphens (3-50 characters)
+                </p>
+              </div>
+            </SettingsRow>
+
+            {/* Default Form URL */}
+            <SettingsRow 
+              label="Default Link"
+              description="Your form's permanent link"
             >
               <div className="flex gap-2 w-full">
                 <Input
@@ -300,7 +438,7 @@ export const FormSettingsPage = () => {
                   className="flex-1 bg-muted/30 text-sm font-mono h-11"
                 />
                 <Button
-                  onClick={handleCopyUrl}
+                  onClick={() => handleCopyUrl(false)}
                   variant="outline"
                   size="icon"
                   className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -309,7 +447,7 @@ export const FormSettingsPage = () => {
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
-                  onClick={handleOpenUrl}
+                  onClick={() => handleOpenUrl(false)}
                   variant="outline"
                   size="icon"
                   className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
