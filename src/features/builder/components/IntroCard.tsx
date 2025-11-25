@@ -27,10 +27,10 @@ export const IntroCard = ({
   return (
     <div
       onClick={onSelect}
-      className={`glass-panel p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-200 border-2 ${
+      className={`glass-panel p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-200 ${
         isSelected
-          ? 'border-primary shadow-lg shadow-primary/20 ring-2 ring-primary/20'
-          : 'border-primary/30 hover:border-primary/50 hover-elevate'
+          ? '!border !border-primary shadow-xl shadow-primary/40 ring-4 ring-primary/10'
+          : '!border !border-border/30 hover:!border-border/50 hover-elevate'
       }`}
     >
       <div className="flex items-start gap-4">
