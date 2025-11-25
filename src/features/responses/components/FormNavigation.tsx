@@ -48,9 +48,8 @@ export const FormNavigation = ({
 
         {/* Keyboard hint - Hidden on mobile */}
         <div className="hidden md:flex flex-1 justify-center">
-          <span className="text-sm text-muted-foreground flex items-center gap-2">
-            {t.navigation.enterToContinue.replace('{key}', '')}
-            <kbd className="px-2 py-1 text-xs bg-muted rounded border border-border">Enter</kbd>
+          <span className="text-sm text-muted-foreground">
+            {t.navigation.enterToContinue}
           </span>
         </div>
 
