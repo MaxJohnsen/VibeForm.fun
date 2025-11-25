@@ -16,6 +16,7 @@ interface ShareDialogProps {
   formId: string;
   formTitle: string;
   formStatus: 'draft' | 'active' | 'archived';
+  formSlug?: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -23,13 +24,17 @@ interface ShareDialogProps {
 export const ShareDialog = ({ 
   formId, 
   formTitle, 
-  formStatus, 
+  formStatus,
+  formSlug,
   open,
   onOpenChange
 }: ShareDialogProps) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
-  const shareUrl = `${window.location.origin}${ROUTES.getRespondentRoute(formId)}`;
+  const shareUrl = formSlug 
+    ? `${window.location.origin}/f/${formSlug}`
+    : `${window.location.origin}${ROUTES.getRespondentRoute(formId)}`;
+  const idBasedUrl = `${window.location.origin}${ROUTES.getRespondentRoute(formId)}`;
 
   const handleCopy = async () => {
     try {
@@ -107,7 +112,9 @@ export const ShareDialog = ({
             <div className="space-y-4">
               {/* Link Section */}
               <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">Form Link</label>
+                <label className="text-xs font-medium text-muted-foreground">
+                  {formSlug ? 'Custom Link' : 'Form Link'}
+                </label>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 p-2 bg-muted rounded-md text-xs break-all font-mono">
                     {shareUrl}
@@ -121,6 +128,11 @@ export const ShareDialog = ({
                     {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                   </Button>
                 </div>
+                {formSlug && (
+                  <div className="text-xs text-muted-foreground bg-muted/50 rounded-md p-2">
+                    <span className="font-medium">ID-based link:</span> {idBasedUrl}
+                  </div>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"

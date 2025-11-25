@@ -170,6 +170,7 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
             formId={form.id}
             formTitle={form.title}
             formStatus={form.status}
+            formSlug={form.slug}
             open={shareOpen}
             onOpenChange={setShareOpen}
           />
@@ -250,6 +251,7 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
           formId={form.id}
           formTitle={form.title}
           formStatus={form.status}
+          formSlug={form.slug}
           open={shareOpen}
           onOpenChange={setShareOpen}
         />
