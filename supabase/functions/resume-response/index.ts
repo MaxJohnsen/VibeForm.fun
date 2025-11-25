@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     // Get form details
     const { data: form, error: formError } = await supabase
       .from('forms')
-      .select('title, description, intro_settings, end_settings')
+      .select('title, description, intro_settings, end_settings, language')
       .eq('id', response.form_id)
       .single();
 
@@ -71,11 +71,12 @@ Deno.serve(async (req) => {
         JSON.stringify({
           sessionToken,
           responseId: response.id,
-          form: { 
-            title: form.title, 
-            intro_settings: form.intro_settings || {},
-            end_settings: form.end_settings || {},
-          },
+    form: {
+      title: form.title,
+      intro_settings: form.intro_settings || {},
+      end_settings: form.end_settings || {},
+      language: form.language || 'en',
+    },
           isComplete: true,
           totalQuestions: totalQuestions || 0,
         }),
@@ -143,6 +144,7 @@ Deno.serve(async (req) => {
           title: form.title, 
           intro_settings: form.intro_settings || {},
           end_settings: form.end_settings || {},
+          language: form.language || 'en',
         },
         question: {
           ...currentQuestion,

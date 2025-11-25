@@ -40,6 +40,7 @@ export const RespondentPage = () => {
     goBack,
   } = useRespondent(formId);
 
+  const language = formInfo?.language || 'en';
   const isLastQuestion = currentQuestion?.position === totalQuestions - 1;
   const isFirstQuestion = currentQuestion?.position === 0;
 
@@ -123,6 +124,7 @@ export const RespondentPage = () => {
           introSettings={formInfo.intro_settings}
           totalQuestions={totalQuestions}
           onStart={() => setShowWelcome(false)}
+          language={language}
         />
       </div>
     );
@@ -158,6 +160,7 @@ export const RespondentPage = () => {
             canProceed={canProceed}
             onBack={handleBack}
             onNext={handleNext}
+            language={language}
           />
         </>
       )}
@@ -168,6 +171,7 @@ export const RespondentPage = () => {
             <CompletionScreen 
               formTitle={formInfo?.title || 'this form'} 
               endSettings={formInfo?.end_settings}
+              language={language}
             />
           </div>
         </div>

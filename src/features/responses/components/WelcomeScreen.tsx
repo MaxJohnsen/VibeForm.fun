@@ -1,12 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { IntroSettings } from '@/features/builder/types/screenSettings';
+import { useTranslation } from '../hooks/useTranslation';
+import { SupportedLanguage } from '@/shared/constants/translations';
 
 interface WelcomeScreenProps {
   formTitle: string;
   introSettings?: IntroSettings;
   totalQuestions: number;
   onStart: () => void;
+  language?: string;
 }
 
 export const WelcomeScreen = ({
@@ -14,7 +17,9 @@ export const WelcomeScreen = ({
   introSettings,
   totalQuestions,
   onStart,
+  language = 'en',
 }: WelcomeScreenProps) => {
+  const t = useTranslation(language as SupportedLanguage);
   const displayTitle = introSettings?.title || formTitle;
   const displayDescription = introSettings?.description;
   const buttonText = introSettings?.buttonText || 'Start';
@@ -40,11 +45,11 @@ export const WelcomeScreen = ({
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             {showEstimatedTime && (
               <>
-                <span>Takes about {Math.ceil(totalQuestions * 0.5)} minutes</span>
+                <span>{t.welcome.takesAbout} {Math.ceil(totalQuestions * 0.5)} {t.welcome.minutes}</span>
                 {showQuestionCount && <span>•</span>}
               </>
             )}
-            {showQuestionCount && <span>{totalQuestions} questions</span>}
+            {showQuestionCount && <span>{totalQuestions} {t.welcome.questions}</span>}
           </div>
         )}
 

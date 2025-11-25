@@ -7,6 +7,7 @@ export interface StartResponseData {
     title: string;
     intro_settings?: Record<string, any>;
     end_settings?: Record<string, any>;
+    language?: string;
   };
   question: any;
   totalQuestions: number;
