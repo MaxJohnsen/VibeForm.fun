@@ -45,7 +45,7 @@ export const WelcomeScreen = ({
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             {showEstimatedTime && (
               <>
-                <span>{t.welcome.takesAbout} {Math.ceil(totalQuestions * 0.5)} {t.welcome.minutes}</span>
+                <span>{t.welcome.takesAbout} {Math.ceil(totalQuestions * 0.25)} {t.welcome.minutes}</span>
                 {showQuestionCount && <span>•</span>}
               </>
             )}
