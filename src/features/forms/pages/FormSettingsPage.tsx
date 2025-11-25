@@ -8,6 +8,9 @@ import {
   Share2,
   Trash2,
   Loader2,
+  Copy,
+  ExternalLink,
+  Download,
 } from 'lucide-react';
 import { formsApi } from '../api/formsApi';
 import { Button } from '@/components/ui/button';
@@ -203,23 +206,30 @@ export const FormSettingsPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto p-8 space-y-6">
-        {/* Header */}
-        <div className="mb-8">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
-            className="mb-4 -ml-2"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Builder
-          </Button>
-          <h1 className="text-3xl font-semibold">Form Settings</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your form configuration
-          </p>
+      {/* Top Bar */}
+      <div className="border-b border-border/50 glass-panel sticky top-0 z-10 backdrop-blur-xl bg-background/50">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 md:py-4">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0 -ml-2 md:ml-0"
+              onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base md:text-xl font-semibold truncate">{form.title}</h1>
+              <p className="text-xs md:text-sm text-muted-foreground truncate hidden sm:block">
+                Form Settings
+              </p>
+            </div>
+          </div>
         </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-8 space-y-4 md:space-y-6">
 
         {/* General Section */}
         <SettingsSection
@@ -227,12 +237,12 @@ export const FormSettingsPage = () => {
           title="General"
           description="Basic information about your form"
         >
-          <div className="space-y-6">
-            <div className="space-y-3">
+          <div className="space-y-4">
+            <div className="space-y-2">
               <Label htmlFor="form-title" className="text-sm font-medium">
                 Form Name
               </Label>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <Input
                   id="form-title"
                   value={title}
@@ -243,30 +253,32 @@ export const FormSettingsPage = () => {
                 <Button
                   onClick={handleSaveTitle}
                   disabled={title === form.title || !title.trim()}
-                  className="px-6"
+                  variant="outline"
+                  size="sm"
                 >
                   Save
                 </Button>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <Label htmlFor="form-description" className="text-sm font-medium">
                 Description (Optional)
               </Label>
-              <div className="flex gap-3 items-start">
+              <div className="flex gap-2 items-start">
                 <Textarea
                   id="form-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Enter a description..."
                   rows={3}
-                  className="flex-1"
+                  className="flex-1 resize-none"
                 />
                 <Button
                   onClick={handleSaveDescription}
                   disabled={description === (form.description || '')}
-                  className="px-6"
+                  variant="outline"
+                  size="sm"
                 >
                   Save
                 </Button>
@@ -281,9 +293,9 @@ export const FormSettingsPage = () => {
           title="Status"
           description="Control form availability"
         >
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
                 Current Status:
               </span>
               <StatusMenu
@@ -294,7 +306,7 @@ export const FormSettingsPage = () => {
               />
             </div>
             {questionCount === 0 && (
-              <p className="text-sm text-muted-foreground flex items-start gap-2">
+              <p className="text-xs text-muted-foreground flex items-start gap-2">
                 <span className="text-blue-500">ℹ️</span>
                 Forms must have at least one question to activate
               </p>
@@ -308,37 +320,48 @@ export const FormSettingsPage = () => {
           title="Sharing"
           description="Share your form with respondents"
         >
-          <div className="space-y-6">
-            <div className="space-y-3">
+          <div className="space-y-4">
+            <div className="space-y-2">
               <Label className="text-sm font-medium">Form URL</Label>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <Input
                   value={shareUrl}
                   readOnly
-                  className="flex-1 font-mono text-sm bg-muted/50"
+                  className="flex-1 font-mono text-xs bg-muted/30"
                 />
-                <Button onClick={handleCopyUrl} variant="outline" className="px-6">
-                  Copy
+                <Button 
+                  onClick={handleCopyUrl} 
+                  variant="outline" 
+                  size="icon"
+                  className="shrink-0"
+                >
+                  <Copy className="h-4 w-4" />
                 </Button>
-                <Button onClick={handleOpenUrl} variant="outline" className="px-6">
-                  Open
+                <Button 
+                  onClick={handleOpenUrl} 
+                  variant="outline" 
+                  size="icon"
+                  className="shrink-0"
+                >
+                  <ExternalLink className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <Label className="text-sm font-medium">QR Code</Label>
-              <div className="flex items-start gap-4">
-                <div className="bg-white p-4 rounded-lg border shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="bg-white p-3 rounded-lg border shadow-sm">
                   <QRCode
                     id="qr-code-svg"
                     value={shareUrl}
-                    size={120}
+                    size={100}
                     level="H"
                   />
                 </div>
-                <Button onClick={handleDownloadQR} variant="outline">
-                  Download QR Code
+                <Button onClick={handleDownloadQR} variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
                 </Button>
               </div>
             </div>
@@ -352,13 +375,13 @@ export const FormSettingsPage = () => {
           description="Irreversible actions"
           variant="danger"
         >
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              This will permanently delete the form and all responses. This
-              action cannot be undone.
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground flex-1">
+              Permanently delete this form and all responses. This action cannot be undone.
             </p>
             <Button
               variant="destructive"
+              size="sm"
               onClick={() => setDeleteDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4 mr-2" />
