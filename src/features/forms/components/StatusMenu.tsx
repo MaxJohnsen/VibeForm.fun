@@ -84,7 +84,9 @@ export const StatusMenu = ({
             <Button 
               variant="outline" 
               size="sm" 
-              className="gap-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+              className={`gap-2 hover:bg-accent hover:text-accent-foreground transition-colors ${
+                currentStatus === 'active' ? 'border-green-600/30 bg-green-50/30 text-green-700 dark:bg-green-950/30 dark:text-green-400 dark:border-green-600/30' : ''
+              }`}
             >
               <span className="text-xs opacity-70">Status:</span>
               {getStatusIcon(currentStatus)}
