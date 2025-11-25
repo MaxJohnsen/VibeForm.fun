@@ -131,11 +131,6 @@ export const FormCard = ({ form }: FormCardProps) => {
           </Badge>
         </div>
 
-        {/* Description */}
-        {form.description && (
-          <p className="text-sm text-muted-foreground mb-4">{form.description}</p>
-        )}
-
         {/* Metadata */}
         <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
           <div className="flex items-center gap-1">
