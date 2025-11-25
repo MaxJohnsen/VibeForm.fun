@@ -25,8 +25,8 @@ const LoginPage = () => {
 
   return (
     <AuthCard
-      title="Welcome back"
-      subtitle="Sign in to continue building amazing forms"
+      title=""
+      subtitle=""
     >
       <LoginForm />
     </AuthCard>
