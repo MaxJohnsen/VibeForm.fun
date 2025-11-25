@@ -15,7 +15,7 @@ export const FormsList = ({ forms, isLoading, onCreateNew }: FormsListProps) => 
     return (
       <div className="flex flex-wrap gap-6">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]">
+          <div key={i} className="min-w-[320px] flex-1 max-w-md">
             <Skeleton className="h-48 rounded-2xl" />
           </div>
         ))}
@@ -38,7 +38,7 @@ export const FormsList = ({ forms, isLoading, onCreateNew }: FormsListProps) => 
   return (
     <div className="flex flex-wrap gap-6 animate-fade-in">
       {forms.map((form) => (
-        <div key={form.id} className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] xl:w-[calc(25%-1.125rem)] 2xl:w-[calc(20%-1.2rem)]">
+        <div key={form.id} className="min-w-[320px] flex-1 max-w-md">
           <FormCard form={form} />
         </div>
       ))}
