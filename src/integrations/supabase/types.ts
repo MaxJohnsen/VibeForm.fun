@@ -60,6 +60,7 @@ export type Database = {
           end_settings: Json | null
           id: string
           intro_settings: Json | null
+          language: string
           slug: string | null
           status: string | null
           title: string
@@ -72,6 +73,7 @@ export type Database = {
           end_settings?: Json | null
           id?: string
           intro_settings?: Json | null
+          language?: string
           slug?: string | null
           status?: string | null
           title: string
@@ -84,6 +86,7 @@ export type Database = {
           end_settings?: Json | null
           id?: string
           intro_settings?: Json | null
+          language?: string
           slug?: string | null
           status?: string | null
           title?: string

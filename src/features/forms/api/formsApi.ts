@@ -12,6 +12,7 @@ export interface Form {
   updated_at: string;
   intro_settings: IntroSettings | Record<string, never>;
   end_settings: EndSettings | Record<string, never>;
+  language: string;
 }
 
 export interface CreateFormData {
@@ -26,6 +27,7 @@ export interface UpdateFormData {
   slug?: string | null;
   intro_settings?: Record<string, any>;
   end_settings?: Record<string, any>;
+  language?: string;
 }
 
 export const formsApi = {

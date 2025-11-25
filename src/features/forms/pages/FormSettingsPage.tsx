@@ -11,6 +11,7 @@ import {
   Check,
   X,
   AlertCircle,
+  Globe,
 } from 'lucide-react';
 import { formsApi } from '../api/formsApi';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { SettingsCard } from '@/shared/ui/SettingsCard';
 import { SettingsRow } from '@/shared/ui/SettingsRow';
 import { StatusMenu } from '../components/StatusMenu';
@@ -35,6 +43,7 @@ import QRCode from 'react-qr-code';
 import { supabase } from '@/integrations/supabase/client';
 import { debounce } from '@/shared/utils/debounce';
 import { validateSlug, formatSlug } from '@/shared/utils/slugValidation';
+import { languageNames, SupportedLanguage } from '@/shared/constants/translations';
 
 export const FormSettingsPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -83,7 +92,7 @@ export const FormSettingsPage = () => {
   }, [formId]);
 
   const updateFormMutation = useMutation({
-    mutationFn: (data: { title?: string; description?: string; slug?: string | null }) =>
+    mutationFn: (data: { title?: string; description?: string; slug?: string | null; language?: string }) =>
       formsApi.updateForm(formId!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['form', formId] });
@@ -353,6 +362,31 @@ export const FormSettingsPage = () => {
                 questionCount={questionCount}
                 onStatusChange={handleStatusChange}
               />
+            </SettingsRow>
+
+            {/* Language */}
+            <SettingsRow 
+              label="Language"
+              description="Set the language for form interface elements"
+            >
+              <Select
+                value={form.language || 'en'}
+                onValueChange={(value) => {
+                  updateFormMutation.mutate({ language: value });
+                }}
+              >
+                <SelectTrigger className="w-full sm:w-[240px] h-11">
+                  <Globe className="h-4 w-4 mr-2 flex-shrink-0" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(Object.keys(languageNames) as SupportedLanguage[]).map((code) => (
+                    <SelectItem key={code} value={code}>
+                      {languageNames[code]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </SettingsRow>
 
             {/* Custom Slug */}

@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     // Verify form exists and is active - try by UUID first, then by slug
     const { data: form, error: formError } = await supabase
       .from('forms')
-      .select('id, title, description, status, intro_settings, end_settings')
+      .select('id, title, description, status, intro_settings, end_settings, language')
       .or(isUUID ? `id.eq.${formId}` : `slug.eq.${formId}`)
       .single();
 
@@ -106,11 +106,12 @@ Deno.serve(async (req) => {
       JSON.stringify({
         sessionToken,
         responseId: response.id,
-        form: {
-          title: form.title,
-          intro_settings: form.intro_settings || {},
-          end_settings: form.end_settings || {},
-        },
+    form: {
+      title: form.title,
+      intro_settings: form.intro_settings || {},
+      end_settings: form.end_settings || {},
+      language: form.language || 'en',
+    },
         question: {
           ...firstQuestion,
           currentAnswer: existingAnswer?.answer_value || null,

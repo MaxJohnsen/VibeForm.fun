@@ -1,16 +1,20 @@
 import { CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EndSettings } from '@/features/builder/types/screenSettings';
+import { useTranslation } from '../hooks/useTranslation';
+import { SupportedLanguage } from '@/shared/constants/translations';
 
 interface CompletionScreenProps {
   formTitle: string;
   endSettings?: EndSettings;
+  language?: string;
 }
 
-export const CompletionScreen = ({ formTitle, endSettings }: CompletionScreenProps) => {
-  const title = endSettings?.title || 'Thank you!';
-  const message = endSettings?.message || `Your response to "${formTitle}" has been submitted successfully.`;
-  const buttonText = endSettings?.buttonText || 'Close';
+export const CompletionScreen = ({ formTitle, endSettings, language = 'en' }: CompletionScreenProps) => {
+  const t = useTranslation(language as SupportedLanguage);
+  const title = endSettings?.title || t.completion.defaultTitle;
+  const message = endSettings?.message || t.completion.defaultMessage;
+  const buttonText = endSettings?.buttonText || t.completion.close;
   const buttonAction = endSettings?.buttonAction || 'close';
   const redirectUrl = endSettings?.redirectUrl;
 
