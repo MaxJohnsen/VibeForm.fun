@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { responsesApi } from '../api/responsesApi';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,6 +12,29 @@ export const useRespondent = (formId: string) => {
   const [isComplete, setIsComplete] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
   const { toast } = useToast();
+
+  // Refetch form info to get latest language settings
+  const refetchFormInfo = useCallback(async () => {
+    if (!sessionToken) return;
+    
+    try {
+      const data = await responsesApi.resumeResponse(sessionToken);
+      // Only update form info (language, settings) without affecting question flow
+      setFormInfo(data.form);
+    } catch (error) {
+      console.error('Failed to refetch form info:', error);
+    }
+  }, [sessionToken]);
+
+  // Refetch form info when window regains focus (e.g., switching from builder)
+  useEffect(() => {
+    const handleFocus = () => {
+      refetchFormInfo();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refetchFormInfo]);
 
   // Initialize or resume session
   useEffect(() => {
