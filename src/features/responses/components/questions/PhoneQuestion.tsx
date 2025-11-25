@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
 import { validatePhone } from '@/shared/utils/questionValidation';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -61,15 +60,15 @@ export const PhoneQuestion = ({
       </h2>
 
       <div className="space-y-2">
-        <Input
+        <input
           type="tel"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
           autoFocus
-          className={`text-lg sm:text-xl py-4 sm:py-6 border-b border-t-0 border-x-0 rounded-none focus-visible:ring-0 transition-colors ${
-            error ? 'border-destructive focus-visible:border-destructive' : 'focus-visible:border-primary'
+          className={`w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg bg-white/50 dark:bg-white/5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all ${
+            error ? 'border-destructive focus:border-destructive' : 'border-border/50 focus:border-primary'
           }`}
         />
         {error && (

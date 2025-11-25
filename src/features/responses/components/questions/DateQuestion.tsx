@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -56,13 +55,13 @@ export const DateQuestion = ({
 
       <Popover>
         <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full max-w-md justify-start text-left font-normal text-base sm:text-lg py-4 sm:py-6 border-b border-t-0 border-x-0 rounded-none hover:border-primary min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          <button
+            type="button"
+            className="w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg bg-white/50 dark:bg-white/5 border border-border/50 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-left flex items-center gap-2"
           >
-            <CalendarIcon className="mr-2 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+            <CalendarIcon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0 text-muted-foreground" />
             {date ? format(date, 'PPP') : <span className="text-muted-foreground">Pick a date</span>}
-          </Button>
+          </button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="center" side="bottom">
           <Calendar

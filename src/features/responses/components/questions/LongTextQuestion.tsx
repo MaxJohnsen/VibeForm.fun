@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Textarea } from '@/components/ui/textarea';
 
 interface LongTextQuestionProps {
   label: string;
@@ -41,7 +40,7 @@ export const LongTextQuestion = ({
         {label}
       </h2>
 
-      <Textarea
+      <textarea
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -49,7 +48,7 @@ export const LongTextQuestion = ({
         maxLength={maxLength}
         autoFocus
         rows={6}
-        className="text-base sm:text-lg resize-none border-border focus-visible:border-primary transition-colors"
+        className="w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg bg-white/50 dark:bg-white/5 border border-border/50 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
       />
 
       <div className="flex justify-between text-xs sm:text-sm text-muted-foreground">

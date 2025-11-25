@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { User } from 'lucide-react';
-import { TextInput } from '@/shared/ui/TextInput';
 
 interface RespondentNameQuestionProps {
   label: string;
@@ -40,8 +38,7 @@ export const RespondentNameQuestion = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground flex items-center gap-3">
-        <User className="h-8 w-8 sm:h-10 sm:w-10 text-cyan-600 dark:text-cyan-400" />
+      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
         {label}
       </h2>
 
