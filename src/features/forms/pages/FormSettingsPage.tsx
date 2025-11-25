@@ -437,7 +437,7 @@ export const FormSettingsPage = () => {
                 <Input
                   value={shareUrl}
                   readOnly
-                  className="flex-1 bg-muted/30 text-sm font-mono h-11"
+                  className="flex-1 text-sm font-mono h-11"
                 />
                 <Button
                   onClick={() => handleCopyUrl(false)}
