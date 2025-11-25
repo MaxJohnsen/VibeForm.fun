@@ -26,7 +26,18 @@ export const useRespondent = (formId: string) => {
     }
   }, [sessionToken]);
 
-  // Refetch form info when window regains focus (e.g., switching from builder)
+  // Poll for form info updates every 3 seconds when viewing the form
+  useEffect(() => {
+    if (!sessionToken || isComplete) return;
+
+    const intervalId = setInterval(() => {
+      refetchFormInfo();
+    }, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [sessionToken, isComplete, refetchFormInfo]);
+
+  // Also refetch when window regains focus
   useEffect(() => {
     const handleFocus = () => {
       refetchFormInfo();
