@@ -361,7 +361,7 @@ export const FormSettingsPage = () => {
                   <span className="text-sm text-muted-foreground flex-shrink-0 font-mono self-center">
                     {window.location.origin}/f/
                   </span>
-                  <div className="flex-1 relative">
+                  <div className="flex-1 min-w-[200px] relative">
                     <Input
                       value={slug}
                       onChange={(e) => handleSlugChange(e.target.value)}
