@@ -7,10 +7,12 @@ import {
   Mail, 
   Phone, 
   Calendar,
+  User,
   LucideIcon 
 } from 'lucide-react';
 
 export type QuestionType = 
+  | 'respondent_name'
   | 'short_text' 
   | 'long_text'
   | 'multiple_choice'
@@ -29,6 +31,13 @@ export interface QuestionTypeDefinition {
 }
 
 export const QUESTION_TYPES: QuestionTypeDefinition[] = [
+  {
+    type: 'respondent_name',
+    label: 'Respondent Name',
+    description: 'Collect respondent\'s name',
+    icon: User,
+    colorClass: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400',
+  },
   {
     type: 'short_text',
     label: 'Short Text',

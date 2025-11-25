@@ -6,9 +6,10 @@ import { FileQuestion } from 'lucide-react';
 interface ResponsesListProps {
   responses: ResponseWithAnswers[];
   totalQuestions: number;
+  questions: Array<{ id: string; type: string; label: string }>;
 }
 
-export const ResponsesList = ({ responses, totalQuestions }: ResponsesListProps) => {
+export const ResponsesList = ({ responses, totalQuestions, questions }: ResponsesListProps) => {
   if (responses.length === 0) {
     return (
       <div className="glass-panel rounded-xl p-6 md:p-8">
@@ -30,6 +31,7 @@ export const ResponsesList = ({ responses, totalQuestions }: ResponsesListProps)
             key={response.id}
             response={response}
             totalQuestions={totalQuestions}
+            questions={questions}
           />
         ))}
       </div>

@@ -1,5 +1,10 @@
 // Type definitions for question-specific settings
 
+export interface RespondentNameSettings {
+  required: boolean;
+  placeholder?: string;
+}
+
 export interface MultipleChoiceSettings {
   options: { id: string; text: string; position: number }[];
   allowMultiple: boolean;
@@ -48,6 +53,7 @@ export interface DateSettings {
 }
 
 export type QuestionSettings =
+  | RespondentNameSettings
   | MultipleChoiceSettings
   | YesNoSettings
   | RatingSettings
@@ -59,6 +65,12 @@ export type QuestionSettings =
 // Default settings for each question type
 export const getDefaultSettings = (type: string): QuestionSettings => {
   switch (type) {
+    case 'respondent_name':
+      return {
+        required: false,
+        placeholder: 'Enter your name...',
+      } as RespondentNameSettings;
+
     case 'multiple_choice':
       return {
         options: [
