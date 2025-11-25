@@ -81,7 +81,11 @@ export const StatusMenu = ({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           {children || (
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2 hover:bg-accent hover:text-accent-foreground transition-colors"
+            >
               <span className="text-xs text-muted-foreground">Status:</span>
               {getStatusIcon(currentStatus)}
               <span className="font-medium capitalize">{currentStatus}</span>
@@ -89,7 +93,7 @@ export const StatusMenu = ({
             </Button>
           )}
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-64">
+        <DropdownMenuContent align="end" className="w-64 bg-background border-border z-50">
           <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">
             Change form status
           </DropdownMenuLabel>

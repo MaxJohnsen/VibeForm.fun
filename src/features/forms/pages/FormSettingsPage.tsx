@@ -303,7 +303,7 @@ export const FormSettingsPage = () => {
                   onClick={handleCopyUrl}
                   variant="outline"
                   size="icon"
-                  className="flex-shrink-0 h-11 w-11 hover:bg-primary/5 hover:border-primary/20 transition-all"
+                  className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
                   title="Copy to clipboard"
                 >
                   <Copy className="h-4 w-4" />
@@ -312,7 +312,7 @@ export const FormSettingsPage = () => {
                   onClick={handleOpenUrl}
                   variant="outline"
                   size="icon"
-                  className="flex-shrink-0 h-11 w-11 hover:bg-primary/5 hover:border-primary/20 transition-all"
+                  className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
                   title="Open in new tab"
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -337,7 +337,7 @@ export const FormSettingsPage = () => {
                 <Button
                   onClick={handleDownloadQR}
                   variant="outline"
-                  className="hover:bg-primary/5 hover:border-primary/20 transition-all"
+                  className="hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Download PNG
