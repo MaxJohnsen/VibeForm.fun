@@ -29,9 +29,10 @@ export const WelcomeScreen = ({
             {displayTitle}
           </h1>
           {displayDescription && (
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-xl mx-auto px-4 whitespace-pre-wrap">
-              {displayDescription}
-            </p>
+            <div 
+              className="text-lg sm:text-xl prose-intro max-w-xl mx-auto px-4"
+              dangerouslySetInnerHTML={{ __html: displayDescription }}
+            />
           )}
         </div>
 

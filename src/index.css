@@ -127,4 +127,34 @@ All colors MUST be HSL.
       box-shadow: none;
     }
   }
+
+  /* Prose styles for rich text rendering */
+  .prose-intro {
+    @apply text-muted-foreground leading-relaxed;
+  }
+
+  .prose-intro p {
+    @apply mb-2 last:mb-0;
+  }
+
+  .prose-intro strong {
+    @apply font-semibold text-foreground;
+  }
+
+  .prose-intro em {
+    @apply italic;
+  }
+
+  .prose-intro a {
+    @apply text-primary underline hover:text-primary/80 transition-colors;
+  }
+
+  .prose-intro ul,
+  .prose-intro ol {
+    @apply ml-4 mb-2 last:mb-0;
+  }
+
+  .prose-intro li {
+    @apply mb-1;
+  }
 }
