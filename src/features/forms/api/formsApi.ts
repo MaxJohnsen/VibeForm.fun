@@ -18,6 +18,7 @@ export interface Form {
 export interface CreateFormData {
   title: string;
   description?: string;
+  language?: string;
 }
 
 export interface UpdateFormData {

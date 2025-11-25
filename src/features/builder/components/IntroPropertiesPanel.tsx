@@ -3,18 +3,24 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Play } from 'lucide-react';
 import { IntroSettings } from '../types/screenSettings';
-import { RichTextEditor } from '@/shared/ui';
+import { RichTextEditor, LanguageSelector } from '@/shared/ui';
+import { SupportedLanguage } from '@/shared/constants/translations';
+import { Separator } from '@/components/ui/separator';
 
 interface IntroPropertiesPanelProps {
   formTitle: string;
   settings: IntroSettings;
   onUpdate: (settings: IntroSettings) => void;
+  language: SupportedLanguage;
+  onLanguageChange: (language: SupportedLanguage) => void;
 }
 
 export const IntroPropertiesPanel = ({
   formTitle,
   settings,
   onUpdate,
+  language,
+  onLanguageChange,
 }: IntroPropertiesPanelProps) => {
   return (
     <div className="space-y-6">
@@ -102,6 +108,19 @@ export const IntroPropertiesPanel = ({
               }
             />
           </div>
+        </div>
+
+        <Separator className="my-6" />
+
+        <div className="space-y-2">
+          <Label htmlFor="form-language">Form Language</Label>
+          <LanguageSelector
+            value={language}
+            onChange={onLanguageChange}
+          />
+          <p className="text-xs text-muted-foreground">
+            Language for buttons, navigation, and system messages
+          </p>
         </div>
       </div>
     </div>

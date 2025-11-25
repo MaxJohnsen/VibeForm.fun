@@ -446,6 +446,11 @@ export const FormBuilderPage = () => {
                   formTitle={form?.title || 'Untitled Form'}
                   settings={localIntroSettings}
                   onUpdate={handleUpdateIntroSettings}
+                  language={(form?.language as any) || 'en'}
+                  onLanguageChange={(language) => {
+                    if (!formId) return;
+                    updateForm({ id: formId, data: { language } });
+                  }}
                 />
               </div>
             ) : selectedItemId === 'end' ? (
@@ -552,6 +557,11 @@ export const FormBuilderPage = () => {
                     formTitle={form?.title || 'Untitled Form'}
                     settings={localIntroSettings}
                     onUpdate={handleUpdateIntroSettings}
+                    language={(form?.language as any) || 'en'}
+                    onLanguageChange={(language) => {
+                      if (!formId) return;
+                      updateForm({ id: formId, data: { language } });
+                    }}
                   />
                 </div>
               ) : selectedItemId === 'end' ? (
