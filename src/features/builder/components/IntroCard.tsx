@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { IntroSettings } from '../types/screenSettings';
 
 interface IntroCardProps {
@@ -16,6 +16,13 @@ export const IntroCard = ({
 }: IntroCardProps) => {
   const displayTitle = settings.title || formTitle;
   const hasDescription = settings.description && settings.description.trim().length > 0;
+  
+  // Strip HTML tags for preview
+  const getTextContent = (html: string) => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
+  };
 
   return (
     <div
@@ -26,9 +33,9 @@ export const IntroCard = ({
           : 'border-primary/30 hover:border-primary/50 hover-elevate'
       }`}
     >
-      <div className="flex items-start gap-3 sm:gap-4">
-        <div className="flex-shrink-0 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 p-2 sm:p-2.5">
-          <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+      <div className="flex items-center gap-4">
+        <div className="flex-shrink-0 rounded-xl bg-primary/10 p-3 flex items-center justify-center">
+          <Play className="h-6 w-6 text-primary" />
         </div>
         
         <div className="flex-1 min-w-0 space-y-2">
@@ -44,7 +51,7 @@ export const IntroCard = ({
             </h3>
             {hasDescription && (
               <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2">
-                {settings.description}
+                {getTextContent(settings.description)}
               </p>
             )}
           </div>
