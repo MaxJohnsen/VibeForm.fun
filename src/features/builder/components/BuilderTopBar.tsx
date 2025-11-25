@@ -14,7 +14,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { Form, formsApi } from '@/features/forms/api/formsApi';
-import { SharePopover } from '@/features/forms/components/SharePopover';
+import { ShareDialog } from '@/features/forms/components/ShareDialog';
 import { StatusMenu } from '@/features/forms/components/StatusMenu';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -32,6 +32,7 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const [questionCount, setQuestionCount] = useState(0);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     if (!form) return;
@@ -138,18 +139,10 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuLabel>Share</DropdownMenuLabel>
-              <div className="px-2 py-1">
-                <SharePopover
-                  formId={form.id}
-                  formTitle={form.title}
-                  formStatus={form.status}
-                >
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share Form
-                  </Button>
-                </SharePopover>
-              </div>
+              <DropdownMenuItem onClick={() => setShareOpen(true)} className="cursor-pointer">
+                <Share2 className="h-4 w-4 mr-2" />
+                Share Form
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuLabel>Change Status</DropdownMenuLabel>
               <div className="px-2 py-1">
@@ -166,6 +159,16 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
+        )}
+        
+        {form && (
+          <ShareDialog
+            formId={form.id}
+            formTitle={form.title}
+            formStatus={form.status}
+            open={shareOpen}
+            onOpenChange={setShareOpen}
+          />
         )}
       </div>
     );
@@ -223,18 +226,22 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
           Preview
         </Button>
         {form && (
-          <SharePopover
-            formId={form.id}
-            formTitle={form.title}
-            formStatus={form.status}
-          >
-            <Button size="sm">
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-          </SharePopover>
+          <Button size="sm" onClick={() => setShareOpen(true)}>
+            <Share2 className="h-4 w-4 mr-2" />
+            Share
+          </Button>
         )}
       </div>
+      
+      {form && (
+        <ShareDialog
+          formId={form.id}
+          formTitle={form.title}
+          formStatus={form.status}
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+        />
+      )}
     </div>
   );
 };

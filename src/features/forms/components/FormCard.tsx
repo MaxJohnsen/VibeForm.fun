@@ -27,7 +27,7 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { SharePopover } from './SharePopover';
+import { ShareDialog } from './ShareDialog';
 import { supabase } from '@/integrations/supabase/client';
 
 interface FormCardProps {
@@ -39,7 +39,6 @@ export const FormCard = ({ form }: FormCardProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
   const [responseCount, setResponseCount] = useState(0);
@@ -159,7 +158,7 @@ export const FormCard = ({ form }: FormCardProps) => {
             Open Form
           </Button>
           
-          <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+          <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
@@ -186,11 +185,7 @@ export const FormCard = ({ form }: FormCardProps) => {
               </DropdownMenuItem>
               
               <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDropdownOpen(false);
-                  setShareOpen(true);
-                }}
+                onClick={() => setShareOpen(true)}
                 className="cursor-pointer"
               >
                 <Share2 className="h-4 w-4 mr-2" />
@@ -199,15 +194,13 @@ export const FormCard = ({ form }: FormCardProps) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <SharePopover
+          <ShareDialog
             formId={form.id}
             formTitle={form.title}
             formStatus={form.status}
             open={shareOpen}
             onOpenChange={setShareOpen}
-          >
-            <span className="sr-only">Share trigger</span>
-          </SharePopover>
+          />
         </div>
       </GlassCard>
 
