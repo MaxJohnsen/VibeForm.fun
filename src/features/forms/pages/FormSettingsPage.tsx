@@ -62,6 +62,11 @@ export const FormSettingsPage = () => {
       setTitle(form.title);
       setDescription(form.description || '');
       setSlug(form.slug || '');
+      
+      // If form has a slug, mark it as available since it's already saved
+      if (form.slug) {
+        setSlugStatus('available');
+      }
     }
   }, [form]);
 
