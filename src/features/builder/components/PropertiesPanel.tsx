@@ -17,6 +17,8 @@ import {
   EmailSettings,
   PhoneSettings,
   DateSettings,
+  ShortTextSettings,
+  LongTextSettings,
   getDefaultSettings
 } from '../types/questionSettings';
 import {
@@ -131,6 +133,20 @@ export const PropertiesPanel = ({
             />
           )}
 
+          {question.type === 'short_text' && (
+            <ShortTextSettingsPanel
+              settings={localSettings as ShortTextSettings}
+              onUpdate={handleSettingsUpdate}
+            />
+          )}
+
+          {question.type === 'long_text' && (
+            <LongTextSettingsPanel
+              settings={localSettings as LongTextSettings}
+              onUpdate={handleSettingsUpdate}
+            />
+          )}
+
           {question.type === 'multiple_choice' && (
             <MultipleChoiceSettingsPanel
               settings={localSettings as MultipleChoiceSettings}
@@ -233,6 +249,92 @@ const RespondentNameSettingsPanel = ({
         <Label htmlFor="required-name" className="text-sm">Required</Label>
         <Switch
           id="required-name"
+          checked={settings.required ?? false}
+          onCheckedChange={(checked) => onUpdate({ required: checked })}
+        />
+      </div>
+    </div>
+  );
+};
+
+// Short Text Settings Panel
+const ShortTextSettingsPanel = ({
+  settings,
+  onUpdate
+}: {
+  settings: ShortTextSettings;
+  onUpdate: (s: Partial<ShortTextSettings>) => void;
+}) => {
+  return (
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="short-text-placeholder" className="text-sm font-medium mb-2 block">Placeholder</Label>
+        <Input
+          id="short-text-placeholder"
+          value={settings.placeholder ?? ''}
+          onChange={(e) => onUpdate({ placeholder: e.target.value })}
+          placeholder="Type your answer here..."
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="short-text-max-length" className="text-sm font-medium mb-2 block">Max Length (optional)</Label>
+        <Input
+          id="short-text-max-length"
+          type="number"
+          value={settings.maxLength ?? ''}
+          onChange={(e) => onUpdate({ maxLength: parseInt(e.target.value) || undefined })}
+          placeholder="No limit"
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Label htmlFor="required-short-text" className="text-sm">Required</Label>
+        <Switch
+          id="required-short-text"
+          checked={settings.required ?? false}
+          onCheckedChange={(checked) => onUpdate({ required: checked })}
+        />
+      </div>
+    </div>
+  );
+};
+
+// Long Text Settings Panel
+const LongTextSettingsPanel = ({
+  settings,
+  onUpdate
+}: {
+  settings: LongTextSettings;
+  onUpdate: (s: Partial<LongTextSettings>) => void;
+}) => {
+  return (
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="long-text-placeholder" className="text-sm font-medium mb-2 block">Placeholder</Label>
+        <Input
+          id="long-text-placeholder"
+          value={settings.placeholder ?? ''}
+          onChange={(e) => onUpdate({ placeholder: e.target.value })}
+          placeholder="Type your answer here..."
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="long-text-max-length" className="text-sm font-medium mb-2 block">Max Length (optional)</Label>
+        <Input
+          id="long-text-max-length"
+          type="number"
+          value={settings.maxLength ?? ''}
+          onChange={(e) => onUpdate({ maxLength: parseInt(e.target.value) || undefined })}
+          placeholder="No limit"
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Label htmlFor="required-long-text" className="text-sm">Required</Label>
+        <Switch
+          id="required-long-text"
           checked={settings.required ?? false}
           onCheckedChange={(checked) => onUpdate({ required: checked })}
         />

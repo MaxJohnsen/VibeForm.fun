@@ -52,6 +52,18 @@ export interface DateSettings {
   disableFuture: boolean;
 }
 
+export interface ShortTextSettings {
+  required: boolean;
+  placeholder?: string;
+  maxLength?: number;
+}
+
+export interface LongTextSettings {
+  required: boolean;
+  placeholder?: string;
+  maxLength?: number;
+}
+
 export type QuestionSettings =
   | RespondentNameSettings
   | MultipleChoiceSettings
@@ -60,6 +72,8 @@ export type QuestionSettings =
   | EmailSettings
   | PhoneSettings
   | DateSettings
+  | ShortTextSettings
+  | LongTextSettings
   | Record<string, any>;
 
 // Default settings for each question type
@@ -122,6 +136,18 @@ export const getDefaultSettings = (type: string): QuestionSettings => {
         disablePast: false,
         disableFuture: false,
       } as DateSettings;
+
+    case 'short_text':
+      return {
+        required: false,
+        placeholder: 'Type your answer here...',
+      } as ShortTextSettings;
+
+    case 'long_text':
+      return {
+        required: false,
+        placeholder: 'Type your answer here...',
+      } as LongTextSettings;
 
     default:
       return {};

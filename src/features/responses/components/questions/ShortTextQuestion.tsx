@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ShortTextQuestionProps {
@@ -53,14 +52,15 @@ export const ShortTextQuestion = ({
         {label}
       </h2>
 
-      <Input
+      <input
+        type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyPress={handleKeyPress}
         placeholder={placeholder}
         maxLength={maxLength}
         autoFocus
-        className="text-lg sm:text-xl py-4 sm:py-6 border-b border-t-0 border-x-0 rounded-none focus-visible:ring-0 focus-visible:border-primary transition-colors"
+        className="w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg bg-white/50 dark:bg-white/5 border border-border/50 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
       />
 
       {maxLength && (
