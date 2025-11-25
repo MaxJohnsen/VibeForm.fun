@@ -202,24 +202,23 @@ export const FormSettingsPage = () => {
   const shareUrl = `${window.location.origin}${ROUTES.getRespondentRoute(formId!)}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-5xl mx-auto p-8 space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="mb-8">
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(ROUTES.FORMS_HOME)}
+            onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
+            className="mb-4 -ml-2"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Forms
+            Back to Builder
           </Button>
-          <div>
-            <h1 className="text-2xl font-semibold">Form Settings</h1>
-            <p className="text-sm text-muted-foreground">
-              Manage your form configuration
-            </p>
-          </div>
+          <h1 className="text-3xl font-semibold">Form Settings</h1>
+          <p className="text-muted-foreground mt-1">
+            Manage your form configuration
+          </p>
         </div>
 
         {/* General Section */}
@@ -228,10 +227,12 @@ export const FormSettingsPage = () => {
           title="General"
           description="Basic information about your form"
         >
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="form-title">Form Name</Label>
-              <div className="flex gap-2">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="form-title" className="text-sm font-medium">
+                Form Name
+              </Label>
+              <div className="flex gap-3">
                 <Input
                   id="form-title"
                   value={title}
@@ -242,15 +243,18 @@ export const FormSettingsPage = () => {
                 <Button
                   onClick={handleSaveTitle}
                   disabled={title === form.title || !title.trim()}
+                  className="px-6"
                 >
                   Save
                 </Button>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="form-description">Description (Optional)</Label>
-              <div className="flex gap-2">
+            <div className="space-y-3">
+              <Label htmlFor="form-description" className="text-sm font-medium">
+                Description (Optional)
+              </Label>
+              <div className="flex gap-3 items-start">
                 <Textarea
                   id="form-description"
                   value={description}
@@ -262,6 +266,7 @@ export const FormSettingsPage = () => {
                 <Button
                   onClick={handleSaveDescription}
                   disabled={description === (form.description || '')}
+                  className="px-6"
                 >
                   Save
                 </Button>
@@ -276,9 +281,9 @@ export const FormSettingsPage = () => {
           title="Status"
           description="Control form availability"
         >
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm font-medium">
                 Current Status:
               </span>
               <StatusMenu
@@ -303,28 +308,28 @@ export const FormSettingsPage = () => {
           title="Sharing"
           description="Share your form with respondents"
         >
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Form URL</Label>
-              <div className="flex gap-2">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Form URL</Label>
+              <div className="flex gap-3">
                 <Input
                   value={shareUrl}
                   readOnly
-                  className="flex-1 font-mono text-sm"
+                  className="flex-1 font-mono text-sm bg-muted/50"
                 />
-                <Button onClick={handleCopyUrl} variant="outline">
+                <Button onClick={handleCopyUrl} variant="outline" className="px-6">
                   Copy
                 </Button>
-                <Button onClick={handleOpenUrl} variant="outline">
+                <Button onClick={handleOpenUrl} variant="outline" className="px-6">
                   Open
                 </Button>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label>QR Code</Label>
-              <div className="flex items-center gap-4">
-                <div className="bg-white p-4 rounded-xl border">
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">QR Code</Label>
+              <div className="flex items-start gap-4">
+                <div className="bg-white p-4 rounded-lg border shadow-sm">
                   <QRCode
                     id="qr-code-svg"
                     value={shareUrl}
@@ -347,7 +352,7 @@ export const FormSettingsPage = () => {
           description="Irreversible actions"
           variant="danger"
         >
-          <div className="space-y-2">
+          <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
               This will permanently delete the form and all responses. This
               action cannot be undone.

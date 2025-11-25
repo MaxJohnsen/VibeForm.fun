@@ -19,32 +19,32 @@ export const SettingsSection = ({
   return (
     <div
       className={cn(
-        'glass-panel rounded-2xl p-6 space-y-4',
-        variant === 'danger' && 'border-destructive/20 bg-destructive/5'
+        'bg-card rounded-xl p-8 border border-border/50',
+        variant === 'danger' && 'border-destructive/30 bg-destructive/5'
       )}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4 mb-6">
         <Icon
           className={cn(
-            'h-5 w-5 mt-0.5',
+            'h-5 w-5 mt-0.5 flex-shrink-0',
             variant === 'danger' ? 'text-destructive' : 'text-muted-foreground'
           )}
         />
         <div className="flex-1">
-          <h3
+          <h2
             className={cn(
-              'font-semibold text-base',
+              'font-semibold text-lg',
               variant === 'danger' && 'text-destructive'
             )}
           >
             {title}
-          </h3>
+          </h2>
           {description && (
             <p className="text-sm text-muted-foreground mt-1">{description}</p>
           )}
         </div>
       </div>
-      <div className="pl-8 space-y-4">{children}</div>
+      <div className="space-y-4">{children}</div>
     </div>
   );
 };
