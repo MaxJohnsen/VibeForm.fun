@@ -33,7 +33,7 @@ export const IntroCard = ({
           : 'border-primary/30 hover:border-primary/50 hover-elevate'
       }`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-start gap-4">
         <div className="flex-shrink-0 rounded-xl bg-primary/10 p-3 flex items-center justify-center">
           <Play className="h-6 w-6 text-primary" />
         </div>
