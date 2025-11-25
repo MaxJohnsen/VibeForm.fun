@@ -1,4 +1,4 @@
-import { Home, LogOut, User, Waves } from 'lucide-react';
+import { Home, LogOut, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
@@ -24,9 +24,11 @@ export const AppSidebar = () => {
   return (
     <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border/50 glass-panel flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-6 z-50">
       {/* Logo - Hidden on mobile */}
-      <div className="hidden md:block mb-8">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-500 flex items-center justify-center shadow-lg">
-          <Waves className="h-6 w-6 text-white" />
+      <div className="hidden md:flex mb-8 flex-col items-center">
+        <div className="relative">
+          <span className="text-2xl font-bold tracking-tighter bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent rotate-[-90deg] origin-center block whitespace-nowrap">
+            VF
+          </span>
         </div>
       </div>
 
