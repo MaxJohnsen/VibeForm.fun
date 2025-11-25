@@ -11,24 +11,12 @@ export const AuthCard = ({ children, title, subtitle }: AuthCardProps) => {
     <div className="min-h-screen flex items-center justify-center p-4">
       <GlassCard>
         <div className="flex flex-col items-center gap-6">
-          {/* Brand Icon */}
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-lg">
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="text-white"
-            >
-              <path
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          {/* Brand Logo */}
+          <div className="relative">
+            <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent animate-fade-in">
+              VibeForm
+            </h1>
+            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-teal-500/20 to-emerald-500/20 blur-xl -z-10 animate-pulse"></div>
           </div>
 
           {/* Header */}
