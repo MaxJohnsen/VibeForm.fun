@@ -24,9 +24,6 @@ export const FormHeader = ({ currentQuestion, totalQuestions, onClose }: FormHea
 
         {/* Progress - Centered and responsive */}
         <div className="flex items-center gap-2 sm:gap-3 flex-1 justify-center max-w-xs sm:max-w-sm">
-          <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
-            {currentQuestion}/{totalQuestions}
-          </span>
           <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
             <div
               className="h-full bg-primary transition-all duration-300"
