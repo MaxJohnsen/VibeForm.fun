@@ -4,7 +4,6 @@ import { IntroSettings } from '@/features/builder/types/screenSettings';
 
 interface WelcomeScreenProps {
   formTitle: string;
-  formDescription?: string;
   introSettings?: IntroSettings;
   totalQuestions: number;
   onStart: () => void;
@@ -12,13 +11,12 @@ interface WelcomeScreenProps {
 
 export const WelcomeScreen = ({
   formTitle,
-  formDescription,
   introSettings,
   totalQuestions,
   onStart,
 }: WelcomeScreenProps) => {
   const displayTitle = introSettings?.title || formTitle;
-  const displayDescription = introSettings?.description || formDescription;
+  const displayDescription = introSettings?.description;
   const buttonText = introSettings?.buttonText || 'Start';
   const showQuestionCount = introSettings?.showQuestionCount ?? true;
   const showEstimatedTime = introSettings?.showEstimatedTime ?? true;

@@ -5,7 +5,6 @@ export interface StartResponseData {
   responseId: string;
   form: {
     title: string;
-    description: string | null;
     intro_settings?: Record<string, any>;
     end_settings?: Record<string, any>;
   };

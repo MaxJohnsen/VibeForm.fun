@@ -328,16 +328,16 @@ export const FormSettingsPage = () => {
               />
             </SettingsRow>
 
-            {/* Description */}
+            {/* Internal Description */}
             <SettingsRow 
-              label="Description"
-              description="Help respondents understand your form"
+              label="Internal Description"
+              description="Private notes for your reference (not shown to respondents)"
               fullWidth
             >
               <Textarea
                 value={description}
                 onChange={(e) => handleDescriptionChange(e.target.value)}
-                placeholder="Add an optional description for your form..."
+                placeholder="Add internal notes about this form..."
                 className="min-h-[100px] resize-none text-base leading-relaxed"
               />
             </SettingsRow>
