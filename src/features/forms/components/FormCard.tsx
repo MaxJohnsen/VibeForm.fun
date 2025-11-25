@@ -39,6 +39,8 @@ export const FormCard = ({ form }: FormCardProps) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
   const [responseCount, setResponseCount] = useState(0);
 
@@ -157,7 +159,7 @@ export const FormCard = ({ form }: FormCardProps) => {
             Open Form
           </Button>
           
-          <DropdownMenu>
+          <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
@@ -183,24 +185,29 @@ export const FormCard = ({ form }: FormCardProps) => {
                 Preview Form
               </DropdownMenuItem>
               
-              <SharePopover
-                formId={form.id}
-                formTitle={form.title}
-                formStatus={form.status}
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDropdownOpen(false);
+                  setShareOpen(true);
+                }}
+                className="cursor-pointer"
               >
-                <DropdownMenuItem
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="cursor-pointer"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share Form
-                </DropdownMenuItem>
-              </SharePopover>
+                <Share2 className="h-4 w-4 mr-2" />
+                Share Form
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <SharePopover
+            formId={form.id}
+            formTitle={form.title}
+            formStatus={form.status}
+            open={shareOpen}
+            onOpenChange={setShareOpen}
+          >
+            <span className="sr-only">Share trigger</span>
+          </SharePopover>
         </div>
       </GlassCard>
 

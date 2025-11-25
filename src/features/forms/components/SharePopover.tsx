@@ -16,13 +16,26 @@ interface SharePopoverProps {
   formTitle: string;
   formStatus: 'draft' | 'active' | 'archived';
   children: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const SharePopover = ({ formId, formTitle, formStatus, children }: SharePopoverProps) => {
+export const SharePopover = ({ 
+  formId, 
+  formTitle, 
+  formStatus, 
+  children,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange 
+}: SharePopoverProps) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const shareUrl = `${window.location.origin}${ROUTES.getRespondentRoute(formId)}`;
+
+  // Use external state if provided, otherwise use internal state
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange || setInternalOpen;
 
   const handleCopy = async () => {
     try {
