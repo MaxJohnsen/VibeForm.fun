@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { LoginPage, SignupPage } from "./features/auth";
 import { FormsHomePage, CreateFormPage } from "./features/forms";
+import { FormSettingsPage } from "./features/forms/pages/FormSettingsPage";
 import { FormBuilderPage } from "./features/builder";
 import { RespondentPage } from "./features/responses";
 import { DashboardPage } from "./features/analytics";
@@ -56,6 +57,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <FormBuilderPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.FORM_SETTINGS}
+            element={
+              <ProtectedRoute>
+                <FormSettingsPage />
               </ProtectedRoute>
             }
           />

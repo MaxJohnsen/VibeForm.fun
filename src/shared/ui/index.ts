@@ -4,3 +4,4 @@ export { SocialButton } from './SocialButton';
 export { SearchBar } from './SearchBar';
 export { EmptyState } from './EmptyState';
 export { AppSidebar } from './AppSidebar';
+export { SettingsSection } from './SettingsSection';

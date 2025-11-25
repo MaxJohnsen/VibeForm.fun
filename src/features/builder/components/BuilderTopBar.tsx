@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Eye, Share2, BarChart3, MoreVertical } from 'lucide-react';
+import { ArrowLeft, Eye, Share2, BarChart3, MoreVertical, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -137,6 +137,10 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
                 <BarChart3 className="h-4 w-4 mr-2" />
                 Analytics
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(ROUTES.getFormSettingsRoute(form.id))}>
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuLabel>Share</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => setShareOpen(true)} className="cursor-pointer">
@@ -224,6 +228,14 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
         <Button variant="outline" size="sm" onClick={handlePreview}>
           <Eye className="h-4 w-4 mr-2" />
           Preview
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate(ROUTES.getFormSettingsRoute(form?.id || ''))}
+        >
+          <Settings className="h-4 w-4 mr-2" />
+          Settings
         </Button>
         {form && (
           <Button size="sm" onClick={() => setShareOpen(true)}>
