@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, MessageSquare, Share2, MoreHorizontal, Trash2, Eye, ExternalLink, CheckCircle, FileEdit, Archive } from 'lucide-react';
+import { Clock, MessageSquare, Share2, MoreHorizontal, Trash2, Eye, ExternalLink, CheckCircle, FileEdit, Archive, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -190,6 +190,16 @@ export const FormCard = ({ form }: FormCardProps) => {
               >
                 <Share2 className="h-4 w-4 mr-2" />
                 Share Form
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem
+                onClick={() => navigate(ROUTES.getFormSettingsRoute(form.id))}
+                className="cursor-pointer"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
