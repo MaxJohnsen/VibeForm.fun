@@ -160,7 +160,9 @@ export const FormBuilderPage = () => {
 
       const newQuestion = await createQuestion({
         type: questionType,
-        label: `New ${type.replace('_', ' ')} question`,
+        label: questionType === 'respondent_name' 
+          ? 'What is your name?' 
+          : `New ${type.replace('_', ' ')} question`,
         position: targetPosition,
         settings: getDefaultSettings(questionType),
       });

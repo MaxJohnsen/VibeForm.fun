@@ -10,6 +10,7 @@ import { Question } from '../api/questionsApi';
 import { QUESTION_TYPES } from '@/shared/constants/questionTypes';
 import { Settings, Plus, Trash2, GripVertical, GitBranch, ChevronRight } from 'lucide-react';
 import {
+  RespondentNameSettings,
   MultipleChoiceSettings,
   YesNoSettings,
   RatingSettings,
@@ -123,6 +124,13 @@ export const PropertiesPanel = ({
           <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Configuration</h4>
 
           {/* Type-specific Settings */}
+          {question.type === 'respondent_name' && (
+            <RespondentNameSettingsPanel
+              settings={localSettings as RespondentNameSettings}
+              onUpdate={handleSettingsUpdate}
+            />
+          )}
+
           {question.type === 'multiple_choice' && (
             <MultipleChoiceSettingsPanel
               settings={localSettings as MultipleChoiceSettings}
@@ -196,6 +204,38 @@ export const PropertiesPanel = ({
             </Button>
           )}
         </div>
+      </div>
+    </div>
+  );
+};
+
+// Respondent Name Settings Panel
+const RespondentNameSettingsPanel = ({
+  settings,
+  onUpdate
+}: {
+  settings: RespondentNameSettings;
+  onUpdate: (s: Partial<RespondentNameSettings>) => void;
+}) => {
+  return (
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="name-placeholder" className="text-sm font-medium mb-2 block">Placeholder</Label>
+        <Input
+          id="name-placeholder"
+          value={settings.placeholder ?? ''}
+          onChange={(e) => onUpdate({ placeholder: e.target.value })}
+          placeholder="Enter your name..."
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Label htmlFor="required-name" className="text-sm">Required</Label>
+        <Switch
+          id="required-name"
+          checked={settings.required ?? false}
+          onCheckedChange={(checked) => onUpdate({ required: checked })}
+        />
       </div>
     </div>
   );
