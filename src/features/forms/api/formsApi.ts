@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { IntroSettings, EndSettings } from '@/features/builder/types/screenSettings';
 
 export interface Form {
   id: string;
@@ -9,6 +10,8 @@ export interface Form {
   slug: string | null;
   created_at: string;
   updated_at: string;
+  intro_settings: IntroSettings | Record<string, never>;
+  end_settings: EndSettings | Record<string, never>;
 }
 
 export interface CreateFormData {
@@ -21,6 +24,8 @@ export interface UpdateFormData {
   description?: string;
   status?: 'draft' | 'active' | 'archived';
   slug?: string | null;
+  intro_settings?: Record<string, any>;
+  end_settings?: Record<string, any>;
 }
 
 export const formsApi = {

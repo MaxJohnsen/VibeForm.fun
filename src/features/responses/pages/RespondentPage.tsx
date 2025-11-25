@@ -121,6 +121,7 @@ export const RespondentPage = () => {
         <WelcomeScreen
           formTitle={formInfo.title}
           formDescription={formInfo.description || undefined}
+          introSettings={formInfo.intro_settings}
           totalQuestions={totalQuestions}
           onStart={() => setShowWelcome(false)}
         />
@@ -165,7 +166,10 @@ export const RespondentPage = () => {
       {isComplete && (
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="max-w-2xl w-full">
-            <CompletionScreen formTitle={formInfo?.title || 'this form'} />
+            <CompletionScreen 
+              formTitle={formInfo?.title || 'this form'} 
+              endSettings={formInfo?.end_settings}
+            />
           </div>
         </div>
       )}
