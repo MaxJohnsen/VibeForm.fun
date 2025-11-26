@@ -19,14 +19,15 @@ export const YesNoQuestion = ({
   const [value, setValue] = useState<boolean | null>(initialValue ?? null);
   const yesLabel = settings?.yesLabel || 'Yes';
   const noLabel = settings?.noLabel || 'No';
+  const isRequired = settings?.required !== false;
 
   useEffect(() => {
-    const isValid = value !== null;
+    const isValid = !isRequired || value !== null;
     onValidationChange(isValid);
-    if (isValid) {
+    if (value !== null) {
       onSubmit(value);
     }
-  }, [value, onValidationChange, onSubmit]);
+  }, [value, isRequired, onValidationChange, onSubmit]);
 
   const handleSelect = (selected: boolean) => {
     if (value === selected) return; // Prevent re-submitting same value

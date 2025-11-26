@@ -22,6 +22,7 @@ export const MultipleChoiceQuestion = ({
   const allowMultiple = settings?.allowMultiple || false;
   const allowOther = settings?.allowOther || false;
   const options = settings?.options || [];
+  const isRequired = settings?.required !== false;
 
   const [selectedValues, setSelectedValues] = useState<string[]>(
     initialValue ? (Array.isArray(initialValue) ? initialValue : [initialValue]) : []
@@ -37,7 +38,8 @@ export const MultipleChoiceQuestion = ({
 
   useEffect(() => {
     const hasSelection = selectedValues.length > 0 || (showOtherInput && otherValue.trim().length > 0);
-    onValidationChange(hasSelection);
+    const isValid = !isRequired || hasSelection;
+    onValidationChange(isValid);
     
     // Submit current value to parent
     if (hasSelection) {
@@ -50,7 +52,7 @@ export const MultipleChoiceQuestion = ({
         : selectedValues[0];
       onSubmit(finalValue);
     }
-  }, [selectedValues, otherValue, showOtherInput, onValidationChange, allowMultiple, onSubmit]);
+  }, [selectedValues, otherValue, showOtherInput, isRequired, onValidationChange, allowMultiple, onSubmit]);
 
   const handleOptionClick = (optionId: string) => {
     if (allowMultiple) {
