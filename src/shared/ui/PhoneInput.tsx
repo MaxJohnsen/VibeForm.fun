@@ -35,7 +35,10 @@ export const PhoneInput = ({
     },
   });
 
-  const currentCountry = parseCountry(country as any);
+  const currentCountryTuple = defaultCountries.find((c: any) => c[1] === country);
+  const currentCountry = currentCountryTuple 
+    ? parseCountry(currentCountryTuple as any) 
+    : parseCountry(defaultCountries[0] as any);
 
   return (
     <div className={cn('flex w-full', className)}>
