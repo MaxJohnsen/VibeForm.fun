@@ -1,26 +1,27 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formsApi } from '@/features/forms/api/formsApi';
 import { useLottery } from '../hooks/useLottery';
 import { DrawControls } from '../components/DrawControls';
-import { WinnerCard } from '../components/WinnerCard';
-import { WinnerReveal } from '../components/WinnerReveal';
+import { WinnerDisplayCard } from '../components/WinnerDisplayCard';
 import { DrawHistory } from '../components/DrawHistory';
 import { ConfettiCelebration } from '../components/ConfettiCelebration';
 import { Winner, lotteryApi } from '../api/lotteryApi';
 import { ROUTES } from '@/shared/constants/routes';
 
+type DisplayState = 'idle' | 'loading' | 'animating' | 'revealed';
+
 export const LotteryPage = () => {
   const { formId } = useParams<{ formId: string }>();
   const navigate = useNavigate();
+  const [displayState, setDisplayState] = useState<DisplayState>('idle');
   const [currentWinners, setCurrentWinners] = useState<Winner[]>([]);
   const [showConfetti, setShowConfetti] = useState(false);
   const [candidates, setCandidates] = useState<Winner[]>([]);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const { data: form, isLoading: isLoadingForm } = useQuery({
     queryKey: ['form', formId],
@@ -41,10 +42,12 @@ export const LotteryPage = () => {
 
   const handleDraw = async (winnerCount: number, namedOnly: boolean) => {
     try {
+      // Set loading state
+      setDisplayState('loading');
+      
       // Fetch candidates for animation
       const randomCandidates = await lotteryApi.getCandidates(formId!, namedOnly, 20);
       setCandidates(randomCandidates);
-      setIsAnimating(true);
       
       // Draw actual winners
       const winners = await drawWinners({
@@ -53,14 +56,17 @@ export const LotteryPage = () => {
         namedOnly,
       });
       setCurrentWinners(winners);
+      
+      // Start animation
+      setDisplayState('animating');
     } catch (error) {
-      setIsAnimating(false);
+      setDisplayState('idle');
       console.error('Draw error:', error);
     }
   };
 
   const handleAnimationComplete = () => {
-    setIsAnimating(false);
+    setDisplayState('revealed');
     setShowConfetti(true);
     setTimeout(() => setShowConfetti(false), 3000);
   };
@@ -119,55 +125,19 @@ export const LotteryPage = () => {
               formId={formId!}
               hasNameQuestion={hasNameQuestion}
               onDraw={handleDraw}
-              isDrawing={isDrawing || isAnimating}
+              isDrawing={isDrawing || displayState === 'loading' || displayState === 'animating'}
             />
           </div>
 
-          {/* Right Column: Winners & History */}
+          {/* Right Column: Winner Display & History */}
           <div className="space-y-6">
-            {/* Placeholder before first draw */}
-            {!isAnimating && currentWinners.length === 0 && drawHistory.length === 0 && (
-              <div className="glass-panel rounded-2xl p-12">
-                <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                  <Sparkles className="w-16 h-16 text-primary/40" />
-                  <h3 className="text-xl font-semibold text-muted-foreground">
-                    Draw your first winner!
-                  </h3>
-                  <p className="text-sm text-muted-foreground/60">
-                    Configure settings and click "Draw Winners" to begin
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Animation */}
-            {isAnimating && candidates.length > 0 && (
-              <WinnerReveal
-                candidates={candidates}
-                winners={currentWinners}
-                isAnimating={isAnimating}
-                onComplete={handleAnimationComplete}
-              />
-            )}
-
-            {/* Current Winners (after animation) */}
-            {!isAnimating && currentWinners.length > 0 && (
-              <div className="space-y-4">
-                <h2 className="text-2xl font-bold text-foreground text-center">
-                  🎉 {currentWinners.length === 1 ? 'Winner' : 'Winners'}!
-                </h2>
-                <div className="grid gap-4">
-                  {currentWinners.map((winner, index) => (
-                    <WinnerCard
-                      key={winner.responseId}
-                      winner={winner}
-                      index={index}
-                      total={currentWinners.length}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Always-visible Winner Display Card */}
+            <WinnerDisplayCard
+              state={displayState}
+              candidates={candidates}
+              winners={currentWinners}
+              onAnimationComplete={handleAnimationComplete}
+            />
 
             {/* Draw History */}
             {isLoadingHistory ? (
