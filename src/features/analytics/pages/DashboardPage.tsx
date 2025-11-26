@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, Users, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Users, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formsApi } from '@/features/forms/api/formsApi';
@@ -90,10 +90,10 @@ export const DashboardPage = () => {
             subtitle={`${stats?.completedSubmissions} completed, ${(stats?.totalSubmissions || 0) - (stats?.completedSubmissions || 0)} incomplete`}
           />
           <StatisticsCard
-            icon={AlertCircle}
-            label="Most drop at"
-            value={stats?.primaryDropoffQuestion?.questionLabel || 'N/A'}
-            subtitle={stats?.primaryDropoffQuestion && stats.primaryDropoffQuestion.dropoffRate > 0 ? `${stats.primaryDropoffQuestion.dropoffRate.toFixed(1)}% drop-off rate` : 'No drop-offs detected'}
+            icon={Clock}
+            label="Avg. Completion Time"
+            value={stats?.averageCompletionTime ? formatDuration(Math.round(stats.averageCompletionTime)) : 'N/A'}
+            subtitle={stats?.primaryDropoffQuestion ? `Most drop at: ${stats.primaryDropoffQuestion.questionLabel}` : 'No drop-offs detected'}
           />
         </div>
 
