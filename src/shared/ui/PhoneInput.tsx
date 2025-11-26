@@ -35,11 +35,6 @@ export const PhoneInput = ({
     },
   });
 
-  const currentCountryTuple = defaultCountries.find((c: any) => c[1] === country);
-  const currentCountry = currentCountryTuple 
-    ? parseCountry(currentCountryTuple as any) 
-    : parseCountry(defaultCountries[0] as any);
-
   return (
     <div className={cn('flex w-full', className)}>
       <Popover open={open} onOpenChange={setOpen}>
@@ -60,7 +55,7 @@ export const PhoneInput = ({
                 : 'border-border/50 focus:border-primary'
             )}
           >
-            <FlagImage iso2={currentCountry.iso2 as CountryIso2} className="w-5 h-5" />
+            <FlagImage iso2={country.iso2} className="w-5 h-5" />
             <ChevronDown className="h-4 w-4 opacity-50" />
           </button>
         </PopoverTrigger>
