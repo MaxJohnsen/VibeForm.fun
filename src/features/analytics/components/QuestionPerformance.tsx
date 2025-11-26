@@ -210,89 +210,98 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
           
           return (
             <div key={question.id} className="pb-6 border-b border-border/50 last:border-0 last:pb-0">
-              {/* Main row: flex with left content and right stats */}
-              <div className="flex items-start gap-4">
-                
-                {/* LEFT SIDE: Icon + Content */}
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  {/* Icon */}
-                  {Icon && (
-                    <div className={cn("rounded-lg p-2 shrink-0 hidden sm:block", questionType?.colorClass)}>
-                      <Icon className="h-4 w-4" />
-                    </div>
-                  )}
-                  
-                  {/* Content stack: Question title, Metric, Visual */}
-                  <div className="flex-1 min-w-0 space-y-2">
-                    {/* Question title */}
-                    <div className="text-sm font-medium break-words">
-                      Q{question.position + 1}. {question.label}
-                    </div>
-                    
-                    {/* Metric and details */}
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <div className="text-lg font-semibold">{metric}</div>
-                      {details && (
-                        <div className="text-xs text-muted-foreground">{details}</div>
-                      )}
-                    </div>
-                    
-                    {/* Visual */}
-                    {visual && <div>{visual}</div>}
-                  </div>
-                </div>
-                
-                {/* RIGHT SIDE: Stats column */}
-                <div className="hidden sm:flex flex-col items-end shrink-0 gap-1 min-w-[120px]">
-                  {/* Drop-off */}
-                  <div className="flex items-center gap-1">
-                    <span className={cn('text-sm font-medium', dropoffColor)}>
-                      {dropoffRate.toFixed(0)}%
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      drop-off ({droppedOffCount})
-                    </span>
-                  </div>
-                  
-                  {/* Blank */}
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {skipRate.toFixed(0)}%
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      blank ({skippedCount})
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Mobile stats (inline below) */}
-              <div className="sm:hidden mt-2 flex items-center gap-1 text-xs flex-wrap ml-0">
-                <span className={cn('font-medium', dropoffColor)}>
-                  {dropoffRate.toFixed(0)}% drop-off ({droppedOffCount})
-                </span>
-                <span className="text-muted-foreground">•</span>
-                <span className="font-medium text-muted-foreground">
-                  {skipRate.toFixed(0)}% blank ({skippedCount})
-                </span>
-              </div>
-              
-              {/* Collapsible individual responses */}
-              {actualAnswers.length > 0 && (
+              {actualAnswers.length > 0 ? (
                 <Collapsible 
                   open={expandedId === question.id} 
                   onOpenChange={(open) => setExpandedId(open ? question.id : null)}
                 >
+                  {/* Clickable card trigger */}
                   <CollapsibleTrigger asChild>
-                    <button className="mt-3 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                      <span>View individual responses</span>
-                      <ChevronDown className={cn(
-                        "h-3 w-3 transition-transform duration-200",
-                        expandedId === question.id && "rotate-180"
-                      )} />
-                    </button>
+                    <div className="cursor-pointer hover:bg-muted/30 -mx-2 px-2 py-2 rounded-lg transition-colors duration-200">
+                      {/* Main row: flex with left content and right stats */}
+                      <div className="flex items-start gap-4">
+                        
+                        {/* LEFT SIDE: Icon + Content */}
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          {/* Icon */}
+                          {Icon && (
+                            <div className={cn("rounded-lg p-2 shrink-0 hidden sm:block", questionType?.colorClass)}>
+                              <Icon className="h-4 w-4" />
+                            </div>
+                          )}
+                          
+                          {/* Content stack: Question title, Metric, Visual */}
+                          <div className="flex-1 min-w-0 space-y-2">
+                            {/* Question title */}
+                            <div className="text-sm font-medium break-words">
+                              Q{question.position + 1}. {question.label}
+                            </div>
+                            
+                            {/* Metric and details */}
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                              <div className="text-lg font-semibold">{metric}</div>
+                              {details && (
+                                <div className="text-xs text-muted-foreground">{details}</div>
+                              )}
+                            </div>
+                            
+                            {/* Visual */}
+                            {visual && <div>{visual}</div>}
+                          </div>
+                        </div>
+                        
+                        {/* RIGHT SIDE: Stats column with chevron */}
+                        <div className="hidden sm:flex flex-col items-end shrink-0 gap-1 min-w-[120px]">
+                          {/* Drop-off */}
+                          <div className="flex items-center gap-1">
+                            <span className={cn('text-sm font-medium', dropoffColor)}>
+                              {dropoffRate.toFixed(0)}%
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              drop-off ({droppedOffCount})
+                            </span>
+                          </div>
+                          
+                          {/* Blank */}
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm font-medium text-muted-foreground">
+                              {skipRate.toFixed(0)}%
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              blank ({skippedCount})
+                            </span>
+                          </div>
+                          
+                          {/* Chevron indicator */}
+                          <div className="mt-1">
+                            <ChevronDown className={cn(
+                              "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                              expandedId === question.id && "rotate-180"
+                            )} />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Mobile stats with chevron */}
+                      <div className="sm:hidden mt-2 flex items-center justify-between gap-2 text-xs flex-wrap">
+                        <div className="flex items-center gap-1 flex-wrap">
+                          <span className={cn('font-medium', dropoffColor)}>
+                            {dropoffRate.toFixed(0)}% drop-off ({droppedOffCount})
+                          </span>
+                          <span className="text-muted-foreground">•</span>
+                          <span className="font-medium text-muted-foreground">
+                            {skipRate.toFixed(0)}% blank ({skippedCount})
+                          </span>
+                        </div>
+                        <ChevronDown className={cn(
+                          "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                          expandedId === question.id && "rotate-180"
+                        )} />
+                      </div>
+                    </div>
                   </CollapsibleTrigger>
                   
+                  {/* Expanded content */}
                   <CollapsibleContent>
                     <div className="mt-3 pt-3 border-t border-border/30 space-y-1.5 max-h-48 overflow-y-auto">
                       {actualAnswers.slice(0, 15).map((answer, idx) => (
@@ -314,6 +323,76 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
+              ) : (
+                // Non-clickable card when no responses
+                <div className="-mx-2 px-2 py-2">
+                  {/* Main row: flex with left content and right stats */}
+                  <div className="flex items-start gap-4">
+                    
+                    {/* LEFT SIDE: Icon + Content */}
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      {/* Icon */}
+                      {Icon && (
+                        <div className={cn("rounded-lg p-2 shrink-0 hidden sm:block", questionType?.colorClass)}>
+                          <Icon className="h-4 w-4" />
+                        </div>
+                      )}
+                      
+                      {/* Content stack: Question title, Metric, Visual */}
+                      <div className="flex-1 min-w-0 space-y-2">
+                        {/* Question title */}
+                        <div className="text-sm font-medium break-words">
+                          Q{question.position + 1}. {question.label}
+                        </div>
+                        
+                        {/* Metric and details */}
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <div className="text-lg font-semibold">{metric}</div>
+                          {details && (
+                            <div className="text-xs text-muted-foreground">{details}</div>
+                          )}
+                        </div>
+                        
+                        {/* Visual */}
+                        {visual && <div>{visual}</div>}
+                      </div>
+                    </div>
+                    
+                    {/* RIGHT SIDE: Stats column */}
+                    <div className="hidden sm:flex flex-col items-end shrink-0 gap-1 min-w-[120px]">
+                      {/* Drop-off */}
+                      <div className="flex items-center gap-1">
+                        <span className={cn('text-sm font-medium', dropoffColor)}>
+                          {dropoffRate.toFixed(0)}%
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          drop-off ({droppedOffCount})
+                        </span>
+                      </div>
+                      
+                      {/* Blank */}
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm font-medium text-muted-foreground">
+                          {skipRate.toFixed(0)}%
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          blank ({skippedCount})
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Mobile stats */}
+                  <div className="sm:hidden mt-2 flex items-center gap-1 text-xs flex-wrap">
+                    <span className={cn('font-medium', dropoffColor)}>
+                      {dropoffRate.toFixed(0)}% drop-off ({droppedOffCount})
+                    </span>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="font-medium text-muted-foreground">
+                      {skipRate.toFixed(0)}% blank ({skippedCount})
+                    </span>
+                  </div>
+                </div>
               )}
             </div>
           );
