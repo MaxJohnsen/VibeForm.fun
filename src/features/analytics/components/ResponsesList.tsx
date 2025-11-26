@@ -27,7 +27,7 @@ export const ResponsesList = ({ responses, totalQuestions, questions }: Response
       <h3 className="text-lg font-semibold mb-3 md:mb-4">Recent Responses</h3>
       <div className="space-y-0">
         {responses.slice(0, 10).map((response) => (
-          <div key={response.id} className="pb-6 border-b border-border/50 last:border-0 last:pb-0">
+          <div key={response.id} className="pb-3 border-b border-border/50 last:border-0 last:pb-0">
             <ResponseItem
               response={response}
               totalQuestions={totalQuestions}
