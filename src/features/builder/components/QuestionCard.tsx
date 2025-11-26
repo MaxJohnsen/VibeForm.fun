@@ -362,17 +362,25 @@ export const QuestionCard = ({
 
           {question.type === 'phone' && (() => {
             const settings = question.settings as PhoneSettings;
-            const placeholder = settings?.placeholder || (
-              settings?.format === 'INTERNATIONAL' ? '+1 555 123 4567' : '(555) 123-4567'
-            );
+            const defaultCountry = settings?.defaultCountry || 'us';
+            const countryFlags: Record<string, string> = {
+              us: '🇺🇸', gb: '🇬🇧', ca: '🇨🇦', au: '🇦🇺', de: '🇩🇪',
+              fr: '🇫🇷', es: '🇪🇸', it: '🇮🇹', no: '🇳🇴', se: '🇸🇪',
+              dk: '🇩🇰', nl: '🇳🇱', be: '🇧🇪', ch: '🇨🇭', at: '🇦🇹',
+              pl: '🇵🇱', jp: '🇯🇵', kr: '🇰🇷', cn: '🇨🇳', in: '🇮🇳',
+              br: '🇧🇷', mx: '🇲🇽'
+            };
+            const flag = countryFlags[defaultCountry] || '🌍';
 
             return (
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+              <div className="relative flex gap-2">
+                <div className="flex items-center gap-1 px-3 py-2 border border-border/50 rounded-lg bg-white/50 dark:bg-white/5 opacity-50">
+                  <span className="text-lg">{flag}</span>
+                </div>
                 <Input
-                  placeholder={placeholder}
+                  placeholder="Phone number"
                   disabled
-                  className="opacity-50 border-border/50 pl-10"
+                  className="opacity-50 border-border/50 flex-1"
                 />
               </div>
             );

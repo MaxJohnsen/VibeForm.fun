@@ -597,32 +597,55 @@ const PhoneSettingsPanel = ({
   settings: PhoneSettings;
   onUpdate: (s: Partial<PhoneSettings>) => void;
 }) => {
+  const countries = [
+    { code: 'us', name: 'United States', flag: '🇺🇸' },
+    { code: 'gb', name: 'United Kingdom', flag: '🇬🇧' },
+    { code: 'ca', name: 'Canada', flag: '🇨🇦' },
+    { code: 'au', name: 'Australia', flag: '🇦🇺' },
+    { code: 'de', name: 'Germany', flag: '🇩🇪' },
+    { code: 'fr', name: 'France', flag: '🇫🇷' },
+    { code: 'es', name: 'Spain', flag: '🇪🇸' },
+    { code: 'it', name: 'Italy', flag: '🇮🇹' },
+    { code: 'no', name: 'Norway', flag: '🇳🇴' },
+    { code: 'se', name: 'Sweden', flag: '🇸🇪' },
+    { code: 'dk', name: 'Denmark', flag: '🇩🇰' },
+    { code: 'nl', name: 'Netherlands', flag: '🇳🇱' },
+    { code: 'be', name: 'Belgium', flag: '🇧🇪' },
+    { code: 'ch', name: 'Switzerland', flag: '🇨🇭' },
+    { code: 'at', name: 'Austria', flag: '🇦🇹' },
+    { code: 'pl', name: 'Poland', flag: '🇵🇱' },
+    { code: 'jp', name: 'Japan', flag: '🇯🇵' },
+    { code: 'kr', name: 'South Korea', flag: '🇰🇷' },
+    { code: 'cn', name: 'China', flag: '🇨🇳' },
+    { code: 'in', name: 'India', flag: '🇮🇳' },
+    { code: 'br', name: 'Brazil', flag: '🇧🇷' },
+    { code: 'mx', name: 'Mexico', flag: '🇲🇽' },
+  ];
+
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="phone-format" className="text-sm font-medium mb-2 block">Format</Label>
+        <Label htmlFor="phone-country" className="text-sm font-medium mb-2 block">
+          Default Country
+        </Label>
         <Select
-          value={settings.format ?? 'US'}
-          onValueChange={(value: 'US' | 'INTERNATIONAL') => onUpdate({ format: value })}
+          value={settings.defaultCountry ?? 'us'}
+          onValueChange={(value) => onUpdate({ defaultCountry: value })}
         >
-          <SelectTrigger id="phone-format">
+          <SelectTrigger id="phone-country">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="US">US Format</SelectItem>
-            <SelectItem value="INTERNATIONAL">International</SelectItem>
+          <SelectContent className="max-h-[300px]">
+            {countries.map((country) => (
+              <SelectItem key={country.code} value={country.code}>
+                <span className="flex items-center gap-2">
+                  <span>{country.flag}</span>
+                  <span>{country.name}</span>
+                </span>
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
-      </div>
-
-      <div>
-        <Label htmlFor="phone-placeholder" className="text-sm font-medium mb-2 block">Placeholder</Label>
-        <Input
-          id="phone-placeholder"
-          value={settings.placeholder ?? ''}
-          onChange={(e) => onUpdate({ placeholder: e.target.value })}
-          placeholder="(555) 123-4567"
-        />
       </div>
 
       <div className="flex items-center justify-between">

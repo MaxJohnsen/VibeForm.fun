@@ -9,3 +9,4 @@ export { SettingsCard } from './SettingsCard';
 export { SettingsRow } from './SettingsRow';
 export { RichTextEditor } from './RichTextEditor';
 export { LanguageSelector } from './LanguageSelector';
+export { PhoneInput } from './PhoneInput';

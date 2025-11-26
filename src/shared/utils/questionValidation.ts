@@ -7,12 +7,23 @@ export const emailSchema = z
   .email('Please enter a valid email address')
   .max(255, 'Email must be less than 255 characters');
 
-// Phone validation schema (international E.164 format)
+// Phone validation - using google-libphonenumber
+import { PhoneNumberUtil } from 'google-libphonenumber';
+
+const phoneUtil = PhoneNumberUtil.getInstance();
+
 export const phoneSchema = z
   .string()
   .trim()
-  .regex(
-    /^[\+]?[(]?[0-9]{1,3}[)]?[-\s\.]?[(]?[0-9]{1,4}[)]?[-\s\.]?[0-9]{1,4}[-\s\.]?[0-9]{1,9}$/,
+  .refine(
+    (value) => {
+      try {
+        const phoneNumber = phoneUtil.parseAndKeepRawInput(value);
+        return phoneUtil.isValidNumber(phoneNumber);
+      } catch {
+        return false;
+      }
+    },
     'Please enter a valid phone number'
   );
 
@@ -33,8 +44,8 @@ export const validateEmail = (value: string): boolean => {
 
 export const validatePhone = (value: string): boolean => {
   try {
-    phoneSchema.parse(value);
-    return true;
+    const phoneNumber = phoneUtil.parseAndKeepRawInput(value);
+    return phoneUtil.isValidNumber(phoneNumber);
   } catch {
     return false;
   }
