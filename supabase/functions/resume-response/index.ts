@@ -136,6 +136,10 @@ Deno.serve(async (req) => {
       .eq('question_id', currentQuestion.id)
       .maybeSingle();
 
+    // Convert skipped marker back to null
+    const currentAnswer = existingAnswer?.answer_value;
+    const normalizedAnswer = currentAnswer?._skipped === true ? null : (currentAnswer || null);
+
     return new Response(
       JSON.stringify({
         sessionToken,
@@ -148,7 +152,7 @@ Deno.serve(async (req) => {
         },
         question: {
           ...currentQuestion,
-          currentAnswer: existingAnswer?.answer_value || null,
+          currentAnswer: normalizedAnswer,
         },
         totalQuestions: totalQuestions || 0,
         isComplete: false,

@@ -37,9 +37,10 @@ Deno.serve(async (req) => {
   try {
     const { sessionToken, questionId, answerValue } = await req.json();
 
-    if (!sessionToken || !questionId || answerValue === undefined) {
+    // Allow null values for optional questions
+    if (!sessionToken || !questionId) {
       return new Response(
-        JSON.stringify({ error: 'sessionToken, questionId, and answerValue are required' }),
+        JSON.stringify({ error: 'sessionToken and questionId are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -74,12 +75,17 @@ Deno.serve(async (req) => {
     const currentQuestion = questionResult.data;
 
     // Save or update answer using UPSERT
+    // Convert null to a skipped marker to satisfy NOT NULL constraint
+    const valueToStore = answerValue === null ? { _skipped: true } : answerValue;
+    
+    console.log('Saving answer:', { questionId, answerValue, valueToStore });
+    
     const { error: answerError } = await supabase
       .from('answers')
       .upsert({
         response_id: response.id,
         question_id: questionId,
-        answer_value: answerValue,
+        answer_value: valueToStore,
         answered_at: new Date().toISOString(),
       }, {
         onConflict: 'response_id,question_id'
@@ -197,9 +203,13 @@ Deno.serve(async (req) => {
 
     let nextQuestion = null;
     if (!isComplete && nextQuestionId && nextQuestionResult && !nextQuestionResult.error && nextQuestionResult.data) {
+      // Convert skipped marker back to null
+      const existingAnswer = existingAnswerResult?.data?.answer_value;
+      const normalizedAnswer = existingAnswer?._skipped === true ? null : (existingAnswer || null);
+      
       nextQuestion = {
         ...nextQuestionResult.data,
-        currentAnswer: existingAnswerResult?.data?.answer_value || null,
+        currentAnswer: normalizedAnswer,
       };
     }
 
