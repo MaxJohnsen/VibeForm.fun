@@ -345,7 +345,6 @@ export const QuestionCard = ({
           {question.type === 'email' && (() => {
             const settings = question.settings as EmailSettings;
             const placeholder = settings?.placeholder || 'email@example.com';
-            const requireConfirmation = settings?.requireConfirmation || false;
 
             return (
               <div className="space-y-3">
@@ -357,17 +356,6 @@ export const QuestionCard = ({
                     className="opacity-50 border-border/50 pl-10"
                   />
                 </div>
-
-                {requireConfirmation && (
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
-                    <Input
-                      placeholder="Confirm email address"
-                      disabled
-                      className="opacity-50 border-border/50 pl-10"
-                    />
-                  </div>
-                )}
               </div>
             );
           })()}

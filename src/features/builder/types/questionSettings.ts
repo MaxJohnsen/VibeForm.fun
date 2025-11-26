@@ -31,7 +31,6 @@ export interface RatingSettings {
 
 export interface EmailSettings {
   required: boolean;
-  requireConfirmation: boolean;
   placeholder?: string;
   allowedDomains?: string[];
 }
@@ -117,7 +116,6 @@ export const getDefaultSettings = (type: string): QuestionSettings => {
     case 'email':
       return {
         required: true,
-        requireConfirmation: false,
         placeholder: 'email@example.com',
       } as EmailSettings;
 

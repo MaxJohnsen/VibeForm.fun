@@ -21,11 +21,15 @@ export const EmailQuestion = ({
   const [error, setError] = useState('');
   const isMobile = useIsMobile();
   const placeholder = settings?.placeholder || 'name@example.com';
+  const isRequired = settings?.required !== false;
 
   useEffect(() => {
     if (!value) {
       setError('');
-      onValidationChange(false);
+      onValidationChange(!isRequired);
+      if (!isRequired) {
+        onSubmit('');
+      }
       return;
     }
 
@@ -35,7 +39,7 @@ export const EmailQuestion = ({
     if (isValid) {
       onSubmit(value);
     }
-  }, [value, onValidationChange, onSubmit]);
+  }, [value, isRequired, onValidationChange, onSubmit]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
