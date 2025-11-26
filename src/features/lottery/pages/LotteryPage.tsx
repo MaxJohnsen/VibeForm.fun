@@ -118,30 +118,19 @@ export const LotteryPage = () => {
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Column: Controls */}
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column: Controls + History (1/3) */}
+          <div className="lg:col-span-1 space-y-6">
             <DrawControls
               formId={formId!}
               hasNameQuestion={hasNameQuestion}
               onDraw={handleDraw}
               isDrawing={isDrawing || displayState === 'loading' || displayState === 'animating'}
             />
-          </div>
-
-          {/* Right Column: Winner Display & History */}
-          <div className="space-y-6">
-            {/* Always-visible Winner Display Card */}
-            <WinnerDisplayCard
-              state={displayState}
-              candidates={candidates}
-              winners={currentWinners}
-              onAnimationComplete={handleAnimationComplete}
-            />
 
             {/* Draw History */}
             {isLoadingHistory ? (
-              <Skeleton className="h-64 w-full" />
+              <Skeleton className="h-32 w-full" />
             ) : drawHistory.length > 0 ? (
               <DrawHistory
                 draws={drawHistory}
@@ -149,6 +138,16 @@ export const LotteryPage = () => {
                 isDeletingDraw={isDeletingDraw}
               />
             ) : null}
+          </div>
+
+          {/* Right Column: Winner Display (2/3) */}
+          <div className="lg:col-span-2">
+            <WinnerDisplayCard
+              state={displayState}
+              candidates={candidates}
+              winners={currentWinners}
+              onAnimationComplete={handleAnimationComplete}
+            />
           </div>
         </div>
       </div>

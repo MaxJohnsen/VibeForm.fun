@@ -1,7 +1,6 @@
 import { LotteryDraw } from '../api/lotteryApi';
-import { generatePersona } from '@/shared/utils/personaGenerator';
 import { formatDistanceToNow } from 'date-fns';
-import { Trash2, Calendar, Users, Settings } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -23,79 +22,38 @@ interface DrawHistoryProps {
 
 export const DrawHistory = ({ draws, onDelete, isDeletingDraw }: DrawHistoryProps) => {
   if (draws.length === 0) {
-    return (
-      <div className="glass-panel rounded-2xl p-8">
-        <div className="text-center text-muted-foreground">
-          <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
-          <p>No draws yet</p>
-          <p className="text-sm mt-1">Draw your first winner to see history here</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="glass-panel rounded-2xl p-6 space-y-4">
-      <h2 className="text-xl font-semibold text-foreground mb-4">Draw History</h2>
+    <div className="space-y-3">
+      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide px-1">
+        Draw Log
+      </h3>
 
-      <div className="space-y-3">
-        {draws.map((draw) => (
-          <div
-            key={draw.id}
-            className="p-4 rounded-xl bg-background/50 border border-border/50 hover:border-border transition-colors"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 space-y-2">
-                {/* Date */}
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="w-4 h-4" />
-                  <span>
-                    {formatDistanceToNow(new Date(draw.drawnAt), { addSuffix: true })}
-                  </span>
+      <div className="space-y-1.5">
+        {draws.map((draw) => {
+          const timeAgo = formatDistanceToNow(new Date(draw.drawnAt), { addSuffix: true });
+          const winnerNames = draw.winners.map((winner) => {
+            const displayName = (typeof winner.name === 'string' && winner.name.trim()) 
+              ? winner.name 
+              : `Anon (${winner.sessionToken.slice(0, 6)})`;
+            return displayName;
+          }).join(', ');
+
+          return (
+            <div
+              key={draw.id}
+              className="group flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-background/50 transition-colors text-sm"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mb-0.5">
+                  <span>{timeAgo}</span>
+                  <span>•</span>
+                  <span>{draw.winners.length} {draw.winners.length === 1 ? 'winner' : 'winners'}</span>
                 </div>
-
-                {/* Settings */}
-                <div className="flex items-center gap-4 text-sm">
-                  <div className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4 text-primary" />
-                    <span className="font-medium">{draw.winners.length}</span>
-                    <span className="text-muted-foreground">
-                      {draw.winners.length === 1 ? 'winner' : 'winners'}
-                    </span>
-                  </div>
-                  {draw.settings.namedOnly && (
-                    <div className="flex items-center gap-1.5">
-                      <Settings className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-muted-foreground">Named only</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Winners */}
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {draw.winners.map((winner, index) => {
-                    const persona = generatePersona(winner.sessionToken);
-                    // Only use winner.name if it's a valid string (not {_skipped: true})
-                    const displayName = (typeof winner.name === 'string' && winner.name.trim()) 
-                      ? winner.name 
-                      : `Anonymous (${winner.sessionToken.slice(0, 6)})`;
-                    const isAnonymous = !(typeof winner.name === 'string' && winner.name.trim());
-                    return (
-                      <div
-                        key={index}
-                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20"
-                      >
-                        <div className={`w-6 h-6 rounded-full ${persona.avatarColor} flex items-center justify-center`}>
-                          <span className="text-xs font-bold text-white">
-                            {isAnonymous ? 'AN' : persona.initials}
-                          </span>
-                        </div>
-                        <span className="text-sm font-medium text-foreground">
-                          {displayName}
-                        </span>
-                      </div>
-                    );
-                  })}
+                <div className="text-foreground truncate">
+                  {winnerNames}
                 </div>
               </div>
 
@@ -105,10 +63,10 @@ export const DrawHistory = ({ draws, onDelete, isDeletingDraw }: DrawHistoryProp
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-muted-foreground hover:text-destructive"
+                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive shrink-0"
                     disabled={isDeletingDraw}
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -130,8 +88,8 @@ export const DrawHistory = ({ draws, onDelete, isDeletingDraw }: DrawHistoryProp
                 </AlertDialogContent>
               </AlertDialog>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
