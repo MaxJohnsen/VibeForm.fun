@@ -114,38 +114,60 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
         
       case 'multiple_choice':
         if (actualAnswers.length > 0) {
-          const valueCounts = new Map<string, number>();
+          // Count selections per option (handling both single and multi-select)
+          const optionCounts = new Map<string, number>();
+          
           actualAnswers.forEach(a => {
-            const value = String(a.answer_value);
-            valueCounts.set(value, (valueCounts.get(value) || 0) + 1);
+            const values = Array.isArray(a.answer_value) 
+              ? a.answer_value 
+              : [a.answer_value];
+            
+            values.forEach(v => {
+              const optionText = String(v);
+              optionCounts.set(optionText, (optionCounts.get(optionText) || 0) + 1);
+            });
           });
-          const sortedChoices = Array.from(valueCounts.entries())
+          
+          // Sort by count descending
+          const sortedOptions = Array.from(optionCounts.entries())
             .sort((a, b) => b[1] - a[1]);
-          const mostCommon = sortedChoices[0];
-          const percentage = Math.round((mostCommon[1] / actualAnswers.length) * 100);
+          
+          const totalResponses = actualAnswers.length;
+          const mostPopular = sortedOptions[0];
+          const mostPopularText = mostPopular[0];
+          const mostPopularPct = Math.round((mostPopular[1] / totalResponses) * 100);
           
           visual = (
-            <div className="space-y-1">
-              {sortedChoices.slice(0, 3).map(([choice, count]) => {
-                const pct = (count / actualAnswers.length) * 100;
+            <div className="space-y-2">
+              {sortedOptions.slice(0, 4).map(([optionText, count]) => {
+                const pct = (count / totalResponses) * 100;
                 return (
-                  <div key={choice} className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div key={optionText} className="flex items-center gap-3">
+                    {/* Option label */}
+                    <span className="text-xs text-muted-foreground w-24 truncate shrink-0">
+                      {optionText}
+                    </span>
+                    {/* Progress bar */}
+                    <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
                       <div 
-                        className="h-full bg-primary" 
+                        className="h-full bg-primary transition-all" 
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <span className="text-xs text-muted-foreground w-8 text-right">
-                      {Math.round(pct)}%
+                    {/* Percentage and count */}
+                    <span className="text-xs text-muted-foreground w-16 text-right shrink-0">
+                      {Math.round(pct)}% ({count})
                     </span>
                   </div>
                 );
               })}
             </div>
           );
-          metric = mostCommon[0].length > 30 ? mostCommon[0].substring(0, 27) + '...' : mostCommon[0];
-          details = `Most popular: ${percentage}% selected`;
+          
+          metric = mostPopularText.length > 25 
+            ? mostPopularText.substring(0, 22) + '...' 
+            : mostPopularText;
+          details = `Most popular: ${mostPopularPct}% of ${totalResponses} responses`;
         } else {
           metric = 'No responses yet';
           details = '';
