@@ -37,9 +37,7 @@ export interface EmailSettings {
 
 export interface PhoneSettings {
   required: boolean;
-  countryCode: string;
-  format: 'US' | 'INTERNATIONAL';
-  placeholder?: string;
+  defaultCountry: string; // ISO2 code, e.g., 'us', 'no', 'gb'
 }
 
 export interface DateSettings {
@@ -122,9 +120,7 @@ export const getDefaultSettings = (type: string): QuestionSettings => {
     case 'phone':
       return {
         required: true,
-        countryCode: 'US',
-        format: 'US',
-        placeholder: '(555) 123-4567',
+        defaultCountry: 'us',
       } as PhoneSettings;
 
     case 'date':

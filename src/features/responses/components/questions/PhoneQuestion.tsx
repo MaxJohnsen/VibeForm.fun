@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
-import { validatePhone } from '@/shared/utils/questionValidation';
+import { PhoneInput } from '@/shared/ui/PhoneInput';
+import { PhoneNumberUtil } from 'google-libphonenumber';
 import { useIsMobile } from '@/hooks/use-mobile';
+
+const phoneUtil = PhoneNumberUtil.getInstance();
 
 interface PhoneQuestionProps {
   label: string;
@@ -20,38 +23,32 @@ export const PhoneQuestion = ({
   const [value, setValue] = useState(initialValue ?? '');
   const [error, setError] = useState('');
   const isMobile = useIsMobile();
-  const placeholder = settings?.placeholder || '+1 (555) 000-0000';
+  const defaultCountry = settings?.defaultCountry || 'us';
+  const isRequired = settings?.required !== false;
 
   useEffect(() => {
     if (!value) {
       setError('');
-      onValidationChange(false);
+      onValidationChange(!isRequired);
+      if (!isRequired) {
+        onSubmit('');
+      }
       return;
     }
 
-    const isValid = validatePhone(value);
-    setError(isValid ? '' : 'Please enter a valid phone number');
-    onValidationChange(isValid);
-    if (isValid) {
-      onSubmit(value);
-    }
-  }, [value, onValidationChange, onSubmit]);
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      
-      if (isMobile) {
-        // On mobile: Just dismiss keyboard
-        e.currentTarget.blur();
-      } else {
-        // On desktop: Submit if valid
-        if (value && !error) {
-          onSubmit(value);
-        }
+    try {
+      const phoneNumber = phoneUtil.parseAndKeepRawInput(value);
+      const isValid = phoneUtil.isValidNumber(phoneNumber);
+      setError(isValid ? '' : 'Please enter a valid phone number');
+      onValidationChange(isValid);
+      if (isValid) {
+        onSubmit(value);
       }
+    } catch {
+      setError('Please enter a valid phone number');
+      onValidationChange(false);
     }
-  };
+  }, [value, isRequired, onValidationChange, onSubmit]);
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
@@ -60,16 +57,12 @@ export const PhoneQuestion = ({
       </h2>
 
       <div className="space-y-2">
-        <input
-          type="tel"
+        <PhoneInput
           value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder={placeholder}
+          onChange={setValue}
+          defaultCountry={defaultCountry}
+          error={!!error}
           autoFocus
-          className={`w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg bg-white/50 dark:bg-white/5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all ${
-            error ? 'border-destructive focus:border-destructive' : 'border-border/50 focus:border-primary'
-          }`}
         />
         {error && (
           <p className="text-sm text-destructive animate-fade-in">{error}</p>
