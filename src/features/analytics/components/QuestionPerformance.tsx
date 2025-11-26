@@ -2,6 +2,11 @@ import { cn } from '@/lib/utils';
 import { QUESTION_TYPES } from '@/shared/constants/questionTypes';
 import { Star } from 'lucide-react';
 
+// Helper to detect skipped answers
+const isSkippedAnswer = (value: any): boolean => {
+  return value && typeof value === 'object' && value._skipped === true;
+};
+
 interface QuestionPerformanceProps {
   questions: Array<{
     id: string;
@@ -35,9 +40,15 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
     
     const dropoffRate = reachedCount > 0 ? (droppedOffCount / reachedCount) * 100 : 0;
     
-    const answers = responses
+    // Get all answers for this question
+    const allAnswers = responses
       .flatMap(r => r.answers)
       .filter(a => a.question_id === question.id);
+    
+    // Separate skipped from actual answers
+    const skippedCount = allAnswers.filter(a => isSkippedAnswer(a.answer_value)).length;
+    const actualAnswers = allAnswers.filter(a => !isSkippedAnswer(a.answer_value));
+    const skipRate = allAnswers.length > 0 ? (skippedCount / allAnswers.length) * 100 : 0;
     
     let visual: React.ReactNode = null;
     let metric = '';
@@ -45,7 +56,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
     
     switch (question.type) {
       case 'rating':
-        const ratingValues = answers
+        const ratingValues = actualAnswers
           .map(a => Number(a.answer_value))
           .filter(v => !isNaN(v));
         const maxScale = question.settings?.max || 10;
@@ -74,12 +85,14 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
           </div>
         );
         metric = ratingValues.length > 0 ? `${avgRating.toFixed(1)}/${maxScale}` : `No ratings (scale: 1-${maxScale})`;
-        details = ratingValues.length > 0 ? `Based on ${ratingValues.length} ratings` : '';
+        details = ratingValues.length > 0 
+          ? `Based on ${ratingValues.length} rating${ratingValues.length > 1 ? 's' : ''}${skippedCount > 0 ? ` • ${skippedCount} skipped` : ''}`
+          : skippedCount > 0 ? `${skippedCount} skipped` : '';
         break;
         
       case 'yes_no':
-        const yesCount = answers.filter(a => a.answer_value === true).length;
-        const noCount = answers.filter(a => a.answer_value === false).length;
+        const yesCount = actualAnswers.filter(a => a.answer_value === true).length;
+        const noCount = actualAnswers.filter(a => a.answer_value === false).length;
         const total = yesCount + noCount;
         const yesPercent = total > 0 ? (yesCount / total) * 100 : 0;
         
@@ -96,25 +109,25 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
           </div>
         );
         metric = `${Math.round(yesPercent)}% Yes`;
-        details = `${yesCount} Yes, ${noCount} No`;
+        details = `${yesCount} Yes, ${noCount} No${skippedCount > 0 ? ` • ${skippedCount} skipped` : ''}`;
         break;
         
       case 'multiple_choice':
-        if (answers.length > 0) {
+        if (actualAnswers.length > 0) {
           const valueCounts = new Map<string, number>();
-          answers.forEach(a => {
+          actualAnswers.forEach(a => {
             const value = String(a.answer_value);
             valueCounts.set(value, (valueCounts.get(value) || 0) + 1);
           });
           const sortedChoices = Array.from(valueCounts.entries())
             .sort((a, b) => b[1] - a[1]);
           const mostCommon = sortedChoices[0];
-          const percentage = Math.round((mostCommon[1] / answers.length) * 100);
+          const percentage = Math.round((mostCommon[1] / actualAnswers.length) * 100);
           
           visual = (
             <div className="space-y-1">
               {sortedChoices.slice(0, 3).map(([choice, count]) => {
-                const pct = (count / answers.length) * 100;
+                const pct = (count / actualAnswers.length) * 100;
                 return (
                   <div key={choice} className="flex items-center gap-2">
                     <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
@@ -132,20 +145,22 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
             </div>
           );
           metric = mostCommon[0].length > 30 ? mostCommon[0].substring(0, 27) + '...' : mostCommon[0];
-          details = `Most popular: ${percentage}% selected`;
+          details = `Most popular: ${percentage}% selected${skippedCount > 0 ? ` • ${skippedCount} skipped` : ''}`;
         } else {
           metric = 'No responses yet';
-          details = '';
+          details = skippedCount > 0 ? `${skippedCount} skipped` : '';
         }
         break;
         
       default: // text types (short_text, long_text, email, phone, date)
-        metric = `${answers.length} ${answers.length === 1 ? 'response' : 'responses'}`;
-        details = answers.length > 0 ? 'View individual responses for details' : 'No responses yet';
+        metric = `${actualAnswers.length} ${actualAnswers.length === 1 ? 'response' : 'responses'}`;
+        details = actualAnswers.length > 0 
+          ? `View individual responses for details${skippedCount > 0 ? ` • ${skippedCount} skipped` : ''}`
+          : skippedCount > 0 ? `${skippedCount} skipped` : 'No responses yet';
         break;
     }
     
-    return { visual, metric, details, dropoffRate, reachedCount, droppedOffCount };
+    return { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate };
   };
   
   const getQuestionIcon = (type: string) => {
@@ -158,7 +173,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
       <h3 className="text-lg font-semibold mb-3 md:mb-4">Question Performance</h3>
       <div className="space-y-6">
         {questions.map((question) => {
-          const { visual, metric, details, dropoffRate, reachedCount, droppedOffCount } = getQuestionMetrics(question);
+          const { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate } = getQuestionMetrics(question);
           const Icon = getQuestionIcon(question.type);
           
           // Color coding for drop-off rate (inverted: low is good)
@@ -209,8 +224,15 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                           </span>
                         </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {details}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <div className="text-xs text-muted-foreground">
+                          {details}
+                        </div>
+                        {skipRate > 0 && (
+                          <div className="px-1.5 py-0.5 rounded bg-muted text-xs text-muted-foreground">
+                            {skipRate.toFixed(0)}% skipped
+                          </div>
+                        )}
                       </div>
                     </div>
                     
