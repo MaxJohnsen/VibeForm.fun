@@ -219,7 +219,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                             {skipRate.toFixed(0)}%
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            skipped ({skippedCount})
+                            blank ({skippedCount})
                           </span>
                         </div>
                       )}
@@ -241,7 +241,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                             <>
                               <span className="text-muted-foreground">•</span>
                               <span className="font-medium text-muted-foreground">
-                                {skipRate.toFixed(0)}% skipped ({skippedCount})
+                                {skipRate.toFixed(0)}% blank ({skippedCount})
                               </span>
                             </>
                           )}
