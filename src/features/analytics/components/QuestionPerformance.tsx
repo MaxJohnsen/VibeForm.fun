@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { QUESTION_TYPES } from '@/shared/constants/questionTypes';
-import { Star } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown, Star } from 'lucide-react';
+import { formatAnswerValue } from '../utils/formatAnswerValue';
 
 // Helper to detect skipped answers
 const isSkippedAnswer = (value: any): boolean => {
@@ -25,6 +28,8 @@ interface QuestionPerformanceProps {
 }
 
 export const QuestionPerformance = ({ questions, responses }: QuestionPerformanceProps) => {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  
   const getQuestionMetrics = (question: any) => {
     // Find all responses that reached this question (have an answer for it)
     const responsesWithAnswer = responses.filter(r => 
@@ -180,7 +185,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
         break;
     }
     
-    return { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate, skippedCount };
+    return { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate, skippedCount, actualAnswers };
   };
   
   const getQuestionIcon = (type: string) => {
@@ -193,7 +198,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
       <h3 className="text-lg font-semibold mb-3 md:mb-4">Question Performance</h3>
       <div className="space-y-6">
         {questions.map((question) => {
-          const { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate, skippedCount } = getQuestionMetrics(question);
+          const { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate, skippedCount, actualAnswers } = getQuestionMetrics(question);
           const Icon = getQuestionIcon(question.type);
           
           // Color coding for drop-off rate (inverted: low is good)
@@ -273,6 +278,45 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                   {skipRate.toFixed(0)}% blank ({skippedCount})
                 </span>
               </div>
+              
+              {/* Collapsible individual responses */}
+              {actualAnswers.length > 0 && (
+                <Collapsible 
+                  open={expandedId === question.id} 
+                  onOpenChange={(open) => setExpandedId(open ? question.id : null)}
+                >
+                  <CollapsibleTrigger asChild>
+                    <button className="mt-3 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                      <span>View {actualAnswers.length} individual response{actualAnswers.length !== 1 ? 's' : ''}</span>
+                      <ChevronDown className={cn(
+                        "h-3 w-3 transition-transform duration-200",
+                        expandedId === question.id && "rotate-180"
+                      )} />
+                    </button>
+                  </CollapsibleTrigger>
+                  
+                  <CollapsibleContent>
+                    <div className="mt-3 pt-3 border-t border-border/30 space-y-1.5 max-h-48 overflow-y-auto">
+                      {actualAnswers.slice(0, 15).map((answer, idx) => (
+                        <div 
+                          key={idx} 
+                          className="flex items-center gap-2 text-sm py-1.5 px-2 rounded-md bg-muted/30"
+                        >
+                          <span className="text-muted-foreground text-xs w-8 shrink-0">#{idx + 1}</span>
+                          <span className="flex-1 truncate">
+                            {formatAnswerValue(answer.answer_value, question.type, question.settings)}
+                          </span>
+                        </div>
+                      ))}
+                      {actualAnswers.length > 15 && (
+                        <p className="text-xs text-muted-foreground pt-1">
+                          + {actualAnswers.length - 15} more response{actualAnswers.length - 15 !== 1 ? 's' : ''}
+                        </p>
+                      )}
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
             </div>
           );
         })}
