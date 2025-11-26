@@ -75,7 +75,10 @@ export const DrawHistory = ({ draws, onDelete, isDeletingDraw }: DrawHistoryProp
                 <div className="flex flex-wrap gap-2 mt-2">
                   {draw.winners.map((winner, index) => {
                     const persona = generatePersona(winner.sessionToken);
-                    const displayName = winner.name || persona.name;
+                    // Only use winner.name if it's a valid string (not {_skipped: true})
+                    const displayName = (typeof winner.name === 'string' && winner.name.trim()) 
+                      ? winner.name 
+                      : persona.name;
                     return (
                       <div
                         key={index}
