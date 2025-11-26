@@ -179,9 +179,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
         
       default: // text types (short_text, long_text, email, phone, date)
         metric = `${actualAnswers.length} ${actualAnswers.length === 1 ? 'response' : 'responses'}`;
-        details = actualAnswers.length > 0 
-          ? `View individual responses for details`
-          : 'No responses yet';
+        details = actualAnswers.length > 0 ? '' : 'No responses yet';
         break;
     }
     
@@ -287,7 +285,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                 >
                   <CollapsibleTrigger asChild>
                     <button className="mt-3 flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                      <span>View {actualAnswers.length} individual response{actualAnswers.length !== 1 ? 's' : ''}</span>
+                      <span>View individual responses</span>
                       <ChevronDown className={cn(
                         "h-3 w-3 transition-transform duration-200",
                         expandedId === question.id && "rotate-180"
