@@ -66,7 +66,15 @@ export const DashboardPage = () => {
                 </p>
               </div>
             </div>
-            <div className="shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(ROUTES.getLotteryRoute(formId!))}
+                className="hover:bg-primary/10 hover:text-primary hover:border-primary/50 transition-colors"
+              >
+                🎲 The Lottery
+              </Button>
               <ExportButton formId={formId!} formTitle={form?.title || 'Form'} />
             </div>
           </div>
