@@ -25,14 +25,15 @@ export const ResponsesList = ({ responses, totalQuestions, questions }: Response
   return (
     <div className="glass-panel rounded-xl p-4 md:p-6">
       <h3 className="text-lg font-semibold mb-3 md:mb-4">Recent Responses</h3>
-      <div className="space-y-3">
+      <div className="space-y-0">
         {responses.slice(0, 10).map((response) => (
-          <ResponseItem
-            key={response.id}
-            response={response}
-            totalQuestions={totalQuestions}
-            questions={questions}
-          />
+          <div key={response.id} className="pb-6 border-b border-border/50 last:border-0 last:pb-0">
+            <ResponseItem
+              response={response}
+              totalQuestions={totalQuestions}
+              questions={questions}
+            />
+          </div>
         ))}
       </div>
       {responses.length > 10 && (
