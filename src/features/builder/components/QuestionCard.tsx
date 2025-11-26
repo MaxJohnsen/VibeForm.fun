@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { GripVertical, Trash2, Mail, Phone, Calendar, Star, GitBranch, ArrowRight, MoreHorizontal } from 'lucide-react';
+import { FlagImage, defaultCountries, parseCountry, CountryIso2 } from 'react-international-phone';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -363,19 +364,11 @@ export const QuestionCard = ({
           {question.type === 'phone' && (() => {
             const settings = question.settings as PhoneSettings;
             const defaultCountry = settings?.defaultCountry || 'us';
-            const countryFlags: Record<string, string> = {
-              us: '🇺🇸', gb: '🇬🇧', ca: '🇨🇦', au: '🇦🇺', de: '🇩🇪',
-              fr: '🇫🇷', es: '🇪🇸', it: '🇮🇹', no: '🇳🇴', se: '🇸🇪',
-              dk: '🇩🇰', nl: '🇳🇱', be: '🇧🇪', ch: '🇨🇭', at: '🇦🇹',
-              pl: '🇵🇱', jp: '🇯🇵', kr: '🇰🇷', cn: '🇨🇳', in: '🇮🇳',
-              br: '🇧🇷', mx: '🇲🇽'
-            };
-            const flag = countryFlags[defaultCountry] || '🌍';
 
             return (
               <div className="relative flex gap-2">
                 <div className="flex items-center gap-1 px-3 py-2 border border-border/50 rounded-lg bg-white/50 dark:bg-white/5 opacity-50">
-                  <span className="text-lg">{flag}</span>
+                  <FlagImage iso2={defaultCountry as CountryIso2} className="w-5 h-5" />
                 </div>
                 <Input
                   placeholder="Phone number"

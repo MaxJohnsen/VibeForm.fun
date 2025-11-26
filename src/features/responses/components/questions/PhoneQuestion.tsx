@@ -1,9 +1,27 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { PhoneInput } from '@/shared/ui/PhoneInput';
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { defaultCountries, parseCountry } from 'react-international-phone';
 
 const phoneUtil = PhoneNumberUtil.getInstance();
+
+// Helper to get dial code for a country
+const getDialCode = (countryCode: string): string => {
+  const country = defaultCountries.find(c => parseCountry(c).iso2 === countryCode);
+  if (country) {
+    return parseCountry(country).dialCode;
+  }
+  return '';
+};
+
+// Helper to check if value is only the dial code (i.e., "empty")
+const isOnlyDialCode = (value: string, countryCode: string): boolean => {
+  if (!value) return true;
+  const dialCode = getDialCode(countryCode);
+  const normalized = value.replace(/[\s\-\(\)]/g, '');
+  return normalized === `+${dialCode}` || normalized === dialCode;
+};
 
 interface PhoneQuestionProps {
   label: string;
@@ -26,6 +44,8 @@ export const PhoneQuestion = ({
   const isMobile = useIsMobile();
   const defaultCountry = settings?.defaultCountry || 'us';
   const isRequired = settings?.required !== false;
+  
+  const isEmpty = useMemo(() => isOnlyDialCode(value, defaultCountry), [value, defaultCountry]);
 
   useEffect(() => {
     // Don't validate if not touched yet
@@ -34,23 +54,20 @@ export const PhoneQuestion = ({
       return;
     }
 
-    if (!value) {
-      setError('');
-      onValidationChange(!isRequired);
-      if (!isRequired) {
+    // Treat dial-code-only as empty
+    if (isEmpty) {
+      if (isRequired) {
+        setError('Please enter your phone number');
+        onValidationChange(false);
+      } else {
+        setError('');
+        onValidationChange(true);
         onSubmit('');
       }
       return;
     }
 
-    // Only validate if there are actual digits beyond the dial code
-    const digitsOnly = value.replace(/\D/g, '');
-    if (digitsOnly.length < 4) {
-      setError('');
-      onValidationChange(false);
-      return;
-    }
-
+    // Validate the actual phone number
     try {
       const phoneNumber = phoneUtil.parseAndKeepRawInput(value);
       const isValid = phoneUtil.isValidNumber(phoneNumber);
@@ -63,7 +80,7 @@ export const PhoneQuestion = ({
       setError('Please enter a valid phone number');
       onValidationChange(false);
     }
-  }, [value, isRequired, touched, onValidationChange, onSubmit]);
+  }, [value, isRequired, touched, isEmpty, onValidationChange, onSubmit]);
 
   const handleChange = (newValue: string) => {
     setValue(newValue);
