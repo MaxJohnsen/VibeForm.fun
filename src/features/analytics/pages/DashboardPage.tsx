@@ -101,7 +101,7 @@ export const DashboardPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           {/* Question Performance - First on mobile */}
           <div className="order-1 lg:order-2">
-            <QuestionPerformance questions={questions} responses={responses} />
+            <QuestionPerformance questions={questions} responses={responses} formId={formId} />
           </div>
 
           {/* Recent Responses - Second on mobile */}
