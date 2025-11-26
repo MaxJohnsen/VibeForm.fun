@@ -78,7 +78,7 @@ export const WinnerDisplayCard = ({
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-12 h-full min-h-[400px] flex flex-col items-center justify-center">
+    <div className="glass-panel rounded-2xl p-8 h-full min-h-[400px] flex flex-col items-center justify-center">
       {/* Idle State */}
       {state === 'idle' && (
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -114,7 +114,7 @@ export const WinnerDisplayCard = ({
             </h2>
           </div>
           
-          <div className="grid gap-4">
+          <div className="flex flex-wrap justify-center gap-8">
             {winners.map((_, slotIndex) => {
               const candidate = getDisplayCandidate(slotIndex);
               const persona = generatePersona(candidate.sessionToken);
@@ -128,29 +128,29 @@ export const WinnerDisplayCard = ({
                 <div
                   key={slotIndex}
                   className={`
-                    glass-panel rounded-2xl p-8 
                     transition-all duration-300
                     ${animPhase === 'fast' ? 'blur-[2px]' : ''}
-                    ${animPhase === 'reveal' ? 'animate-scale-in ring-2 ring-primary/50 shadow-glow' : ''}
+                    ${animPhase === 'reveal' ? 'animate-scale-in' : ''}
                   `}
                 >
-                  <div className="flex flex-col items-center space-y-4">
+                  <div className="flex flex-col items-center space-y-3">
                     {winners.length > 1 && (
                       <div className="text-sm font-medium text-muted-foreground">
-                        Winner #{slotIndex + 1}
+                        #{slotIndex + 1}
                       </div>
                     )}
 
                     {/* Avatar */}
                     <div 
                       className={`
-                        w-20 h-20 rounded-full ${persona.avatarColor} 
+                        ${winners.length === 1 ? 'w-20 h-20' : 'w-16 h-16'} 
+                        rounded-full ${persona.avatarColor} 
                         flex items-center justify-center
                         transition-transform duration-200
                         ${animPhase === 'fast' ? 'scale-95' : 'scale-100'}
                       `}
                     >
-                      <span className="text-2xl font-bold text-white">
+                      <span className={`${winners.length === 1 ? 'text-2xl' : 'text-xl'} font-bold text-white`}>
                         {initials}
                       </span>
                     </div>
@@ -159,7 +159,8 @@ export const WinnerDisplayCard = ({
                     <div className="text-center">
                       <h3 
                         className={`
-                          text-2xl font-bold text-foreground
+                          ${winners.length === 1 ? 'text-2xl' : 'text-lg'} 
+                          font-bold text-foreground
                           transition-all duration-200
                           ${animPhase === 'reveal' ? 'text-primary' : ''}
                         `}
@@ -186,7 +187,7 @@ export const WinnerDisplayCard = ({
           <h2 className="text-2xl font-bold text-foreground text-center">
             🎉 {winners.length === 1 ? 'Winner' : 'Winners'}!
           </h2>
-          <div className="grid gap-4">
+          <div className="flex flex-wrap justify-center gap-8">
             {winners.map((winner, index) => {
               const persona = generatePersona(winner.sessionToken);
               const displayName = (typeof winner.name === 'string' && winner.name.trim()) 
@@ -197,32 +198,32 @@ export const WinnerDisplayCard = ({
               return (
                 <div 
                   key={winner.responseId}
-                  className="glass-panel rounded-2xl p-8 animate-scale-in"
+                  className="animate-scale-in"
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
-                  <div className="flex flex-col items-center space-y-4">
+                  <div className="flex flex-col items-center space-y-3">
                     {/* Trophy Icon */}
                     {winners.length === 1 && (
-                      <Trophy className="w-12 h-12 text-yellow-500" />
+                      <Trophy className="w-12 h-12 text-yellow-500 mb-2" />
                     )}
                     
                     {/* Position Badge */}
                     {winners.length > 1 && (
                       <div className="text-sm font-medium text-muted-foreground">
-                        Winner #{index + 1}
+                        #{index + 1}
                       </div>
                     )}
 
                     {/* Avatar */}
-                    <div className={`w-20 h-20 rounded-full ${persona.avatarColor} flex items-center justify-center`}>
-                      <span className="text-2xl font-bold text-white">
+                    <div className={`${winners.length === 1 ? 'w-20 h-20' : 'w-16 h-16'} rounded-full ${persona.avatarColor} flex items-center justify-center`}>
+                      <span className={`${winners.length === 1 ? 'text-2xl' : 'text-xl'} font-bold text-white`}>
                         {isAnonymous ? 'AN' : persona.initials}
                       </span>
                     </div>
 
                     {/* Name */}
                     <div className="text-center">
-                      <h3 className="text-2xl font-bold text-foreground">
+                      <h3 className={`${winners.length === 1 ? 'text-2xl' : 'text-lg'} font-bold text-foreground`}>
                         {displayName}
                       </h3>
                     </div>
