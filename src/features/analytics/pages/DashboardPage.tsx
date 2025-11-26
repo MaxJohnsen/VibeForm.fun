@@ -91,9 +91,9 @@ export const DashboardPage = () => {
           />
           <StatisticsCard
             icon={AlertCircle}
-            label="Avg. Completion Time"
-            value={stats?.averageCompletionTime ? formatDuration(Math.round(stats.averageCompletionTime)) : 'N/A'}
-            subtitle={stats?.primaryDropoffQuestion ? `Most drop at: ${stats.primaryDropoffQuestion.questionLabel}` : 'No drop-offs detected'}
+            label="Most drop at"
+            value={stats?.primaryDropoffQuestion?.questionLabel || 'N/A'}
+            subtitle={stats?.primaryDropoffQuestion && stats.primaryDropoffQuestion.dropoffRate > 0 ? `${stats.primaryDropoffQuestion.dropoffRate.toFixed(1)}% drop-off rate` : 'No drop-offs detected'}
           />
         </div>
 

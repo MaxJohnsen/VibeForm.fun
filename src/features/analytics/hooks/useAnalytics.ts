@@ -50,25 +50,35 @@ function calculateStats(data: Awaited<ReturnType<typeof analyticsApi.fetchFormAn
   
   // Calculate drop-off rates for each question
   const questionDropoffs = questions.map(question => {
-    const answeredCount = responses.filter(r => 
+    // Find responses that reached this question
+    const responsesWithAnswer = responses.filter(r => 
       r.answers.some(a => a.question_id === question.id)
-    ).length;
+    );
+    const reachedCount = responsesWithAnswer.length;
     
-    const dropoffRate = totalSubmissions > 0 
-      ? ((totalSubmissions - answeredCount) / totalSubmissions) * 100 
+    // Count responses that dropped off at this specific question
+    // (this was their last answer and status is still 'in_progress')
+    const droppedOffCount = responsesWithAnswer.filter(r => {
+      const lastAnswer = r.answers[r.answers.length - 1];
+      return lastAnswer?.question_id === question.id && r.status === 'in_progress';
+    }).length;
+    
+    const dropoffRate = reachedCount > 0 
+      ? (droppedOffCount / reachedCount) * 100 
       : 0;
     
     return {
       questionId: question.id,
       questionLabel: question.label,
       dropoffRate,
+      droppedOffCount,
     };
   });
   
-  // Find primary drop-off point (highest drop-off rate)
+  // Find primary drop-off point (highest actual drop-off count)
   const primaryDropoff = questionDropoffs.length > 0
     ? questionDropoffs.reduce((max, current) => 
-        current.dropoffRate > max.dropoffRate ? current : max
+        current.droppedOffCount > max.droppedOffCount ? current : max
       )
     : null;
   
