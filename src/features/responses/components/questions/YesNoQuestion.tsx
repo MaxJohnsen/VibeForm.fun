@@ -24,14 +24,17 @@ export const YesNoQuestion = ({
   useEffect(() => {
     const isValid = !isRequired || value !== null;
     onValidationChange(isValid);
-    if (value !== null) {
-      onSubmit(value);
-    }
+    // Always notify parent of current value (including null for deselection)
+    onSubmit(value);
   }, [value, isRequired, onValidationChange, onSubmit]);
 
   const handleSelect = (selected: boolean) => {
-    if (value === selected) return; // Prevent re-submitting same value
-    setValue(selected);
+    // Toggle off if clicking the same value
+    if (value === selected) {
+      setValue(null);
+    } else {
+      setValue(selected);
+    }
   };
 
   return (

@@ -62,8 +62,12 @@ export const MultipleChoiceQuestion = ({
           : [...prev, optionId]
       );
     } else {
-      if (selectedValues[0] === optionId) return; // Prevent re-submitting same value
-      setSelectedValues([optionId]);
+      // Toggle off if clicking the same option in single-select mode
+      if (selectedValues[0] === optionId) {
+        setSelectedValues([]);
+      } else {
+        setSelectedValues([optionId]);
+      }
     }
   };
 

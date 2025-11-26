@@ -37,13 +37,17 @@ export const RatingQuestion = ({
   useEffect(() => {
     const isValid = !isRequired || value !== null;
     onValidationChange(isValid);
-    if (value !== null) {
-      onSubmit(value);
-    }
+    // Always notify parent of current value (including null for deselection)
+    onSubmit(value);
   }, [value, isRequired, onValidationChange, onSubmit]);
 
   const handleSelect = (rating: number) => {
-    setValue(rating);
+    // Toggle off if clicking the same rating
+    if (value === rating) {
+      setValue(null);
+    } else {
+      setValue(rating);
+    }
     // Remove focus after selection on touch devices
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
