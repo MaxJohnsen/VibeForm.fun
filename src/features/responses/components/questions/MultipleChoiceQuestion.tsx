@@ -3,6 +3,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { X } from 'lucide-react';
 
 interface MultipleChoiceQuestionProps {
   label: string;
@@ -78,6 +79,14 @@ export const MultipleChoiceQuestion = ({
     }
   };
 
+  const handleOtherDeselect = () => {
+    setShowOtherInput(false);
+    setOtherValue('');
+    if (!allowMultiple) {
+      setSelectedValues([]);
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     // Enter key handling is now managed by parent RespondentPage
   };
@@ -142,14 +151,29 @@ export const MultipleChoiceQuestion = ({
 
         {allowOther && (
           showOtherInput ? (
-            <div className="p-4 sm:p-5 rounded-lg border-2 border-primary bg-primary/5">
+            <div className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-lg border-2 border-primary bg-primary/5 transition-all min-h-[56px]">
+              <div onClick={handleOtherDeselect} className="cursor-pointer flex-shrink-0">
+                {allowMultiple ? (
+                  <Checkbox checked={true} className="pointer-events-none" />
+                ) : (
+                  <RadioGroupItem value="other" className="pointer-events-none" />
+                )}
+              </div>
+              <span className="text-base sm:text-lg text-muted-foreground shrink-0">Other:</span>
               <Input
                 value={otherValue}
                 onChange={(e) => setOtherValue(e.target.value)}
                 placeholder="Please specify..."
                 autoFocus
-                className="border-0 bg-transparent focus-visible:ring-0 text-base sm:text-lg"
+                className="flex-1 border-0 bg-white/50 rounded-md px-3 py-1 focus-visible:ring-0 text-base sm:text-lg"
               />
+              <button
+                onClick={handleOtherDeselect}
+                className="flex-shrink-0 p-1 hover:bg-primary/10 rounded transition-colors"
+                type="button"
+              >
+                <X className="w-5 h-5 text-muted-foreground hover:text-foreground" />
+              </button>
             </div>
           ) : (
             <div
