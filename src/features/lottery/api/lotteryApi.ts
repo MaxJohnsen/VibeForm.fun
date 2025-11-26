@@ -236,4 +236,84 @@ export const lotteryApi = {
     
     return validAnswers?.length || 0;
   },
+
+  async getCandidates(formId: string, namedOnly: boolean, count: number = 20): Promise<Winner[]> {
+    // Fetch all completed responses
+    const { data: responses, error: responsesError } = await supabase
+      .from('responses')
+      .select('id, session_token')
+      .eq('form_id', formId)
+      .eq('status', 'completed');
+
+    if (responsesError) throw responsesError;
+    if (!responses || responses.length === 0) return [];
+
+    let eligibleResponses = responses;
+
+    if (namedOnly) {
+      const { data: questions, error: questionsError } = await supabase
+        .from('questions')
+        .select('id, type')
+        .eq('form_id', formId);
+
+      if (questionsError) throw questionsError;
+
+      const nameQuestion = questions?.find(q => q.type === 'respondent_name');
+      if (!nameQuestion) return [];
+
+      const { data: answers, error: answersError } = await supabase
+        .from('answers')
+        .select('response_id, answer_value')
+        .eq('question_id', nameQuestion.id)
+        .in('response_id', responses.map(r => r.id));
+
+      if (answersError) throw answersError;
+
+      const responseIdsWithNames = new Set(
+        answers?.filter(a => {
+          const value = a.answer_value;
+          return typeof value === 'string' && value.trim().length > 0;
+        }).map(a => a.response_id) || []
+      );
+
+      eligibleResponses = responses.filter(r => responseIdsWithNames.has(r.id));
+    }
+
+    // Get names for responses
+    const { data: questions } = await supabase
+      .from('questions')
+      .select('id, type')
+      .eq('form_id', formId);
+
+    const nameQuestion = questions?.find(q => q.type === 'respondent_name');
+    let nameAnswers: any[] = [];
+
+    if (nameQuestion) {
+      const { data: answers } = await supabase
+        .from('answers')
+        .select('response_id, answer_value')
+        .eq('question_id', nameQuestion.id)
+        .in('response_id', eligibleResponses.map(r => r.id));
+
+      if (answers) nameAnswers = answers;
+    }
+
+    // Shuffle and take random sample
+    const shuffled = shuffleArray(eligibleResponses);
+    const sample = shuffled.slice(0, Math.min(count, eligibleResponses.length));
+
+    return sample.map(response => {
+      const nameAnswer = nameAnswers.find(a => a.response_id === response.id);
+      const answerValue = nameAnswer?.answer_value;
+      const validName = typeof answerValue === 'string' && answerValue.trim()
+        ? answerValue
+        : undefined;
+
+      return {
+        responseId: response.id,
+        sessionToken: response.session_token,
+        name: validName,
+      };
+    });
+  },
 };
