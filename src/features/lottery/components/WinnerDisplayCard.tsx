@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Sparkles, Trophy, Loader2 } from 'lucide-react';
+import { Gift, Trophy, Loader2 } from 'lucide-react';
 import { Winner } from '../api/lotteryApi';
 import { generatePersona, getInitialsFromName } from '@/shared/utils/personaGenerator';
 
@@ -78,11 +78,11 @@ export const WinnerDisplayCard = ({
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-8 pt-16 h-full min-h-[400px] flex flex-col items-center justify-start">
+    <div className="glass-panel rounded-2xl p-8 pt-24 h-full min-h-[400px] flex flex-col items-center justify-start">
       {/* Idle State */}
       {state === 'idle' && (
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <Sparkles className="w-16 h-16 text-primary/40" />
+          <Gift className="w-16 h-16 text-primary/40" />
           <h3 className="text-xl font-semibold text-muted-foreground">
             Draw your first winner!
           </h3>

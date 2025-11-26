@@ -99,20 +99,22 @@ export const LotteryPage = () => {
       <ConfettiCelebration trigger={showConfetti} />
 
       {/* Header */}
-      <div className="glass-panel rounded-2xl p-6 m-4 sm:m-6 sticky top-4 z-10">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(ROUTES.getResponsesDashboardRoute(formId!))}
-              className="hover:bg-background/50"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">{form.title}</h1>
-              <p className="text-sm text-muted-foreground mt-1">🎲 The Lottery</p>
+      <div className="border-b border-border/50 glass-panel sticky top-0 z-10 backdrop-blur-xl bg-background/50">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 md:py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3 md:gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(ROUTES.getResponsesDashboardRoute(formId!))}
+                className="hover:bg-background/50"
+              >
+                <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
+              </Button>
+              <div>
+                <h1 className="text-base md:text-xl font-bold text-foreground">{form.title}</h1>
+                <p className="text-xs md:text-sm text-muted-foreground hidden sm:block">🎲 The Lottery</p>
+              </div>
             </div>
           </div>
         </div>
