@@ -78,7 +78,8 @@ export const DrawHistory = ({ draws, onDelete, isDeletingDraw }: DrawHistoryProp
                     // Only use winner.name if it's a valid string (not {_skipped: true})
                     const displayName = (typeof winner.name === 'string' && winner.name.trim()) 
                       ? winner.name 
-                      : persona.name;
+                      : `Anonymous (${winner.sessionToken.slice(0, 6)})`;
+                    const isAnonymous = !(typeof winner.name === 'string' && winner.name.trim());
                     return (
                       <div
                         key={index}
@@ -86,7 +87,7 @@ export const DrawHistory = ({ draws, onDelete, isDeletingDraw }: DrawHistoryProp
                       >
                         <div className={`w-6 h-6 rounded-full ${persona.avatarColor} flex items-center justify-center`}>
                           <span className="text-xs font-bold text-white">
-                            {persona.initials}
+                            {isAnonymous ? 'AN' : persona.initials}
                           </span>
                         </div>
                         <span className="text-sm font-medium text-foreground">

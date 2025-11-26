@@ -13,7 +13,7 @@ export const WinnerCard = ({ winner, index, total }: WinnerCardProps) => {
   // Only use winner.name if it's a valid string (not {_skipped: true})
   const displayName = (typeof winner.name === 'string' && winner.name.trim()) 
     ? winner.name 
-    : persona.name;
+    : `Anonymous (${winner.sessionToken.slice(0, 6)})`;
   const isAnonymous = !(typeof winner.name === 'string' && winner.name.trim());
 
   return (
@@ -37,7 +37,7 @@ export const WinnerCard = ({ winner, index, total }: WinnerCardProps) => {
         {/* Avatar */}
         <div className={`w-20 h-20 rounded-full ${persona.avatarColor} flex items-center justify-center`}>
           <span className="text-2xl font-bold text-white">
-            {persona.initials}
+            {isAnonymous ? 'AN' : persona.initials}
           </span>
         </div>
 
@@ -46,11 +46,6 @@ export const WinnerCard = ({ winner, index, total }: WinnerCardProps) => {
           <h3 className="text-2xl font-bold text-foreground">
             {displayName}
           </h3>
-          {isAnonymous && (
-            <p className="text-sm text-muted-foreground mt-1">
-              Anonymous Response
-            </p>
-          )}
         </div>
 
         {/* Session ID (subtle) */}
