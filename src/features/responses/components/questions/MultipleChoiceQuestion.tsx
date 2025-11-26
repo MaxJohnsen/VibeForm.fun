@@ -218,7 +218,7 @@ export const MultipleChoiceQuestion = ({
               onClick={handleOtherClick}
               className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-lg border-2 border-border hover:border-primary/50 hover:bg-muted/50 cursor-pointer transition-all min-h-[56px]"
             >
-              <div className={`w-4 h-4 border-2 border-border flex-shrink-0 ${allowMultiple ? 'rounded-sm' : 'rounded-full'}`} />
+              <div className={`w-4 h-4 border-2 border-muted-foreground/30 flex-shrink-0 ${allowMultiple ? 'rounded-[3px]' : 'rounded-full'}`} />
               <span className="text-base sm:text-lg text-muted-foreground">Other</span>
             </div>
           )
