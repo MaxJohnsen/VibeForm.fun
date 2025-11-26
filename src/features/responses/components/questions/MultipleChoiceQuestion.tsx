@@ -152,7 +152,7 @@ export const MultipleChoiceQuestion = ({
             );
           })
         ) : (
-          <div>
+          <div className="space-y-3 sm:space-y-4">
             {options.map((option: any) => {
               const optionValue = option.text;
               const isSelected = selectedValues[0] === optionValue;
