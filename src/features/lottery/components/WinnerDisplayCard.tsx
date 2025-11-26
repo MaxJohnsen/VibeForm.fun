@@ -78,7 +78,7 @@ export const WinnerDisplayCard = ({
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-8 h-full min-h-[400px] flex flex-col items-center justify-center">
+    <div className="glass-panel rounded-2xl p-8 pt-16 h-full min-h-[400px] flex flex-col items-center justify-start">
       {/* Idle State */}
       {state === 'idle' && (
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
