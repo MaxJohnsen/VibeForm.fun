@@ -341,7 +341,7 @@ export const QuestionPerformance = ({ questions, responses, formId }: QuestionPe
                   
                   {/* Expanded content */}
                   <CollapsibleContent>
-                    <div className="mt-3 pt-3 border-t border-border/30">
+                    <div className="mt-3 pt-3">
                       {/* Export link */}
                       {formId && (
                         <div className="flex justify-end mb-2">
