@@ -231,17 +231,15 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                     </span>
                   </div>
                   
-                  {/* Blank - only show if > 0 */}
-                  {skippedCount > 0 && (
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm font-medium text-muted-foreground">
-                        {skipRate.toFixed(0)}%
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        blank ({skippedCount})
-                      </span>
-                    </div>
-                  )}
+                  {/* Blank */}
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {skipRate.toFixed(0)}%
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      blank ({skippedCount})
+                    </span>
+                  </div>
                 </div>
               </div>
               
@@ -250,14 +248,10 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                 <span className={cn('font-medium', dropoffColor)}>
                   {dropoffRate.toFixed(0)}% drop-off ({droppedOffCount})
                 </span>
-                {skippedCount > 0 && (
-                  <>
-                    <span className="text-muted-foreground">•</span>
-                    <span className="font-medium text-muted-foreground">
-                      {skipRate.toFixed(0)}% blank ({skippedCount})
-                    </span>
-                  </>
-                )}
+                <span className="text-muted-foreground">•</span>
+                <span className="font-medium text-muted-foreground">
+                  {skipRate.toFixed(0)}% blank ({skippedCount})
+                </span>
               </div>
             </div>
           );
