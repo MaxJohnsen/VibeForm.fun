@@ -75,8 +75,11 @@ Deno.serve(async (req) => {
     const currentQuestion = questionResult.data;
 
     // Save or update answer using UPSERT
-    // Convert null to a skipped marker to satisfy NOT NULL constraint
-    const valueToStore = answerValue === null ? { _skipped: true } : answerValue;
+    // Convert null OR empty/whitespace strings to a skipped marker to satisfy NOT NULL constraint
+    const isEmptyOrWhitespace = typeof answerValue === 'string' && answerValue.trim() === '';
+    const valueToStore = (answerValue === null || isEmptyOrWhitespace) 
+      ? { _skipped: true } 
+      : answerValue;
     
     console.log('Saving answer:', { questionId, answerValue, valueToStore });
     

@@ -86,8 +86,8 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
         );
         metric = ratingValues.length > 0 ? `${avgRating.toFixed(1)}/${maxScale}` : `No ratings (scale: 1-${maxScale})`;
         details = ratingValues.length > 0 
-          ? `Based on ${ratingValues.length} rating${ratingValues.length > 1 ? 's' : ''}${skippedCount > 0 ? ` • ${skippedCount} skipped` : ''}`
-          : skippedCount > 0 ? `${skippedCount} skipped` : '';
+          ? `Based on ${ratingValues.length} rating${ratingValues.length > 1 ? 's' : ''}`
+          : '';
         break;
         
       case 'yes_no':
@@ -109,7 +109,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
           </div>
         );
         metric = `${Math.round(yesPercent)}% Yes`;
-        details = `${yesCount} Yes, ${noCount} No${skippedCount > 0 ? ` • ${skippedCount} skipped` : ''}`;
+        details = `${yesCount} Yes, ${noCount} No`;
         break;
         
       case 'multiple_choice':
@@ -145,18 +145,18 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
             </div>
           );
           metric = mostCommon[0].length > 30 ? mostCommon[0].substring(0, 27) + '...' : mostCommon[0];
-          details = `Most popular: ${percentage}% selected${skippedCount > 0 ? ` • ${skippedCount} skipped` : ''}`;
+          details = `Most popular: ${percentage}% selected`;
         } else {
           metric = 'No responses yet';
-          details = skippedCount > 0 ? `${skippedCount} skipped` : '';
+          details = '';
         }
         break;
         
       default: // text types (short_text, long_text, email, phone, date)
         metric = `${actualAnswers.length} ${actualAnswers.length === 1 ? 'response' : 'responses'}`;
         details = actualAnswers.length > 0 
-          ? `View individual responses for details${skippedCount > 0 ? ` • ${skippedCount} skipped` : ''}`
-          : skippedCount > 0 ? `${skippedCount} skipped` : 'No responses yet';
+          ? `View individual responses for details`
+          : 'No responses yet';
         break;
     }
     
@@ -180,6 +180,13 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
           const dropoffColor = dropoffRate < 10 
             ? 'text-green-600 dark:text-green-400' 
             : dropoffRate < 25 
+            ? 'text-yellow-600 dark:text-yellow-400' 
+            : 'text-red-600 dark:text-red-400';
+          
+          // Color coding for skip rate (low is good)
+          const skipColor = skipRate < 10 
+            ? 'text-green-600 dark:text-green-400' 
+            : skipRate < 30 
             ? 'text-yellow-600 dark:text-yellow-400' 
             : 'text-red-600 dark:text-red-400';
           
@@ -209,6 +216,16 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                         drop-off
                       </div>
                     </div>
+                    {skipRate > 0 && (
+                      <div className="hidden sm:flex flex-col items-end shrink-0">
+                        <div className={cn('text-sm font-medium whitespace-nowrap', skipColor)}>
+                          {skipRate.toFixed(0)}%
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          skipped
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="space-y-2">
@@ -222,18 +239,21 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                           <span className={cn('font-medium', dropoffColor)}>
                             {dropoffRate.toFixed(0)}% drop-off
                           </span>
+                          {skipRate > 0 && (
+                            <>
+                              <span className="text-muted-foreground">•</span>
+                              <span className={cn('font-medium', skipColor)}>
+                                {skipRate.toFixed(0)}% skipped
+                              </span>
+                            </>
+                          )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap">
+                      {details && (
                         <div className="text-xs text-muted-foreground">
                           {details}
                         </div>
-                        {skipRate > 0 && (
-                          <div className="px-1.5 py-0.5 rounded bg-muted text-xs text-muted-foreground">
-                            {skipRate.toFixed(0)}% skipped
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
                     
                     {visual && (
