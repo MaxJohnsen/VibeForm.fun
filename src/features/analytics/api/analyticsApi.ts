@@ -139,15 +139,10 @@ export const analyticsApi = {
     const question = questions.find(q => q.id === questionId);
     if (!question) throw new Error('Question not found');
     
-    // Build CSV header
-    const headers = [
-      'Session',
-      'Status',
-      'Answered At',
-      `${questionLabel}`
-    ];
+    // Build CSV header - just the question label
+    const headers = [questionLabel];
     
-    // Build CSV rows - only for responses that answered this question
+    // Build CSV rows - only the answer values
     const rows = responses
       .filter(response => response.answers.some(a => a.question_id === questionId))
       .map(response => {
@@ -167,12 +162,7 @@ export const analyticsApi = {
           }
         }
         
-        return [
-          response.session_token.slice(0, 8),
-          response.status,
-          answer ? new Date(answer.answered_at).toLocaleString() : '',
-          answerValue
-        ];
+        return [answerValue];
       });
     
     // Combine into CSV
