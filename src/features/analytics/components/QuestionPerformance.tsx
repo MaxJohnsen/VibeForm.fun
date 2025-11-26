@@ -167,7 +167,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
           metric = mostPopularText.length > 25 
             ? mostPopularText.substring(0, 22) + '...' 
             : mostPopularText;
-          details = `Most popular: ${mostPopularPct}% of ${totalResponses} responses`;
+          details = '';
         } else {
           metric = 'No responses yet';
           details = '';

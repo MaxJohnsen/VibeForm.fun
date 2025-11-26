@@ -91,13 +91,13 @@ export const MultipleChoiceQuestion = ({
       <div className="space-y-3 sm:space-y-4">
         {allowMultiple ? (
           options.map((option: any) => {
-            const optionId = option.id || option.text;
-            const isSelected = selectedValues.includes(optionId);
+            const optionValue = option.text;
+            const isSelected = selectedValues.includes(optionValue);
             
             return (
               <div
-                key={optionId}
-                onClick={() => handleOptionClick(optionId)}
+                key={optionValue}
+                onClick={() => handleOptionClick(optionValue)}
                 className={`flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-lg border-2 cursor-pointer transition-all min-h-[56px] ${
                   isSelected
                     ? 'border-primary bg-primary/5'
@@ -117,20 +117,20 @@ export const MultipleChoiceQuestion = ({
         ) : (
           <RadioGroup value={selectedValues[0]} onValueChange={handleOptionClick}>
             {options.map((option: any) => {
-              const optionId = option.id || option.text;
-              const isSelected = selectedValues[0] === optionId;
+              const optionValue = option.text;
+              const isSelected = selectedValues[0] === optionValue;
 
               return (
                 <div
-                  key={optionId}
-                  onClick={() => handleOptionClick(optionId)}
+                  key={optionValue}
+                  onClick={() => handleOptionClick(optionValue)}
                   className={`flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-lg border-2 cursor-pointer transition-all min-h-[56px] ${
                     isSelected
                       ? 'border-primary bg-primary/5'
                       : 'border-border hover:border-primary/50 hover:bg-muted/50'
                   }`}
                 >
-                  <RadioGroupItem value={optionId} className="pointer-events-none flex-shrink-0" />
+                  <RadioGroupItem value={optionValue} className="pointer-events-none flex-shrink-0" />
                   <Label className="text-base sm:text-lg cursor-pointer flex-1">
                     {option.text}
                   </Label>
