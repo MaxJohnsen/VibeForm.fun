@@ -22,17 +22,32 @@ export const PhoneQuestion = ({
 }: PhoneQuestionProps) => {
   const [value, setValue] = useState(initialValue ?? '');
   const [error, setError] = useState('');
+  const [touched, setTouched] = useState(false);
   const isMobile = useIsMobile();
   const defaultCountry = settings?.defaultCountry || 'us';
   const isRequired = settings?.required !== false;
 
   useEffect(() => {
+    // Don't validate if not touched yet
+    if (!touched) {
+      onValidationChange(!isRequired);
+      return;
+    }
+
     if (!value) {
       setError('');
       onValidationChange(!isRequired);
       if (!isRequired) {
         onSubmit('');
       }
+      return;
+    }
+
+    // Only validate if there are actual digits beyond the dial code
+    const digitsOnly = value.replace(/\D/g, '');
+    if (digitsOnly.length < 4) {
+      setError('');
+      onValidationChange(false);
       return;
     }
 
@@ -48,7 +63,14 @@ export const PhoneQuestion = ({
       setError('Please enter a valid phone number');
       onValidationChange(false);
     }
-  }, [value, isRequired, onValidationChange, onSubmit]);
+  }, [value, isRequired, touched, onValidationChange, onSubmit]);
+
+  const handleChange = (newValue: string) => {
+    setValue(newValue);
+    if (!touched) {
+      setTouched(true);
+    }
+  };
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
@@ -59,12 +81,12 @@ export const PhoneQuestion = ({
       <div className="space-y-2">
         <PhoneInput
           value={value}
-          onChange={setValue}
+          onChange={handleChange}
           defaultCountry={defaultCountry}
           error={!!error}
           autoFocus
         />
-        {error && (
+        {touched && error && (
           <p className="text-sm text-destructive animate-fade-in">{error}</p>
         )}
       </div>

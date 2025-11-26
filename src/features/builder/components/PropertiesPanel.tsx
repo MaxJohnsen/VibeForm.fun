@@ -28,6 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 interface PropertiesPanelProps {
   question: Question | null;
@@ -597,55 +599,61 @@ const PhoneSettingsPanel = ({
   settings: PhoneSettings;
   onUpdate: (s: Partial<PhoneSettings>) => void;
 }) => {
-  const countries = [
-    { code: 'us', name: 'United States', flag: '🇺🇸' },
-    { code: 'gb', name: 'United Kingdom', flag: '🇬🇧' },
-    { code: 'ca', name: 'Canada', flag: '🇨🇦' },
-    { code: 'au', name: 'Australia', flag: '🇦🇺' },
-    { code: 'de', name: 'Germany', flag: '🇩🇪' },
-    { code: 'fr', name: 'France', flag: '🇫🇷' },
-    { code: 'es', name: 'Spain', flag: '🇪🇸' },
-    { code: 'it', name: 'Italy', flag: '🇮🇹' },
-    { code: 'no', name: 'Norway', flag: '🇳🇴' },
-    { code: 'se', name: 'Sweden', flag: '🇸🇪' },
-    { code: 'dk', name: 'Denmark', flag: '🇩🇰' },
-    { code: 'nl', name: 'Netherlands', flag: '🇳🇱' },
-    { code: 'be', name: 'Belgium', flag: '🇧🇪' },
-    { code: 'ch', name: 'Switzerland', flag: '🇨🇭' },
-    { code: 'at', name: 'Austria', flag: '🇦🇹' },
-    { code: 'pl', name: 'Poland', flag: '🇵🇱' },
-    { code: 'jp', name: 'Japan', flag: '🇯🇵' },
-    { code: 'kr', name: 'South Korea', flag: '🇰🇷' },
-    { code: 'cn', name: 'China', flag: '🇨🇳' },
-    { code: 'in', name: 'India', flag: '🇮🇳' },
-    { code: 'br', name: 'Brazil', flag: '🇧🇷' },
-    { code: 'mx', name: 'Mexico', flag: '🇲🇽' },
-  ];
+  const [open, setOpen] = useState(false);
+  const { defaultCountries, parseCountry, FlagImage, CountryIso2 } = require('react-international-phone');
+  
+  const currentCountryData = parseCountry(settings.defaultCountry ?? 'us');
 
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="phone-country" className="text-sm font-medium mb-2 block">
+        <Label className="text-sm font-medium mb-2 block">
           Default Country
         </Label>
-        <Select
-          value={settings.defaultCountry ?? 'us'}
-          onValueChange={(value) => onUpdate({ defaultCountry: value })}
-        >
-          <SelectTrigger id="phone-country">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="max-h-[300px]">
-            {countries.map((country) => (
-              <SelectItem key={country.code} value={country.code}>
-                <span className="flex items-center gap-2">
-                  <span>{country.flag}</span>
-                  <span>{country.name}</span>
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between"
+            >
+              <span className="flex items-center gap-2">
+                <FlagImage iso2={currentCountryData.iso2} className="w-4 h-4" />
+                <span>{currentCountryData.name}</span>
+              </span>
+              <ChevronRight className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-full p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search countries..." />
+              <CommandList className="max-h-[300px]">
+                <CommandEmpty>No country found.</CommandEmpty>
+                <CommandGroup>
+                  {defaultCountries.map((c: any) => {
+                    const countryData = parseCountry(c);
+                    return (
+                      <CommandItem
+                        key={countryData.iso2}
+                        value={`${countryData.name} ${countryData.dialCode}`}
+                        onSelect={() => {
+                          onUpdate({ defaultCountry: countryData.iso2 });
+                          setOpen(false);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        <FlagImage iso2={countryData.iso2} className="mr-2 w-4 h-4" />
+                        <span className="flex-1">{countryData.name}</span>
+                        <span className="text-sm text-muted-foreground">+{countryData.dialCode}</span>
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="flex items-center justify-between">
