@@ -70,7 +70,7 @@ export const ResponseItem = ({ response, totalQuestions, questions, onClick }: R
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
         <div
-          className="glass-panel rounded-lg p-3 md:p-4 hover:bg-muted/30 transition-colors duration-200 cursor-pointer"
+          className="hover:bg-muted/30 -mx-2 px-2 py-3 rounded-lg transition-colors duration-200 cursor-pointer"
           onClick={onClick}
         >
           <div className="flex items-start gap-3 md:gap-4">
@@ -115,7 +115,7 @@ export const ResponseItem = ({ response, totalQuestions, questions, onClick }: R
       </CollapsibleTrigger>
       
       <CollapsibleContent>
-        <div className="mt-2 ml-11 md:ml-14 mr-3 md:mr-4 space-y-2 p-3 rounded-lg bg-muted/30">
+        <div className="mt-3 space-y-1.5 p-3 rounded-lg bg-muted/30">
           {questions.map(question => {
             const answer = response.answers.find(a => a.question_id === question.id);
             const formattedValue = formatAnswerValue(
