@@ -115,8 +115,8 @@ export const analyticsApi = {
         ...questions.map(q => {
           const value = answerMap.get(q.id);
           if (value === null || value === undefined) return '';
-          // Handle skipped answers
-          if (typeof value === 'object' && (value as any)._skipped === true) return 'Skipped';
+          // Handle blank answers
+          if (typeof value === 'object' && (value as any)._skipped === true) return '(blank)';
           if (typeof value === 'object') return JSON.stringify(value);
           return String(value);
         })
