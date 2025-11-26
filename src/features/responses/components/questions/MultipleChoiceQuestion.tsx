@@ -25,11 +25,38 @@ export const MultipleChoiceQuestion = ({
   const options = settings?.options || [];
   const isRequired = settings?.required !== false;
 
-  const [selectedValues, setSelectedValues] = useState<string[]>(
-    initialValue ? (Array.isArray(initialValue) ? initialValue : [initialValue]) : []
-  );
-  const [otherValue, setOtherValue] = useState('');
-  const [showOtherInput, setShowOtherInput] = useState(false);
+  // Parse initialValue to detect "Other" values
+  const parseInitialValue = () => {
+    if (!initialValue) return { selected: [], other: '', showOther: false };
+    
+    const optionTexts = options.map((opt: any) => opt.text);
+    const values = Array.isArray(initialValue) ? initialValue : [initialValue];
+    
+    // Separate predefined options from "Other" values
+    const selected: string[] = [];
+    let other = '';
+    
+    values.forEach(val => {
+      if (optionTexts.includes(val)) {
+        selected.push(val);
+      } else if (allowOther) {
+        // This is a custom "Other" value
+        other = val;
+      }
+    });
+    
+    return { 
+      selected, 
+      other, 
+      showOther: other.length > 0 
+    };
+  };
+
+  const initialParsed = parseInitialValue();
+
+  const [selectedValues, setSelectedValues] = useState<string[]>(initialParsed.selected);
+  const [otherValue, setOtherValue] = useState(initialParsed.other);
+  const [showOtherInput, setShowOtherInput] = useState(initialParsed.showOther);
 
   // Prevent auto-focus on mobile after navigation
   useEffect(() => {
