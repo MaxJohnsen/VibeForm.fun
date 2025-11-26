@@ -160,7 +160,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
         break;
     }
     
-    return { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate };
+    return { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate, skippedCount };
   };
   
   const getQuestionIcon = (type: string) => {
@@ -173,20 +173,13 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
       <h3 className="text-lg font-semibold mb-3 md:mb-4">Question Performance</h3>
       <div className="space-y-6">
         {questions.map((question) => {
-          const { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate } = getQuestionMetrics(question);
+          const { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate, skippedCount } = getQuestionMetrics(question);
           const Icon = getQuestionIcon(question.type);
           
           // Color coding for drop-off rate (inverted: low is good)
           const dropoffColor = dropoffRate < 10 
             ? 'text-green-600 dark:text-green-400' 
             : dropoffRate < 25 
-            ? 'text-yellow-600 dark:text-yellow-400' 
-            : 'text-red-600 dark:text-red-400';
-          
-          // Color coding for skip rate (low is good)
-          const skipColor = skipRate < 10 
-            ? 'text-green-600 dark:text-green-400' 
-            : skipRate < 30 
             ? 'text-yellow-600 dark:text-yellow-400' 
             : 'text-red-600 dark:text-red-400';
           
@@ -208,24 +201,29 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                       <span className="hidden sm:inline">Q{question.position + 1}. </span>
                       {question.label}
                     </div>
-                    <div className="hidden sm:flex flex-col items-end shrink-0">
-                      <div className={cn('text-sm font-medium whitespace-nowrap', dropoffColor)}>
-                        {dropoffRate.toFixed(0)}%
+                    <div className="hidden sm:flex flex-col items-end shrink-0 gap-1">
+                      {/* Drop-off row */}
+                      <div className="flex items-center gap-1">
+                        <span className={cn('text-sm font-medium', dropoffColor)}>
+                          {dropoffRate.toFixed(0)}%
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          drop-off ({droppedOffCount})
+                        </span>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        drop-off
-                      </div>
+                      
+                      {/* Skipped row - neutral color, only show if > 0 */}
+                      {skippedCount > 0 && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm font-medium text-muted-foreground">
+                            {skipRate.toFixed(0)}%
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            skipped ({skippedCount})
+                          </span>
+                        </div>
+                      )}
                     </div>
-                    {skipRate > 0 && (
-                      <div className="hidden sm:flex flex-col items-end shrink-0">
-                        <div className={cn('text-sm font-medium whitespace-nowrap', skipColor)}>
-                          {skipRate.toFixed(0)}%
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          skipped
-                        </div>
-                      </div>
-                    )}
                   </div>
                   
                   <div className="space-y-2">
@@ -234,16 +232,16 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                         <div className="text-lg font-semibold">
                           {metric}
                         </div>
-                        <div className="sm:hidden flex items-center gap-1 text-xs">
+                        <div className="sm:hidden flex items-center gap-1 text-xs flex-wrap">
                           <span className="text-muted-foreground">•</span>
                           <span className={cn('font-medium', dropoffColor)}>
-                            {dropoffRate.toFixed(0)}% drop-off
+                            {dropoffRate.toFixed(0)}% drop-off ({droppedOffCount})
                           </span>
-                          {skipRate > 0 && (
+                          {skippedCount > 0 && (
                             <>
                               <span className="text-muted-foreground">•</span>
-                              <span className={cn('font-medium', skipColor)}>
-                                {skipRate.toFixed(0)}% skipped
+                              <span className="font-medium text-muted-foreground">
+                                {skipRate.toFixed(0)}% skipped ({skippedCount})
                               </span>
                             </>
                           )}
