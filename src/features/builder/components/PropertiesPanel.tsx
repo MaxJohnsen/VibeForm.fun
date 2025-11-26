@@ -578,15 +578,6 @@ const EmailSettingsPanel = ({
       </div>
 
       <div className="flex items-center justify-between">
-        <Label htmlFor="require-confirmation" className="text-sm">Require confirmation</Label>
-        <Switch
-          id="require-confirmation"
-          checked={settings.requireConfirmation ?? false}
-          onCheckedChange={(checked) => onUpdate({ requireConfirmation: checked })}
-        />
-      </div>
-
-      <div className="flex items-center justify-between">
         <Label htmlFor="required-email" className="text-sm">Required</Label>
         <Switch
           id="required-email"
