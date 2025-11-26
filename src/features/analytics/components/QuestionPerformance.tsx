@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { QUESTION_TYPES } from '@/shared/constants/questionTypes';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Star } from 'lucide-react';
+import { ChevronDown, Star, Download } from 'lucide-react';
 import { formatAnswerValue } from '../utils/formatAnswerValue';
+import { analyticsApi } from '../api/analyticsApi';
+import { toast } from '@/hooks/use-toast';
 
 // Helper to detect skipped answers
 const isSkippedAnswer = (value: any): boolean => {
@@ -25,10 +27,46 @@ interface QuestionPerformanceProps {
       answer_value: any;
     }>;
   }>;
+  formId?: string;
 }
 
-export const QuestionPerformance = ({ questions, responses }: QuestionPerformanceProps) => {
+export const QuestionPerformance = ({ questions, responses, formId }: QuestionPerformanceProps) => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [exportingId, setExportingId] = useState<string | null>(null);
+
+  const handleExportQuestion = async (questionId: string, questionLabel: string) => {
+    if (!formId) return;
+    
+    try {
+      setExportingId(questionId);
+      const csvContent = await analyticsApi.exportQuestionToCSV(formId, questionId, questionLabel);
+      
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `question_${questionLabel.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_responses.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: 'Export successful',
+        description: 'Question responses downloaded as CSV.',
+      });
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast({
+        title: 'Export failed',
+        description: 'There was an error exporting the responses.',
+        variant: 'destructive',
+      });
+    } finally {
+      setExportingId(null);
+    }
+  };
   
   const getQuestionMetrics = (question: any) => {
     // Find all responses that reached this question (have an answer for it)
@@ -303,7 +341,24 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                   
                   {/* Expanded content */}
                   <CollapsibleContent>
-                    <div className="mt-3 space-y-1.5 max-h-48 overflow-y-auto">
+                    <div className="mt-3 pt-3 border-t border-border/30">
+                      {/* Export link */}
+                      {formId && (
+                        <div className="flex justify-end mb-2">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleExportQuestion(question.id, question.label);
+                            }}
+                            disabled={exportingId === question.id}
+                            className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 disabled:opacity-50"
+                          >
+                            <Download className="h-3 w-3" />
+                            {exportingId === question.id ? 'Exporting...' : 'Export CSV'}
+                          </button>
+                        </div>
+                      )}
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto">
                       {actualAnswers.map((answer, idx) => (
                         <div 
                           key={idx} 
@@ -315,6 +370,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                           </span>
                         </div>
                       ))}
+                      </div>
                     </div>
                   </CollapsibleContent>
                 </Collapsible>

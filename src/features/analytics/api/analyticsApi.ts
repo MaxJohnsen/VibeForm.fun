@@ -130,5 +130,57 @@ export const analyticsApi = {
     ].join('\n');
     
     return csvContent;
+  },
+
+  async exportQuestionToCSV(formId: string, questionId: string, questionLabel: string): Promise<string> {
+    const { responses, questions } = await this.fetchFormAnalytics(formId);
+    
+    // Find the specific question
+    const question = questions.find(q => q.id === questionId);
+    if (!question) throw new Error('Question not found');
+    
+    // Build CSV header
+    const headers = [
+      'Session',
+      'Status',
+      'Answered At',
+      `${questionLabel}`
+    ];
+    
+    // Build CSV rows - only for responses that answered this question
+    const rows = responses
+      .filter(response => response.answers.some(a => a.question_id === questionId))
+      .map(response => {
+        const answer = response.answers.find(a => a.question_id === questionId);
+        
+        let answerValue = '';
+        if (answer) {
+          const value = answer.answer_value;
+          if (value === null || value === undefined) {
+            answerValue = '';
+          } else if (typeof value === 'object' && (value as any)._skipped === true) {
+            answerValue = '(blank)';
+          } else if (typeof value === 'object') {
+            answerValue = JSON.stringify(value);
+          } else {
+            answerValue = String(value);
+          }
+        }
+        
+        return [
+          response.session_token.slice(0, 8),
+          response.status,
+          answer ? new Date(answer.answered_at).toLocaleString() : '',
+          answerValue
+        ];
+      });
+    
+    // Combine into CSV
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+    
+    return csvContent;
   }
 };
