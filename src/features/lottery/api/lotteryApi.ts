@@ -77,9 +77,12 @@ export const lotteryApi = {
 
       if (answersError) throw answersError;
 
-      // Filter to responses with name answers
+      // Filter to responses with valid name answers (not skipped, not empty)
       const responseIdsWithNames = new Set(
-        answers?.filter(a => a.answer_value).map(a => a.response_id) || []
+        answers?.filter(a => {
+          const value = a.answer_value;
+          return typeof value === 'string' && value.trim().length > 0;
+        }).map(a => a.response_id) || []
       );
 
       eligibleResponses = responses.filter(r => responseIdsWithNames.has(r.id));
@@ -123,10 +126,16 @@ export const lotteryApi = {
     // Build winners array
     const winners: Winner[] = selectedResponses.map(response => {
       const nameAnswer = nameAnswers.find(a => a.response_id === response.id);
+      // Only use name if it's a valid string (not {_skipped: true} or other objects)
+      const answerValue = nameAnswer?.answer_value;
+      const validName = typeof answerValue === 'string' && answerValue.trim() 
+        ? answerValue 
+        : undefined;
+      
       return {
         responseId: response.id,
         sessionToken: response.session_token,
-        name: nameAnswer?.answer_value || undefined,
+        name: validName,
       };
     });
 
@@ -210,15 +219,21 @@ export const lotteryApi = {
 
     const nameQuestionId = questions[0].id;
 
-    // Count responses with name answers
+    // Count responses with valid name answers (not skipped, not empty)
     const { data: answers, error: answersError } = await supabase
       .from('answers')
-      .select('response_id')
+      .select('response_id, answer_value')
       .eq('question_id', nameQuestionId)
       .in('response_id', responses.map(r => r.id));
 
     if (answersError) throw answersError;
     
-    return answers?.length || 0;
+    // Filter to only valid string names
+    const validAnswers = answers?.filter(a => {
+      const value = a.answer_value;
+      return typeof value === 'string' && value.trim().length > 0;
+    });
+    
+    return validAnswers?.length || 0;
   },
 };
