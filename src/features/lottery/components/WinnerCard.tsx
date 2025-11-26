@@ -10,8 +10,11 @@ interface WinnerCardProps {
 
 export const WinnerCard = ({ winner, index, total }: WinnerCardProps) => {
   const persona = generatePersona(winner.sessionToken);
-  const displayName = winner.name || persona.name;
-  const isAnonymous = !winner.name;
+  // Only use winner.name if it's a valid string (not {_skipped: true})
+  const displayName = (typeof winner.name === 'string' && winner.name.trim()) 
+    ? winner.name 
+    : persona.name;
+  const isAnonymous = !(typeof winner.name === 'string' && winner.name.trim());
 
   return (
     <div 
