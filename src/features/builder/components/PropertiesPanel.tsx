@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { defaultCountries, parseCountry, FlagImage, CountryIso2 } from 'react-international-phone';
 
 interface PropertiesPanelProps {
   question: Question | null;
@@ -600,9 +601,8 @@ const PhoneSettingsPanel = ({
   onUpdate: (s: Partial<PhoneSettings>) => void;
 }) => {
   const [open, setOpen] = useState(false);
-  const { defaultCountries, parseCountry, FlagImage, CountryIso2 } = require('react-international-phone');
-  
-  const currentCountryData = parseCountry(settings.defaultCountry ?? 'us');
+  const currentCountry = defaultCountries.find((c: any) => parseCountry(c).iso2 === (settings.defaultCountry ?? 'us')) || defaultCountries[0];
+  const currentCountryData = parseCountry(currentCountry);
 
   return (
     <div className="space-y-4">
