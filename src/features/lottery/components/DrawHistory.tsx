@@ -26,8 +26,8 @@ export const DrawHistory = ({ draws, onDelete, isDeletingDraw }: DrawHistoryProp
   }
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide px-1">
+    <div className="glass-panel rounded-2xl p-4 space-y-3">
+      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
         Draw Log
       </h3>
 

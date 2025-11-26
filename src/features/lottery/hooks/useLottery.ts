@@ -17,9 +17,6 @@ export const useLottery = (formId: string) => {
 
   const drawMutation = useMutation({
     mutationFn: (options: DrawOptions) => lotteryApi.drawWinners(options),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lottery-draws', formId] });
-    },
     onError: (error: Error) => {
       toast({
         title: 'Draw Failed',
@@ -47,6 +44,10 @@ export const useLottery = (formId: string) => {
     },
   });
 
+  const refreshDrawHistory = () => {
+    queryClient.invalidateQueries({ queryKey: ['lottery-draws', formId] });
+  };
+
   return {
     drawHistory: drawHistoryQuery.data || [],
     isLoadingHistory: drawHistoryQuery.isLoading,
@@ -56,5 +57,6 @@ export const useLottery = (formId: string) => {
     isDrawing: drawMutation.isPending,
     deleteDraw: deleteMutation.mutate,
     isDeletingDraw: deleteMutation.isPending,
+    refreshDrawHistory,
   };
 };
