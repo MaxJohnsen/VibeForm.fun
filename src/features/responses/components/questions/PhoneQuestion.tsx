@@ -17,7 +17,8 @@ const getDialCode = (countryCode: string): string => {
 
 // Helper to check if value is only the dial code (i.e., "empty")
 const isOnlyDialCode = (value: string, countryCode: string): boolean => {
-  if (!value) return true;
+  // Handle non-string values (null, undefined, objects like { _skipped: true })
+  if (!value || typeof value !== 'string') return true;
   const dialCode = getDialCode(countryCode);
   const normalized = value.replace(/[\s\-\(\)]/g, '');
   return normalized === `+${dialCode}` || normalized === dialCode;
@@ -38,7 +39,11 @@ export const PhoneQuestion = ({
   onSubmit,
   onValidationChange,
 }: PhoneQuestionProps) => {
-  const [value, setValue] = useState(initialValue ?? '');
+  const [value, setValue] = useState(() => {
+    // Handle objects like { _skipped: true } or null/undefined
+    if (typeof initialValue === 'string') return initialValue;
+    return '';
+  });
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
   const isMobile = useIsMobile();
