@@ -1,5 +1,8 @@
-import { PhoneInput as RIPPhoneInput } from 'react-international-phone';
-import 'react-international-phone/style.css';
+import { useState } from 'react';
+import { usePhoneInput, FlagImage, defaultCountries, parseCountry, CountryIso2 } from 'react-international-phone';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PhoneInputProps {
@@ -22,63 +25,95 @@ export const PhoneInput = ({
   className,
   autoFocus = false,
 }: PhoneInputProps) => {
+  const [open, setOpen] = useState(false);
+  
+  const { inputValue, handlePhoneValueChange, country, setCountry } = usePhoneInput({
+    defaultCountry: defaultCountry as CountryIso2,
+    value,
+    onChange: (data) => {
+      onChange(data.phone);
+    },
+  });
+
+  const currentCountry = parseCountry(country as any);
+
   return (
-    <div className={cn('react-international-phone-wrapper', className)}>
-      <RIPPhoneInput
-        defaultCountry={defaultCountry}
-        value={value}
-        onChange={onChange}
+    <div className={cn('flex w-full', className)}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            disabled={disabled}
+            className={cn(
+              'flex items-center gap-2 px-3 py-3 sm:px-4 sm:py-4',
+              'bg-white/50 dark:bg-white/5',
+              'border rounded-l-xl',
+              'hover:bg-white/70 dark:hover:bg-white/10',
+              'focus:outline-none focus:ring-2 focus:ring-primary/20',
+              'transition-all',
+              'disabled:opacity-50 disabled:cursor-not-allowed',
+              error 
+                ? 'border-destructive focus:border-destructive' 
+                : 'border-border/50 focus:border-primary'
+            )}
+          >
+            <FlagImage iso2={currentCountry.iso2 as CountryIso2} className="w-5 h-5" />
+            <span className="text-sm sm:text-base">+{currentCountry.dialCode}</span>
+            <ChevronDown className="h-4 w-4 opacity-50" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent 
+          className="p-0 w-[280px] bg-popover/95 backdrop-blur-xl border-border/50" 
+          align="start"
+          sideOffset={4}
+        >
+          <Command className="bg-transparent">
+            <CommandInput placeholder="Search countries..." className="h-9" />
+            <CommandList className="max-h-[300px]">
+              <CommandEmpty>No country found.</CommandEmpty>
+              <CommandGroup>
+                {defaultCountries.map((c) => {
+                  const countryData = parseCountry(c as any);
+                  return (
+                    <CommandItem
+                      key={countryData.iso2}
+                      value={`${countryData.name} ${countryData.dialCode}`}
+                      onSelect={() => {
+                        setCountry(countryData.iso2 as CountryIso2);
+                        setOpen(false);
+                      }}
+                      className="cursor-pointer"
+                    >
+                      <FlagImage iso2={countryData.iso2 as CountryIso2} className="mr-2 w-5 h-5" />
+                      <span className="flex-1">{countryData.name}</span>
+                      <span className="text-sm text-muted-foreground">+{countryData.dialCode}</span>
+                    </CommandItem>
+                  );
+                })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+
+      <input
+        type="tel"
+        value={inputValue}
+        onChange={handlePhoneValueChange}
         disabled={disabled}
         autoFocus={autoFocus}
-        inputClassName={cn(
-          'w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg',
+        className={cn(
+          'flex-1 px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg',
           'bg-white/50 dark:bg-white/5',
-          'border rounded-xl',
+          'border border-l-0 rounded-r-xl',
           'focus:outline-none focus:ring-2 focus:ring-primary/20',
           'transition-all',
+          'disabled:opacity-50 disabled:cursor-not-allowed',
           error 
             ? 'border-destructive focus:border-destructive' 
             : 'border-border/50 focus:border-primary'
         )}
-        countrySelectorStyleProps={{
-          buttonClassName: cn(
-            'px-3 py-3 sm:py-4',
-            'bg-white/50 dark:bg-white/5',
-            'border border-border/50 rounded-l-xl',
-            'hover:bg-white/70 dark:hover:bg-white/10',
-            'transition-all',
-            'focus:outline-none focus:ring-2 focus:ring-primary/20'
-          ),
-          dropdownStyleProps: {
-            className: cn(
-              'bg-background/95 backdrop-blur-xl',
-              'border border-border/50 rounded-xl shadow-lg',
-              'mt-2 z-50'
-            ),
-            listItemClassName: cn(
-              'px-4 py-2 text-sm',
-              'hover:bg-accent',
-              'cursor-pointer transition-colors'
-            ),
-          },
-        }}
       />
-      
-      <style>{`
-        .react-international-phone-wrapper .react-international-phone-input-container {
-          display: flex;
-          gap: 0;
-        }
-        .react-international-phone-wrapper .react-international-phone-input-container input {
-          border-top-left-radius: 0 !important;
-          border-bottom-left-radius: 0 !important;
-          border-left: 0 !important;
-        }
-        .react-international-phone-wrapper .react-international-phone-country-selector-button {
-          border-top-right-radius: 0 !important;
-          border-bottom-right-radius: 0 !important;
-        }
-      `}</style>
     </div>
   );
 };
