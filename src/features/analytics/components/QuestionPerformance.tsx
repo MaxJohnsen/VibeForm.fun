@@ -217,7 +217,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                 >
                   {/* Clickable card trigger */}
                   <CollapsibleTrigger asChild>
-                    <div className="cursor-pointer hover:bg-muted/30 -mx-2 px-2 py-2 rounded-lg transition-colors duration-200">
+                    <div className="cursor-pointer hover:bg-muted/30 -mx-2 px-2 py-3 rounded-lg transition-colors duration-200">
                       {/* Main row: flex with left content and right stats */}
                       <div className="flex items-start gap-4">
                         
@@ -303,7 +303,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                   
                   {/* Expanded content */}
                   <CollapsibleContent>
-                    <div className="mt-3 pt-3 border-t border-border/30 space-y-1.5 max-h-48 overflow-y-auto">
+                    <div className="mt-3 space-y-1.5 max-h-48 overflow-y-auto">
                       {actualAnswers.slice(0, 15).map((answer, idx) => (
                         <div 
                           key={idx} 
@@ -325,7 +325,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                 </Collapsible>
               ) : (
                 // Non-clickable card when no responses
-                <div className="-mx-2 px-2 py-2">
+                <div className="-mx-2 px-2 py-3">
                   {/* Main row: flex with left content and right stats */}
                   <div className="flex items-start gap-4">
                     

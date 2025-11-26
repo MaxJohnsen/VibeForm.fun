@@ -70,7 +70,7 @@ export const ResponseItem = ({ response, totalQuestions, questions, onClick }: R
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger asChild>
         <div
-          className="glass-panel rounded-lg p-3 md:p-4 hover:bg-accent/5 transition-colors cursor-pointer"
+          className="glass-panel rounded-lg p-3 md:p-4 hover:bg-muted/30 transition-colors duration-200 cursor-pointer"
           onClick={onClick}
         >
           <div className="flex items-start gap-3 md:gap-4">
