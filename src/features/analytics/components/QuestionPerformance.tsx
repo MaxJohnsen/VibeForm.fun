@@ -164,9 +164,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
             </div>
           );
           
-          metric = mostPopularText.length > 25 
-            ? mostPopularText.substring(0, 22) + '...' 
-            : mostPopularText;
+          metric = '';
           details = '';
         } else {
           metric = 'No responses yet';
