@@ -186,81 +186,78 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
           const questionType = QUESTION_TYPES.find(qt => qt.type === question.type);
           
           return (
-            <div key={question.id} className="space-y-3 pb-6 border-b border-border/50 last:border-0 last:pb-0">
-              <div className="flex items-start gap-3">
-                {Icon && (
-                  <div className={cn("rounded-lg p-2 shrink-0 hidden sm:block", questionType?.colorClass)}>
-                    <Icon className="h-4 w-4" />
-                  </div>
-                )}
+            <div key={question.id} className="pb-6 border-b border-border/50 last:border-0 last:pb-0">
+              {/* Main row: flex with left content and right stats */}
+              <div className="flex items-start gap-4">
                 
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 sm:gap-4 mb-2">
-                    <div className="text-sm font-medium break-words">
-                      <span className="sm:hidden font-bold mr-1">Q{question.position + 1}.</span>
-                      <span className="hidden sm:inline">Q{question.position + 1}. </span>
-                      {question.label}
+                {/* LEFT SIDE: Icon + Content */}
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  {/* Icon */}
+                  {Icon && (
+                    <div className={cn("rounded-lg p-2 shrink-0 hidden sm:block", questionType?.colorClass)}>
+                      <Icon className="h-4 w-4" />
                     </div>
-                    <div className="hidden sm:flex flex-col items-end shrink-0 gap-1">
-                      {/* Drop-off row */}
-                      <div className="flex items-center gap-1">
-                        <span className={cn('text-sm font-medium', dropoffColor)}>
-                          {dropoffRate.toFixed(0)}%
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          drop-off ({droppedOffCount})
-                        </span>
-                      </div>
-                      
-                      {/* Skipped row - neutral color, only show if > 0 */}
-                      {skippedCount > 0 && (
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm font-medium text-muted-foreground">
-                            {skipRate.toFixed(0)}%
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            blank ({skippedCount})
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  )}
                   
-                  <div className="space-y-2">
-                    <div className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
-                      <div className="flex items-baseline gap-2">
-                        <div className="text-lg font-semibold">
-                          {metric}
-                        </div>
-                        <div className="sm:hidden flex items-center gap-1 text-xs flex-wrap">
-                          <span className="text-muted-foreground">•</span>
-                          <span className={cn('font-medium', dropoffColor)}>
-                            {dropoffRate.toFixed(0)}% drop-off ({droppedOffCount})
-                          </span>
-                          {skippedCount > 0 && (
-                            <>
-                              <span className="text-muted-foreground">•</span>
-                              <span className="font-medium text-muted-foreground">
-                                {skipRate.toFixed(0)}% blank ({skippedCount})
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
+                  {/* Content stack: Question title, Metric, Visual */}
+                  <div className="flex-1 min-w-0 space-y-2">
+                    {/* Question title */}
+                    <div className="text-sm font-medium break-words">
+                      Q{question.position + 1}. {question.label}
+                    </div>
+                    
+                    {/* Metric and details */}
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <div className="text-lg font-semibold">{metric}</div>
                       {details && (
-                        <div className="text-xs text-muted-foreground">
-                          {details}
-                        </div>
+                        <div className="text-xs text-muted-foreground">{details}</div>
                       )}
                     </div>
                     
-                    {visual && (
-                      <div className="mt-2">
-                        {visual}
-                      </div>
-                    )}
+                    {/* Visual */}
+                    {visual && <div>{visual}</div>}
                   </div>
                 </div>
+                
+                {/* RIGHT SIDE: Stats column */}
+                <div className="hidden sm:flex flex-col items-end shrink-0 gap-1 min-w-[120px]">
+                  {/* Drop-off */}
+                  <div className="flex items-center gap-1">
+                    <span className={cn('text-sm font-medium', dropoffColor)}>
+                      {dropoffRate.toFixed(0)}%
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      drop-off ({droppedOffCount})
+                    </span>
+                  </div>
+                  
+                  {/* Blank - only show if > 0 */}
+                  {skippedCount > 0 && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {skipRate.toFixed(0)}%
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        blank ({skippedCount})
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Mobile stats (inline below) */}
+              <div className="sm:hidden mt-2 flex items-center gap-1 text-xs flex-wrap ml-0">
+                <span className={cn('font-medium', dropoffColor)}>
+                  {dropoffRate.toFixed(0)}% drop-off ({droppedOffCount})
+                </span>
+                {skippedCount > 0 && (
+                  <>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="font-medium text-muted-foreground">
+                      {skipRate.toFixed(0)}% blank ({skippedCount})
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           );
