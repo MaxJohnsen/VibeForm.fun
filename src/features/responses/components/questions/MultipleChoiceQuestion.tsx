@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 
 interface MultipleChoiceQuestionProps {
   label: string;
@@ -140,10 +138,13 @@ export const MultipleChoiceQuestion = ({
                     : 'border-border hover:border-primary/50 hover:bg-muted/50'
                 }`}
               >
-                <Checkbox
-                  checked={isSelected}
-                  className="pointer-events-none flex-shrink-0"
-                />
+                <div className={`w-4 h-4 shrink-0 rounded-[3px] border-2 flex items-center justify-center transition-all ${
+                  isSelected 
+                    ? 'bg-primary border-primary' 
+                    : 'border-muted-foreground/30'
+                }`}>
+                  {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                </div>
                 <Label className="text-base sm:text-lg cursor-pointer flex-1">
                   {option.text}
                 </Label>
@@ -151,7 +152,7 @@ export const MultipleChoiceQuestion = ({
             );
           })
         ) : (
-          <RadioGroup value={selectedValues[0]} onValueChange={handleOptionClick}>
+          <div>
             {options.map((option: any) => {
               const optionValue = option.text;
               const isSelected = selectedValues[0] === optionValue;
@@ -166,14 +167,20 @@ export const MultipleChoiceQuestion = ({
                       : 'border-border hover:border-primary/50 hover:bg-muted/50'
                   }`}
                 >
-                  <RadioGroupItem value={optionValue} className="pointer-events-none flex-shrink-0" />
+                  <div className={`w-4 h-4 shrink-0 rounded-full border-2 flex items-center justify-center transition-all ${
+                    isSelected 
+                      ? 'border-primary' 
+                      : 'border-muted-foreground/30'
+                  }`}>
+                    {isSelected && <div className="w-2 h-2 rounded-full bg-primary" />}
+                  </div>
                   <Label className="text-base sm:text-lg cursor-pointer flex-1">
                     {option.text}
                   </Label>
                 </div>
               );
             })}
-          </RadioGroup>
+          </div>
         )}
 
         {allowOther && (
@@ -181,9 +188,13 @@ export const MultipleChoiceQuestion = ({
             <div className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-lg border-2 border-primary bg-primary/5 transition-all min-h-[56px]">
               <div onClick={handleOtherDeselect} className="cursor-pointer flex-shrink-0">
                 {allowMultiple ? (
-                  <Checkbox checked={true} className="pointer-events-none" />
+                  <div className="w-4 h-4 shrink-0 rounded-[3px] border-2 bg-primary border-primary flex items-center justify-center transition-all">
+                    <Check className="w-3 h-3 text-primary-foreground" />
+                  </div>
                 ) : (
-                  <RadioGroupItem value="other" className="pointer-events-none" />
+                  <div className="w-4 h-4 shrink-0 rounded-full border-2 border-primary flex items-center justify-center transition-all">
+                    <div className="w-2 h-2 rounded-full bg-primary" />
+                  </div>
                 )}
               </div>
               <span className="text-base sm:text-lg text-muted-foreground shrink-0">Other:</span>
