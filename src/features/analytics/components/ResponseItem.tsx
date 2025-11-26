@@ -18,13 +18,25 @@ export const ResponseItem = ({ response, totalQuestions, questions, onClick }: R
     
     if (nameQuestion) {
       const nameAnswer = response.answers.find((a) => a.question_id === nameQuestion.id);
-      if (nameAnswer?.answer_value && String(nameAnswer.answer_value).trim()) {
-        const name = String(nameAnswer.answer_value).trim();
-        return {
-          name,
-          initials: getInitialsFromName(name),
-          isAnonymous: false,
-        };
+      if (nameAnswer?.answer_value) {
+        // Handle both string and object answer values
+        let name: string = '';
+        
+        if (typeof nameAnswer.answer_value === 'string') {
+          name = nameAnswer.answer_value.trim();
+        } else if (typeof nameAnswer.answer_value === 'object' && nameAnswer.answer_value !== null) {
+          // If it's an object, try to extract the value
+          const answerObj = nameAnswer.answer_value as any;
+          name = String(answerObj.value || answerObj.text || answerObj.name || '').trim();
+        }
+        
+        if (name && name !== '[object Object]') {
+          return {
+            name,
+            initials: getInitialsFromName(name),
+            isAnonymous: false,
+          };
+        }
       }
     }
     
