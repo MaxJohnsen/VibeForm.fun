@@ -95,6 +95,41 @@ export type Database = {
         }
         Relationships: []
       }
+      lottery_draws: {
+        Row: {
+          drawn_at: string
+          form_id: string
+          id: string
+          settings: Json | null
+          user_id: string
+          winners: Json
+        }
+        Insert: {
+          drawn_at?: string
+          form_id: string
+          id?: string
+          settings?: Json | null
+          user_id: string
+          winners: Json
+        }
+        Update: {
+          drawn_at?: string
+          form_id?: string
+          id?: string
+          settings?: Json | null
+          user_id?: string
+          winners?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lottery_draws_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       questions: {
         Row: {
           created_at: string | null

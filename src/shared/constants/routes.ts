@@ -8,8 +8,10 @@ export const ROUTES = {
   FORM_SETTINGS: '/forms/:formId/settings',
   RESPONDENT: '/f/:formId',
   RESPONSES_DASHBOARD: '/responses/:formId',
+  LOTTERY: '/lottery/:formId',
   getBuilderRoute: (formId: string) => `/builder/${formId}`,
   getFormSettingsRoute: (formId: string) => `/forms/${formId}/settings`,
   getRespondentRoute: (formId: string) => `/f/${formId}`,
   getResponsesDashboardRoute: (formId: string) => `/responses/${formId}`,
+  getLotteryRoute: (formId: string) => `/lottery/${formId}`,
 } as const;
