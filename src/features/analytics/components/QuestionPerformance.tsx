@@ -304,7 +304,7 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                   {/* Expanded content */}
                   <CollapsibleContent>
                     <div className="mt-3 space-y-1.5 max-h-48 overflow-y-auto">
-                      {actualAnswers.slice(0, 15).map((answer, idx) => (
+                      {actualAnswers.map((answer, idx) => (
                         <div 
                           key={idx} 
                           className="flex items-center gap-2 text-sm py-1.5 px-2 rounded-md bg-muted/30"
@@ -315,11 +315,6 @@ export const QuestionPerformance = ({ questions, responses }: QuestionPerformanc
                           </span>
                         </div>
                       ))}
-                      {actualAnswers.length > 15 && (
-                        <p className="text-xs text-muted-foreground pt-1">
-                          + {actualAnswers.length - 15} more response{actualAnswers.length - 15 !== 1 ? 's' : ''}
-                        </p>
-                      )}
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
