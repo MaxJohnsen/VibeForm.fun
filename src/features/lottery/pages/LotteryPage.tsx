@@ -121,7 +121,7 @@ export const LotteryPage = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="flex-1 px-4 sm:px-6 pb-6 min-h-0">
+      <div className="flex-1 px-4 sm:px-6 py-6 min-h-0">
         <div className="max-w-6xl mx-auto h-full">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
             {/* Left Column: Controls + History (1/3) */}
