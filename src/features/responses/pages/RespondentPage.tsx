@@ -54,9 +54,14 @@ export const RespondentPage = () => {
   }, []);
 
   const handleNext = useCallback(() => {
-    if (currentAnswer !== null && !isSubmittingRef.current) {
+    if (isSubmittingRef.current) return;
+    
+    const isRequired = currentQuestion?.settings?.required !== false;
+    
+    // Allow proceeding if we have an answer OR if the question is optional
+    if (currentAnswer !== null || !isRequired) {
       isSubmittingRef.current = true;
-      submitAnswer(currentAnswer);
+      submitAnswer(currentAnswer); // Will pass null for skipped optional questions
       setCurrentAnswer(null);
       setCanProceed(false);
       // Reset after a short delay to prevent rapid re-submission
@@ -64,7 +69,7 @@ export const RespondentPage = () => {
         isSubmittingRef.current = false;
       }, 500);
     }
-  }, [currentAnswer, submitAnswer]);
+  }, [currentAnswer, currentQuestion, submitAnswer]);
 
   // Debounced version for keyboard input
   const debouncedHandleNext = useCallback(
