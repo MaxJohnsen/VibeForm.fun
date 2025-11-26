@@ -61,7 +61,6 @@ export const PhoneInput = ({
             )}
           >
             <FlagImage iso2={currentCountry.iso2 as CountryIso2} className="w-5 h-5" />
-            <span className="text-sm sm:text-base">+{currentCountry.dialCode}</span>
             <ChevronDown className="h-4 w-4 opacity-50" />
           </button>
         </PopoverTrigger>
