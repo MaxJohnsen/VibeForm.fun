@@ -24,6 +24,7 @@ export const RatingQuestion = ({
   const scaleType = settings?.scaleType || 'numbers';
   const minLabel = settings?.minLabel;
   const maxLabel = settings?.maxLabel;
+  const isRequired = settings?.required !== false;
 
   const ratings = Array.from({ length: max - min + 1 }, (_, i) => min + i);
 
@@ -34,12 +35,12 @@ export const RatingQuestion = ({
   }, []);
 
   useEffect(() => {
-    const isValid = value !== null;
+    const isValid = !isRequired || value !== null;
     onValidationChange(isValid);
-    if (isValid) {
+    if (value !== null) {
       onSubmit(value);
     }
-  }, [value, onValidationChange, onSubmit]);
+  }, [value, isRequired, onValidationChange, onSubmit]);
 
   const handleSelect = (rating: number) => {
     setValue(rating);

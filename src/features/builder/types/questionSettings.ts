@@ -81,7 +81,7 @@ export const getDefaultSettings = (type: string): QuestionSettings => {
   switch (type) {
     case 'respondent_name':
       return {
-        required: false,
+        required: true,
         placeholder: 'Enter your name...',
       } as RespondentNameSettings;
 
@@ -94,7 +94,7 @@ export const getDefaultSettings = (type: string): QuestionSettings => {
         ],
         allowMultiple: false,
         allowOther: false,
-        required: false,
+        required: true,
         randomize: false,
       } as MultipleChoiceSettings;
 
@@ -103,7 +103,7 @@ export const getDefaultSettings = (type: string): QuestionSettings => {
         yesLabel: 'Yes',
         noLabel: 'No',
         buttonStyle: 'pills',
-        required: false,
+        required: true,
       } as YesNoSettings;
 
     case 'rating':
@@ -111,19 +111,19 @@ export const getDefaultSettings = (type: string): QuestionSettings => {
         scaleType: 'stars',
         min: 1,
         max: 10,
-        required: false,
+        required: true,
       } as RatingSettings;
 
     case 'email':
       return {
-        required: false,
+        required: true,
         requireConfirmation: false,
         placeholder: 'email@example.com',
       } as EmailSettings;
 
     case 'phone':
       return {
-        required: false,
+        required: true,
         countryCode: 'US',
         format: 'US',
         placeholder: '(555) 123-4567',
@@ -131,7 +131,7 @@ export const getDefaultSettings = (type: string): QuestionSettings => {
 
     case 'date':
       return {
-        required: false,
+        required: true,
         format: 'MM/DD/YYYY',
         disablePast: false,
         disableFuture: false,
@@ -139,13 +139,13 @@ export const getDefaultSettings = (type: string): QuestionSettings => {
 
     case 'short_text':
       return {
-        required: false,
+        required: true,
         placeholder: 'Type your answer here...',
       } as ShortTextSettings;
 
     case 'long_text':
       return {
-        required: false,
+        required: true,
         placeholder: 'Type your answer here...',
       } as LongTextSettings;
 
