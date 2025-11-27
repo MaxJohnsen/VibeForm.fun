@@ -24,6 +24,7 @@ export const QuestionRenderer = ({
 }: QuestionRendererProps) => {
   const commonProps = {
     label: question.label,
+    description: question.description,
     settings: question.settings || {},
     onSubmit,
     onValidationChange,

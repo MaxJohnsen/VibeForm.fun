@@ -133,6 +133,7 @@ export type Database = {
       questions: {
         Row: {
           created_at: string | null
+          description: string | null
           form_id: string
           id: string
           label: string
@@ -144,6 +145,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          description?: string | null
           form_id: string
           id?: string
           label: string
@@ -155,6 +157,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          description?: string | null
           form_id?: string
           id?: string
           label?: string

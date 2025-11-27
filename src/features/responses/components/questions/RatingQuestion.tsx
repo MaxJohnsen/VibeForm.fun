@@ -6,6 +6,7 @@ import { QuestionLabel } from './QuestionLabel';
 
 interface RatingQuestionProps {
   label: string;
+  description?: string;
   settings: any;
   initialValue?: number;
   onSubmit: (value: number) => void;
@@ -15,6 +16,7 @@ interface RatingQuestionProps {
 
 export const RatingQuestion = ({
   label,
+  description,
   settings,
   initialValue,
   onSubmit,
@@ -120,7 +122,8 @@ export const RatingQuestion = ({
   return (
     <div className="space-y-8 sm:space-y-12 animate-fade-in">
       <QuestionLabel 
-        label={label} 
+        label={label}
+        description={description}
         isRequired={isRequired} 
         optionalText={t.optional} 
         centered 

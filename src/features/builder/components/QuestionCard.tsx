@@ -167,12 +167,19 @@ export const QuestionCard = ({
         </div>
 
         {/* Question Label */}
-        <div className="text-base font-medium text-foreground mb-3 md:mb-4">
+        <div className="text-base font-medium text-foreground mb-1">
           {question.label}
         </div>
 
+        {/* Description preview */}
+        {question.description && (
+          <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+            {question.description}
+          </p>
+        )}
+
         {/* Preview Input */}
-        <div>
+        <div className={cn(question.description ? "" : "mt-2 md:mt-3")}>
           {question.type === 'short_text' && (
             <Input
               placeholder="Your answer..."

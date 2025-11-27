@@ -6,6 +6,7 @@ export interface Question {
   form_id: string;
   type: QuestionType;
   label: string;
+  description?: string;
   position: number;
   settings: Record<string, any>;
   logic?: Record<string, any>;
@@ -16,12 +17,14 @@ export interface Question {
 export interface CreateQuestionData {
   type: QuestionType;
   label: string;
+  description?: string;
   position: number;
   settings?: Record<string, any>;
 }
 
 export interface UpdateQuestionData {
   label?: string;
+  description?: string;
   settings?: Record<string, any>;
   position?: number;
   logic?: Record<string, any>;
