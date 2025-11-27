@@ -74,8 +74,8 @@ export const EndPropertiesPanel = ({
         <div className="space-y-2">
           <Label htmlFor="button-action">Button Action</Label>
           <Select
-            value={settings.buttonAction || 'close'}
-            onValueChange={(value: 'close' | 'redirect' | 'restart') =>
+            value={settings.buttonAction || 'restart'}
+            onValueChange={(value: 'redirect' | 'restart') =>
               onUpdate({ ...settings, buttonAction: value })
             }
           >
@@ -83,9 +83,8 @@ export const EndPropertiesPanel = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="close">Close window</SelectItem>
-              <SelectItem value="redirect">Redirect to URL</SelectItem>
               <SelectItem value="restart">Restart form</SelectItem>
+              <SelectItem value="redirect">Redirect to URL</SelectItem>
             </SelectContent>
           </Select>
         </div>

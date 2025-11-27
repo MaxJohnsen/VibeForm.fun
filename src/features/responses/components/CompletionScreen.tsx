@@ -14,8 +14,8 @@ export const CompletionScreen = ({ formTitle, endSettings, language = 'en' }: Co
   const t = useTranslation(language as SupportedLanguage);
   const title = endSettings?.title || t.completion.defaultTitle;
   const message = endSettings?.message || t.completion.defaultMessage;
-  const buttonText = endSettings?.buttonText || t.completion.close;
-  const buttonAction = endSettings?.buttonAction || 'close';
+  const buttonText = endSettings?.buttonText || t.completion.restart;
+  const buttonAction = endSettings?.buttonAction || 'restart';
   const redirectUrl = endSettings?.redirectUrl;
 
   const handleButtonClick = () => {
@@ -28,11 +28,8 @@ export const CompletionScreen = ({ formTitle, endSettings, language = 'en' }: Co
         }
         break;
       case 'restart':
-        window.location.reload();
-        break;
-      case 'close':
       default:
-        window.location.href = '/';
+        window.location.reload();
         break;
     }
   };
