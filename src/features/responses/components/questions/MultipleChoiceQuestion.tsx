@@ -26,7 +26,7 @@ export const MultipleChoiceQuestion = ({
   const allowMultiple = settings?.allowMultiple || false;
   const allowOther = settings?.allowOther || false;
   const options = settings?.options || [];
-  const isRequired = settings?.required !== false;
+  const isRequired = settings?.required === true;
   const t = useQuestionTranslation(formLanguage);
 
   // Parse initialValue to detect "Other" values

@@ -29,7 +29,7 @@ export const RatingQuestion = ({
   const scaleType = settings?.scaleType || 'numbers';
   const minLabel = settings?.minLabel;
   const maxLabel = settings?.maxLabel;
-  const isRequired = settings?.required !== false;
+  const isRequired = settings?.required === true;
   const t = useQuestionTranslation(formLanguage);
 
   const ratings = Array.from({ length: max - min + 1 }, (_, i) => min + i);
