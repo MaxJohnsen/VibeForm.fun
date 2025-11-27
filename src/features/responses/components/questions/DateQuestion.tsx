@@ -7,6 +7,8 @@ import { enUS, nb, es, fr, de, pt, it, nl, sv, da, fi, pl, tr, ru, ar, ja, ko, z
 import type { Locale } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { SupportedLanguage } from '@/shared/constants/translations';
+import { QuestionLabel } from './QuestionLabel';
+import { useQuestionTranslation } from '../../hooks/useQuestionTranslation';
 
 interface DateQuestionProps {
   label: string;
@@ -71,6 +73,7 @@ export const DateQuestion = ({
   const disableFuture = settings?.disableFuture || false;
 
   const locale = getLocale(formLanguage);
+  const t = useQuestionTranslation(formLanguage);
 
   // Prevent auto-focus on mobile after navigation
   useEffect(() => {
@@ -85,7 +88,7 @@ export const DateQuestion = ({
 
     if (touched) {
       if (isRequired && !date) {
-        setError('This field is required');
+        setError(t.required);
       } else {
         setError('');
       }
@@ -132,14 +135,11 @@ export const DateQuestion = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-        {label}
-        {!isRequired && (
-          <span className="text-base sm:text-lg text-muted-foreground ml-2 font-normal">
-            (optional)
-          </span>
-        )}
-      </h2>
+      <QuestionLabel
+        label={label}
+        isRequired={isRequired}
+        optionalText={t.optional}
+      />
 
       <div className="space-y-3">
         <Popover>
@@ -157,7 +157,7 @@ export const DateQuestion = ({
               {date ? (
                 format(date, 'PPP', { locale })
               ) : (
-                <span className="text-muted-foreground">Pick a date</span>
+                <span className="text-muted-foreground">{t.pickDate}</span>
               )}
             </button>
           </PopoverTrigger>
@@ -182,10 +182,10 @@ export const DateQuestion = ({
 
         {!error && (minDate || maxDate || disablePast || disableFuture) && (
           <div className="text-xs text-muted-foreground px-1">
-            {disablePast && 'No past dates allowed'}
-            {disableFuture && 'No future dates allowed'}
-            {minDate && !disablePast && `Available from ${format(minDate, 'PP', { locale })}`}
-            {maxDate && !disableFuture && ` until ${format(maxDate, 'PP', { locale })}`}
+            {disablePast && t.noPastDates}
+            {disableFuture && t.noFutureDates}
+            {minDate && !disablePast && `${t.availableFrom} ${format(minDate, 'PP', { locale })}`}
+            {maxDate && !disableFuture && ` ${t.until} ${format(maxDate, 'PP', { locale })}`}
           </div>
         )}
       </div>
