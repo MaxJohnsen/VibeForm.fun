@@ -57,11 +57,13 @@ export const RespondentPage = () => {
     if (isSubmittingRef.current) return;
     
     const isRequired = currentQuestion?.settings?.required !== false;
+    const hasValidAnswer = currentAnswer !== null && 
+      (typeof currentAnswer !== 'string' || currentAnswer.trim().length > 0);
     
-    // Allow proceeding if we have an answer OR if the question is optional
-    if (currentAnswer !== null || !isRequired) {
+    // Allow proceeding if we have a valid answer OR if the question is optional
+    if (hasValidAnswer || !isRequired) {
       isSubmittingRef.current = true;
-      submitAnswer(currentAnswer); // Will pass null for skipped optional questions
+      submitAnswer(hasValidAnswer ? currentAnswer : null);
       setCurrentAnswer(null);
       setCanProceed(false);
       // Reset after a short delay to prevent rapid re-submission
@@ -100,6 +102,12 @@ export const RespondentPage = () => {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept Enter key inside textareas (for multiline input)
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'TEXTAREA') {
+        return; // Allow normal textarea behavior (new line on Enter)
+      }
+      
       if (e.key === 'Enter' && canProceed && !isSubmitting && !showWelcome && !isSubmittingRef.current) {
         e.preventDefault();
         debouncedHandleNext();
