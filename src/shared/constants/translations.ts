@@ -18,6 +18,7 @@ export interface TranslationStrings {
     defaultTitle: string;
     defaultMessage: string;
     close: string;
+    restart: string;
   };
   loading: {
     starting: string;
@@ -78,6 +79,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Thank you!',
       defaultMessage: 'Your response has been submitted successfully.',
       close: 'Close',
+      restart: 'Start again',
     },
     loading: {
       starting: 'Starting form...',
@@ -115,6 +117,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: '¡Gracias!',
       defaultMessage: 'Tu respuesta ha sido enviada exitosamente.',
       close: 'Cerrar',
+      restart: 'Comenzar de nuevo',
     },
     loading: {
       starting: 'Iniciando formulario...',
@@ -152,6 +155,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Merci!',
       defaultMessage: 'Votre réponse a été soumise avec succès.',
       close: 'Fermer',
+      restart: 'Recommencer',
     },
     loading: {
       starting: 'Démarrage du formulaire...',
@@ -189,6 +193,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Vielen Dank!',
       defaultMessage: 'Ihre Antwort wurde erfolgreich übermittelt.',
       close: 'Schließen',
+      restart: 'Neu starten',
     },
     loading: {
       starting: 'Formular wird gestartet...',
@@ -226,6 +231,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Obrigado!',
       defaultMessage: 'Sua resposta foi enviada com sucesso.',
       close: 'Fechar',
+      restart: 'Começar novamente',
     },
     loading: {
       starting: 'Iniciando formulário...',
@@ -263,6 +269,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Bedankt!',
       defaultMessage: 'Uw antwoord is succesvol verzonden.',
       close: 'Sluiten',
+      restart: 'Opnieuw beginnen',
     },
     loading: {
       starting: 'Formulier starten...',
@@ -300,6 +307,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Grazie!',
       defaultMessage: 'La tua risposta è stata inviata con successo.',
       close: 'Chiudi',
+      restart: 'Ricomincia',
     },
     loading: {
       starting: 'Avvio del modulo...',
@@ -337,6 +345,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Tack!',
       defaultMessage: 'Ditt svar har skickats in.',
       close: 'Stäng',
+      restart: 'Börja om',
     },
     loading: {
       starting: 'Startar formulär...',
@@ -374,6 +383,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Takk!',
       defaultMessage: 'Ditt svar har blitt sendt inn.',
       close: 'Lukk',
+      restart: 'Start på nytt',
     },
     loading: {
       starting: 'Starter skjema...',
@@ -411,6 +421,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Tak!',
       defaultMessage: 'Dit svar er blevet indsendt.',
       close: 'Luk',
+      restart: 'Start forfra',
     },
     loading: {
       starting: 'Starter formular...',
@@ -448,6 +459,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Kiitos!',
       defaultMessage: 'Vastauksesi on lähetetty onnistuneesti.',
       close: 'Sulje',
+      restart: 'Aloita alusta',
     },
     loading: {
       starting: 'Aloitetaan lomaketta...',
@@ -485,6 +497,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Dziękujemy!',
       defaultMessage: 'Twoja odpowiedź została wysłana pomyślnie.',
       close: 'Zamknij',
+      restart: 'Zacznij ponownie',
     },
     loading: {
       starting: 'Rozpoczynanie formularza...',
@@ -522,6 +535,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Спасибо!',
       defaultMessage: 'Ваш ответ успешно отправлен.',
       close: 'Закрыть',
+      restart: 'Начать заново',
     },
     loading: {
       starting: 'Загрузка формы...',
@@ -559,6 +573,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'ありがとうございます！',
       defaultMessage: '回答が正常に送信されました。',
       close: '閉じる',
+      restart: 'もう一度始める',
     },
     loading: {
       starting: 'フォームを開始中...',
@@ -596,6 +611,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: '谢谢！',
       defaultMessage: '您的回复已成功提交。',
       close: '关闭',
+      restart: '重新开始',
     },
     loading: {
       starting: '正在启动表单...',
@@ -633,6 +649,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'شكراً لك!',
       defaultMessage: 'تم إرسال ردك بنجاح.',
       close: 'إغلاق',
+      restart: 'ابدأ من جديد',
     },
     loading: {
       starting: 'بدء النموذج...',
@@ -670,6 +687,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: 'Teşekkürler!',
       defaultMessage: 'Yanıtınız başarıyla gönderildi.',
       close: 'Kapat',
+      restart: 'Yeniden başla',
     },
     loading: {
       starting: 'Form başlatılıyor...',
@@ -707,6 +725,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       defaultTitle: '감사합니다!',
       defaultMessage: '응답이 성공적으로 제출되었습니다.',
       close: '닫기',
+      restart: '다시 시작',
     },
     loading: {
       starting: '양식 시작 중...',

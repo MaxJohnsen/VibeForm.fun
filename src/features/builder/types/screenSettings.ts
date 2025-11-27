@@ -10,7 +10,7 @@ export interface EndSettings {
   title?: string;
   message?: string;
   buttonText?: string;
-  buttonAction?: 'close' | 'redirect' | 'restart';
+  buttonAction?: 'redirect' | 'restart';
   redirectUrl?: string;
 }
 
@@ -22,6 +22,5 @@ export const defaultIntroSettings: IntroSettings = {
 
 export const defaultEndSettings: EndSettings = {
   title: 'Thank you!',
-  buttonText: 'Close',
-  buttonAction: 'close',
+  buttonAction: 'restart',
 };
