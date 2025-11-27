@@ -26,7 +26,7 @@ const SignupPage = () => {
   return (
     <AuthCard
       title="Create your account"
-      subtitle="Start building beautiful conversational forms"
+      subtitle="Create beautiful forms for free – no limits, no cost"
     >
       <SignupForm />
     </AuthCard>

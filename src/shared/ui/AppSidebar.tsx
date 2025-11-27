@@ -31,7 +31,7 @@ export const AppSidebar = () => {
       <div className="hidden md:flex mb-8 flex-col items-center">
         <div className="relative">
           <span className="text-2xl font-bold tracking-tighter bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent rotate-[-90deg] origin-center block whitespace-nowrap">
-            VF
+            FF
           </span>
         </div>
       </div>

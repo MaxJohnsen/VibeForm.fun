@@ -14,7 +14,7 @@ export const AuthCard = ({ children, title, subtitle }: AuthCardProps) => {
           {/* Brand Logo */}
           <div className="relative">
             <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent animate-fade-in">
-              VibeForm
+              Fairform
             </h1>
             <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-teal-500/20 to-emerald-500/20 blur-xl -z-10 animate-pulse"></div>
           </div>

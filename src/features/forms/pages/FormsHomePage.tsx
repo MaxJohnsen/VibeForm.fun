@@ -70,7 +70,7 @@ export const FormsHomePage = () => {
             <div>
               <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2">Your Projects</h1>
               <p className="text-muted-foreground hidden md:block">
-                Create beautiful conversational forms
+                Your free & open source form builder
               </p>
             </div>
             <Button
