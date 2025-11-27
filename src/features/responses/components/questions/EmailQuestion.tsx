@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { validateEmail } from '@/shared/utils/questionValidation';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { SupportedLanguage } from '@/shared/constants/translations';
+import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
+import { QuestionLabel } from './QuestionLabel';
 
 interface EmailQuestionProps {
   label: string;
@@ -8,6 +11,7 @@ interface EmailQuestionProps {
   initialValue?: string;
   onSubmit: (value: string) => void;
   onValidationChange: (isValid: boolean) => void;
+  formLanguage?: SupportedLanguage;
 }
 
 export const EmailQuestion = ({
@@ -16,12 +20,14 @@ export const EmailQuestion = ({
   initialValue = '',
   onSubmit,
   onValidationChange,
+  formLanguage = 'en',
 }: EmailQuestionProps) => {
   const [value, setValue] = useState(initialValue ?? '');
   const [error, setError] = useState('');
   const isMobile = useIsMobile();
   const placeholder = settings?.placeholder || 'name@example.com';
   const isRequired = settings?.required !== false;
+  const t = useQuestionTranslation(formLanguage);
 
   useEffect(() => {
     if (!value) {
@@ -34,12 +40,12 @@ export const EmailQuestion = ({
     }
 
     const isValid = validateEmail(value);
-    setError(isValid ? '' : 'Please enter a valid email address');
+    setError(isValid ? '' : t.validEmail);
     onValidationChange(isValid);
     if (isValid) {
       onSubmit(value);
     }
-  }, [value, isRequired, onValidationChange, onSubmit]);
+  }, [value, isRequired, onValidationChange, onSubmit, t.validEmail]);
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -59,9 +65,11 @@ export const EmailQuestion = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-        {label}
-      </h2>
+      <QuestionLabel 
+        label={label} 
+        isRequired={isRequired} 
+        optionalText={t.optional} 
+      />
 
       <div className="space-y-2">
         <input

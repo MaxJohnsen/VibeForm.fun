@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Check, X } from 'lucide-react';
+import { SupportedLanguage } from '@/shared/constants/translations';
+import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
+import { QuestionLabel } from './QuestionLabel';
 
 interface YesNoQuestionProps {
   label: string;
@@ -7,6 +10,7 @@ interface YesNoQuestionProps {
   initialValue?: boolean;
   onSubmit: (value: boolean) => void;
   onValidationChange: (isValid: boolean) => void;
+  formLanguage?: SupportedLanguage;
 }
 
 export const YesNoQuestion = ({
@@ -15,11 +19,13 @@ export const YesNoQuestion = ({
   initialValue,
   onSubmit,
   onValidationChange,
+  formLanguage = 'en',
 }: YesNoQuestionProps) => {
   const [value, setValue] = useState<boolean | null>(initialValue ?? null);
   const yesLabel = settings?.yesLabel || 'Yes';
   const noLabel = settings?.noLabel || 'No';
   const isRequired = settings?.required !== false;
+  const t = useQuestionTranslation(formLanguage);
 
   useEffect(() => {
     const isValid = !isRequired || value !== null;
@@ -39,9 +45,12 @@ export const YesNoQuestion = ({
 
   return (
     <div className="space-y-8 sm:space-y-12 animate-fade-in">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground text-center">
-        {label}
-      </h2>
+      <QuestionLabel 
+        label={label} 
+        isRequired={isRequired} 
+        optionalText={t.optional} 
+        centered 
+      />
 
       <div className="flex gap-3 sm:gap-4 max-w-md mx-auto">
         <button

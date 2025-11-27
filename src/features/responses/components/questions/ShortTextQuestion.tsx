@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { SupportedLanguage } from '@/shared/constants/translations';
+import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
+import { QuestionLabel } from './QuestionLabel';
 
 interface ShortTextQuestionProps {
   label: string;
@@ -7,6 +10,7 @@ interface ShortTextQuestionProps {
   initialValue?: string;
   onSubmit: (value: string) => void;
   onValidationChange: (isValid: boolean) => void;
+  formLanguage?: SupportedLanguage;
 }
 
 export const ShortTextQuestion = ({
@@ -15,12 +19,14 @@ export const ShortTextQuestion = ({
   initialValue = '',
   onSubmit,
   onValidationChange,
+  formLanguage = 'en',
 }: ShortTextQuestionProps) => {
   const [value, setValue] = useState(initialValue ?? '');
   const isMobile = useIsMobile();
   const isRequired = settings?.required !== false;
   const placeholder = settings?.placeholder || 'Type your answer here...';
   const maxLength = settings?.maxLength;
+  const t = useQuestionTranslation(formLanguage);
 
   useEffect(() => {
     const isValid = !isRequired || value.trim().length > 0;
@@ -48,9 +54,11 @@ export const ShortTextQuestion = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-        {label}
-      </h2>
+      <QuestionLabel 
+        label={label} 
+        isRequired={isRequired} 
+        optionalText={t.optional} 
+      />
 
       <input
         type="text"

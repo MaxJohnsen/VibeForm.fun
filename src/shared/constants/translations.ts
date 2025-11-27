@@ -23,6 +23,21 @@ export interface TranslationStrings {
     starting: string;
     submitting: string;
   };
+  questions: {
+    optional: string;
+    required: string;
+    pickDate: string;
+    noPastDates: string;
+    noFutureDates: string;
+    availableFrom: string;
+    until: string;
+    enterPhoneNumber: string;
+    validPhoneNumber: string;
+    validEmail: string;
+    other: string;
+    pleaseSpecify: string;
+    ctrlEnterSubmit: string;
+  };
 }
 
 export const languageNames: Record<SupportedLanguage, string> = {
@@ -68,6 +83,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       starting: 'Starting form...',
       submitting: 'Submitting...',
     },
+    questions: {
+      optional: 'Optional',
+      required: 'Required',
+      pickDate: 'Pick a date',
+      noPastDates: 'Past dates are disabled',
+      noFutureDates: 'Future dates are disabled',
+      availableFrom: 'Available from',
+      until: 'until',
+      enterPhoneNumber: 'Enter your phone number',
+      validPhoneNumber: 'Please enter a valid phone number',
+      validEmail: 'Please enter a valid email address',
+      other: 'Other',
+      pleaseSpecify: 'Please specify...',
+      ctrlEnterSubmit: 'Press Ctrl + Enter to submit',
+    },
   },
   es: {
     welcome: {
@@ -89,6 +119,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Iniciando formulario...',
       submitting: 'Enviando...',
+    },
+    questions: {
+      optional: 'Opcional',
+      required: 'Obligatorio',
+      pickDate: 'Selecciona una fecha',
+      noPastDates: 'Las fechas pasadas están deshabilitadas',
+      noFutureDates: 'Las fechas futuras están deshabilitadas',
+      availableFrom: 'Disponible desde',
+      until: 'hasta',
+      enterPhoneNumber: 'Ingresa tu número de teléfono',
+      validPhoneNumber: 'Por favor ingresa un número de teléfono válido',
+      validEmail: 'Por favor ingresa una dirección de correo válida',
+      other: 'Otro',
+      pleaseSpecify: 'Por favor especifica...',
+      ctrlEnterSubmit: 'Presiona Ctrl + Enter para enviar',
     },
   },
   fr: {
@@ -112,6 +157,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       starting: 'Démarrage du formulaire...',
       submitting: 'Soumission...',
     },
+    questions: {
+      optional: 'Optionnel',
+      required: 'Obligatoire',
+      pickDate: 'Choisir une date',
+      noPastDates: 'Les dates passées sont désactivées',
+      noFutureDates: 'Les dates futures sont désactivées',
+      availableFrom: 'Disponible à partir du',
+      until: 'jusqu\'au',
+      enterPhoneNumber: 'Entrez votre numéro de téléphone',
+      validPhoneNumber: 'Veuillez entrer un numéro de téléphone valide',
+      validEmail: 'Veuillez entrer une adresse e-mail valide',
+      other: 'Autre',
+      pleaseSpecify: 'Veuillez préciser...',
+      ctrlEnterSubmit: 'Appuyez sur Ctrl + Entrée pour soumettre',
+    },
   },
   de: {
     welcome: {
@@ -133,6 +193,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Formular wird gestartet...',
       submitting: 'Wird gesendet...',
+    },
+    questions: {
+      optional: 'Optional',
+      required: 'Erforderlich',
+      pickDate: 'Datum auswählen',
+      noPastDates: 'Vergangene Daten sind deaktiviert',
+      noFutureDates: 'Zukünftige Daten sind deaktiviert',
+      availableFrom: 'Verfügbar ab',
+      until: 'bis',
+      enterPhoneNumber: 'Telefonnummer eingeben',
+      validPhoneNumber: 'Bitte geben Sie eine gültige Telefonnummer ein',
+      validEmail: 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
+      other: 'Andere',
+      pleaseSpecify: 'Bitte angeben...',
+      ctrlEnterSubmit: 'Drücken Sie Strg + Enter zum Absenden',
     },
   },
   pt: {
@@ -156,6 +231,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       starting: 'Iniciando formulário...',
       submitting: 'Enviando...',
     },
+    questions: {
+      optional: 'Opcional',
+      required: 'Obrigatório',
+      pickDate: 'Escolha uma data',
+      noPastDates: 'Datas passadas estão desabilitadas',
+      noFutureDates: 'Datas futuras estão desabilitadas',
+      availableFrom: 'Disponível a partir de',
+      until: 'até',
+      enterPhoneNumber: 'Digite seu número de telefone',
+      validPhoneNumber: 'Por favor, insira um número de telefone válido',
+      validEmail: 'Por favor, insira um endereço de e-mail válido',
+      other: 'Outro',
+      pleaseSpecify: 'Por favor especifique...',
+      ctrlEnterSubmit: 'Pressione Ctrl + Enter para enviar',
+    },
   },
   nl: {
     welcome: {
@@ -177,6 +267,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Formulier starten...',
       submitting: 'Verzenden...',
+    },
+    questions: {
+      optional: 'Optioneel',
+      required: 'Verplicht',
+      pickDate: 'Kies een datum',
+      noPastDates: 'Verleden datums zijn uitgeschakeld',
+      noFutureDates: 'Toekomstige datums zijn uitgeschakeld',
+      availableFrom: 'Beschikbaar vanaf',
+      until: 'tot',
+      enterPhoneNumber: 'Voer uw telefoonnummer in',
+      validPhoneNumber: 'Voer een geldig telefoonnummer in',
+      validEmail: 'Voer een geldig e-mailadres in',
+      other: 'Andere',
+      pleaseSpecify: 'Specificeer alstublieft...',
+      ctrlEnterSubmit: 'Druk op Ctrl + Enter om te verzenden',
     },
   },
   it: {
@@ -200,6 +305,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       starting: 'Avvio del modulo...',
       submitting: 'Invio in corso...',
     },
+    questions: {
+      optional: 'Facoltativo',
+      required: 'Obbligatorio',
+      pickDate: 'Scegli una data',
+      noPastDates: 'Le date passate sono disabilitate',
+      noFutureDates: 'Le date future sono disabilitate',
+      availableFrom: 'Disponibile da',
+      until: 'fino a',
+      enterPhoneNumber: 'Inserisci il tuo numero di telefono',
+      validPhoneNumber: 'Inserisci un numero di telefono valido',
+      validEmail: 'Inserisci un indirizzo email valido',
+      other: 'Altro',
+      pleaseSpecify: 'Specifica per favore...',
+      ctrlEnterSubmit: 'Premi Ctrl + Invio per inviare',
+    },
   },
   sv: {
     welcome: {
@@ -221,6 +341,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Startar formulär...',
       submitting: 'Skickar...',
+    },
+    questions: {
+      optional: 'Valfritt',
+      required: 'Obligatorisk',
+      pickDate: 'Välj ett datum',
+      noPastDates: 'Tidigare datum är inaktiverade',
+      noFutureDates: 'Framtida datum är inaktiverade',
+      availableFrom: 'Tillgänglig från',
+      until: 'till',
+      enterPhoneNumber: 'Ange ditt telefonnummer',
+      validPhoneNumber: 'Ange ett giltigt telefonnummer',
+      validEmail: 'Ange en giltig e-postadress',
+      other: 'Annat',
+      pleaseSpecify: 'Vänligen specificera...',
+      ctrlEnterSubmit: 'Tryck på Ctrl + Enter för att skicka',
     },
   },
   no: {
@@ -244,6 +379,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       starting: 'Starter skjema...',
       submitting: 'Sender...',
     },
+    questions: {
+      optional: 'Valgfritt',
+      required: 'Påkrevd',
+      pickDate: 'Velg en dato',
+      noPastDates: 'Tidligere datoer er deaktivert',
+      noFutureDates: 'Fremtidige datoer er deaktivert',
+      availableFrom: 'Tilgjengelig fra',
+      until: 'til',
+      enterPhoneNumber: 'Skriv inn telefonnummeret ditt',
+      validPhoneNumber: 'Vennligst oppgi et gyldig telefonnummer',
+      validEmail: 'Vennligst oppgi en gyldig e-postadresse',
+      other: 'Annet',
+      pleaseSpecify: 'Vennligst spesifiser...',
+      ctrlEnterSubmit: 'Trykk Ctrl + Enter for å sende inn',
+    },
   },
   da: {
     welcome: {
@@ -265,6 +415,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Starter formular...',
       submitting: 'Indsender...',
+    },
+    questions: {
+      optional: 'Valgfri',
+      required: 'Påkrævet',
+      pickDate: 'Vælg en dato',
+      noPastDates: 'Tidligere datoer er deaktiveret',
+      noFutureDates: 'Fremtidige datoer er deaktiveret',
+      availableFrom: 'Tilgængelig fra',
+      until: 'indtil',
+      enterPhoneNumber: 'Indtast dit telefonnummer',
+      validPhoneNumber: 'Indtast venligst et gyldigt telefonnummer',
+      validEmail: 'Indtast venligst en gyldig e-mailadresse',
+      other: 'Andet',
+      pleaseSpecify: 'Angiv venligst...',
+      ctrlEnterSubmit: 'Tryk Ctrl + Enter for at indsende',
     },
   },
   fi: {
@@ -288,6 +453,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       starting: 'Aloitetaan lomaketta...',
       submitting: 'Lähetetään...',
     },
+    questions: {
+      optional: 'Valinnainen',
+      required: 'Pakollinen',
+      pickDate: 'Valitse päivämäärä',
+      noPastDates: 'Menneet päivämäärät on poistettu käytöstä',
+      noFutureDates: 'Tulevat päivämäärät on poistettu käytöstä',
+      availableFrom: 'Saatavilla alkaen',
+      until: 'asti',
+      enterPhoneNumber: 'Syötä puhelinnumerosi',
+      validPhoneNumber: 'Ole hyvä ja syötä kelvollinen puhelinnumero',
+      validEmail: 'Ole hyvä ja syötä kelvollinen sähköpostiosoite',
+      other: 'Muu',
+      pleaseSpecify: 'Ole hyvä ja täsmennä...',
+      ctrlEnterSubmit: 'Paina Ctrl + Enter lähettääksesi',
+    },
   },
   pl: {
     welcome: {
@@ -309,6 +489,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Rozpoczynanie formularza...',
       submitting: 'Wysyłanie...',
+    },
+    questions: {
+      optional: 'Opcjonalne',
+      required: 'Wymagane',
+      pickDate: 'Wybierz datę',
+      noPastDates: 'Daty z przeszłości są wyłączone',
+      noFutureDates: 'Przyszłe daty są wyłączone',
+      availableFrom: 'Dostępne od',
+      until: 'do',
+      enterPhoneNumber: 'Wprowadź swój numer telefonu',
+      validPhoneNumber: 'Proszę wprowadzić prawidłowy numer telefonu',
+      validEmail: 'Proszę wprowadzić prawidłowy adres e-mail',
+      other: 'Inne',
+      pleaseSpecify: 'Proszę sprecyzować...',
+      ctrlEnterSubmit: 'Naciśnij Ctrl + Enter, aby wysłać',
     },
   },
   ru: {
@@ -332,6 +527,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       starting: 'Загрузка формы...',
       submitting: 'Отправка...',
     },
+    questions: {
+      optional: 'Необязательно',
+      required: 'Обязательно',
+      pickDate: 'Выберите дату',
+      noPastDates: 'Прошлые даты отключены',
+      noFutureDates: 'Будущие даты отключены',
+      availableFrom: 'Доступно с',
+      until: 'до',
+      enterPhoneNumber: 'Введите номер телефона',
+      validPhoneNumber: 'Пожалуйста, введите действительный номер телефона',
+      validEmail: 'Пожалуйста, введите действительный адрес электронной почты',
+      other: 'Другое',
+      pleaseSpecify: 'Пожалуйста, уточните...',
+      ctrlEnterSubmit: 'Нажмите Ctrl + Enter для отправки',
+    },
   },
   ja: {
     welcome: {
@@ -353,6 +563,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'フォームを開始中...',
       submitting: '送信中...',
+    },
+    questions: {
+      optional: '任意',
+      required: '必須',
+      pickDate: '日付を選択',
+      noPastDates: '過去の日付は無効です',
+      noFutureDates: '未来の日付は無効です',
+      availableFrom: '利用可能期間',
+      until: 'から',
+      enterPhoneNumber: '電話番号を入力してください',
+      validPhoneNumber: '有効な電話番号を入力してください',
+      validEmail: '有効なメールアドレスを入力してください',
+      other: 'その他',
+      pleaseSpecify: '詳細を入力してください...',
+      ctrlEnterSubmit: 'Ctrl + Enterキーを押して送信',
     },
   },
   zh: {
@@ -376,6 +601,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       starting: '正在启动表单...',
       submitting: '正在提交...',
     },
+    questions: {
+      optional: '可选',
+      required: '必填',
+      pickDate: '选择日期',
+      noPastDates: '过去的日期已禁用',
+      noFutureDates: '未来的日期已禁用',
+      availableFrom: '可用时间',
+      until: '至',
+      enterPhoneNumber: '输入您的电话号码',
+      validPhoneNumber: '请输入有效的电话号码',
+      validEmail: '请输入有效的电子邮件地址',
+      other: '其他',
+      pleaseSpecify: '请说明...',
+      ctrlEnterSubmit: '按 Ctrl + Enter 提交',
+    },
   },
   ar: {
     welcome: {
@@ -397,6 +637,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'بدء النموذج...',
       submitting: 'جارٍ الإرسال...',
+    },
+    questions: {
+      optional: 'اختياري',
+      required: 'مطلوب',
+      pickDate: 'اختر تاريخاً',
+      noPastDates: 'التواريخ السابقة معطلة',
+      noFutureDates: 'التواريخ المستقبلية معطلة',
+      availableFrom: 'متاح من',
+      until: 'حتى',
+      enterPhoneNumber: 'أدخل رقم هاتفك',
+      validPhoneNumber: 'يرجى إدخال رقم هاتف صالح',
+      validEmail: 'يرجى إدخال عنوان بريد إلكتروني صالح',
+      other: 'آخر',
+      pleaseSpecify: 'يرجى التحديد...',
+      ctrlEnterSubmit: 'اضغط Ctrl + Enter للإرسال',
     },
   },
   tr: {
@@ -420,6 +675,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       starting: 'Form başlatılıyor...',
       submitting: 'Gönderiliyor...',
     },
+    questions: {
+      optional: 'İsteğe bağlı',
+      required: 'Gerekli',
+      pickDate: 'Bir tarih seçin',
+      noPastDates: 'Geçmiş tarihler devre dışı',
+      noFutureDates: 'Gelecek tarihler devre dışı',
+      availableFrom: 'Kullanılabilir tarih',
+      until: 'ile',
+      enterPhoneNumber: 'Telefon numaranızı girin',
+      validPhoneNumber: 'Lütfen geçerli bir telefon numarası girin',
+      validEmail: 'Lütfen geçerli bir e-posta adresi girin',
+      other: 'Diğer',
+      pleaseSpecify: 'Lütfen belirtin...',
+      ctrlEnterSubmit: 'Göndermek için Ctrl + Enter tuşlarına basın',
+    },
   },
   ko: {
     welcome: {
@@ -441,6 +711,21 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: '양식 시작 중...',
       submitting: '제출 중...',
+    },
+    questions: {
+      optional: '선택사항',
+      required: '필수',
+      pickDate: '날짜 선택',
+      noPastDates: '과거 날짜가 비활성화되었습니다',
+      noFutureDates: '미래 날짜가 비활성화되었습니다',
+      availableFrom: '사용 가능 기간',
+      until: '부터',
+      enterPhoneNumber: '전화번호를 입력하세요',
+      validPhoneNumber: '유효한 전화번호를 입력해 주세요',
+      validEmail: '유효한 이메일 주소를 입력해 주세요',
+      other: '기타',
+      pleaseSpecify: '입력해 주세요...',
+      ctrlEnterSubmit: 'Ctrl + Enter를 눌러 제출',
     },
   },
 };

@@ -3,6 +3,9 @@ import { PhoneInput } from '@/shared/ui/PhoneInput';
 import { PhoneNumberUtil } from 'google-libphonenumber';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { defaultCountries, parseCountry } from 'react-international-phone';
+import { SupportedLanguage } from '@/shared/constants/translations';
+import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
+import { QuestionLabel } from './QuestionLabel';
 
 const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -30,6 +33,7 @@ interface PhoneQuestionProps {
   initialValue?: string;
   onSubmit: (value: string) => void;
   onValidationChange: (isValid: boolean) => void;
+  formLanguage?: SupportedLanguage;
 }
 
 export const PhoneQuestion = ({
@@ -38,6 +42,7 @@ export const PhoneQuestion = ({
   initialValue = '',
   onSubmit,
   onValidationChange,
+  formLanguage = 'en',
 }: PhoneQuestionProps) => {
   const [value, setValue] = useState(() => {
     // Handle objects like { _skipped: true } or null/undefined
@@ -49,6 +54,7 @@ export const PhoneQuestion = ({
   const isMobile = useIsMobile();
   const defaultCountry = settings?.defaultCountry || 'us';
   const isRequired = settings?.required !== false;
+  const t = useQuestionTranslation(formLanguage);
   
   const isEmpty = useMemo(() => isOnlyDialCode(value, defaultCountry), [value, defaultCountry]);
 
@@ -62,7 +68,7 @@ export const PhoneQuestion = ({
     // Treat dial-code-only as empty
     if (isEmpty) {
       if (isRequired) {
-        setError('Please enter your phone number');
+        setError(t.enterPhoneNumber);
         onValidationChange(false);
       } else {
         setError('');
@@ -76,16 +82,16 @@ export const PhoneQuestion = ({
     try {
       const phoneNumber = phoneUtil.parseAndKeepRawInput(value);
       const isValid = phoneUtil.isValidNumber(phoneNumber);
-      setError(isValid ? '' : 'Please enter a valid phone number');
+      setError(isValid ? '' : t.validPhoneNumber);
       onValidationChange(isValid);
       if (isValid) {
         onSubmit(value);
       }
     } catch {
-      setError('Please enter a valid phone number');
+      setError(t.validPhoneNumber);
       onValidationChange(false);
     }
-  }, [value, isRequired, touched, isEmpty, onValidationChange, onSubmit]);
+  }, [value, isRequired, touched, isEmpty, onValidationChange, onSubmit, t.enterPhoneNumber, t.validPhoneNumber]);
 
   const handleChange = (newValue: string) => {
     setValue(newValue);
@@ -96,9 +102,11 @@ export const PhoneQuestion = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-        {label}
-      </h2>
+      <QuestionLabel 
+        label={label} 
+        isRequired={isRequired} 
+        optionalText={t.optional} 
+      />
 
       <div className="space-y-2">
         <PhoneInput
