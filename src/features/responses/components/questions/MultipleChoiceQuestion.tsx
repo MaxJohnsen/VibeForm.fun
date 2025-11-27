@@ -8,6 +8,7 @@ import { QuestionLabel } from './QuestionLabel';
 
 interface MultipleChoiceQuestionProps {
   label: string;
+  description?: string;
   settings: any;
   initialValue?: any;
   onSubmit: (value: any) => void;
@@ -17,6 +18,7 @@ interface MultipleChoiceQuestionProps {
 
 export const MultipleChoiceQuestion = ({
   label,
+  description,
   settings,
   initialValue,
   onSubmit,
@@ -125,7 +127,8 @@ export const MultipleChoiceQuestion = ({
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in" onKeyPress={handleKeyPress}>
       <QuestionLabel 
-        label={label} 
+        label={label}
+        description={description}
         isRequired={isRequired} 
         optionalText={t.optional} 
       />

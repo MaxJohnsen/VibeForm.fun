@@ -12,6 +12,7 @@ import { useQuestionTranslation } from '../../hooks/useQuestionTranslation';
 
 interface DateQuestionProps {
   label: string;
+  description?: string;
   settings: any;
   initialValue?: string | { _skipped: boolean };
   onSubmit: (value: string) => void;
@@ -46,6 +47,7 @@ const getLocale = (language: SupportedLanguage = 'en'): Locale => {
 
 export const DateQuestion = ({
   label,
+  description,
   settings,
   initialValue,
   onSubmit,
@@ -137,6 +139,7 @@ export const DateQuestion = ({
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
       <QuestionLabel
         label={label}
+        description={description}
         isRequired={isRequired}
         optionalText={t.optional}
       />

@@ -175,13 +175,13 @@ export const FormBuilderPage = () => {
     }
   };
 
-  // Debounced save for question label
+  // Debounced save for question label and description
   const debouncedUpdate = useMemo(
     () =>
-      debounce((id: string, label: string) => {
+      debounce((id: string, data: { label?: string; description?: string }) => {
         setIsSaving(true);
         updateQuestion(
-          { id, data: { label } },
+          { id, data },
           {
             onSettled: () => {
               setTimeout(() => setIsSaving(false), 300);
@@ -253,7 +253,20 @@ export const FormBuilderPage = () => {
         prev.map((q) => (q.id === selectedItemId ? { ...q, label } : q))
       );
 
-      debouncedUpdate(selectedItemId, label);
+      debouncedUpdate(selectedItemId, { label });
+    },
+    [selectedItemId, debouncedUpdate]
+  );
+
+  const handleUpdateDescription = useCallback(
+    (description: string) => {
+      if (!selectedItemId || selectedItemId === 'intro' || selectedItemId === 'end') return;
+
+      setTempQuestions((prev) =>
+        prev.map((q) => (q.id === selectedItemId ? { ...q, description } : q))
+      );
+
+      debouncedUpdate(selectedItemId, { description });
     },
     [selectedItemId, debouncedUpdate]
   );
@@ -480,6 +493,7 @@ export const FormBuilderPage = () => {
               <PropertiesPanel
                 question={selectedQuestion}
                 onUpdateLabel={handleUpdateLabel}
+                onUpdateDescription={handleUpdateDescription}
                 onUpdateSettings={handleUpdateSettings}
                 onDelete={() => setDeleteConfirmationId(selectedQuestion.id)}
                 onOpenLogic={() => handleOpenLogic(selectedQuestion.id)}
@@ -591,6 +605,7 @@ export const FormBuilderPage = () => {
                 <PropertiesPanel
                   question={selectedQuestion}
                   onUpdateLabel={handleUpdateLabel}
+                  onUpdateDescription={handleUpdateDescription}
                   onUpdateSettings={handleUpdateSettings}
                   onDelete={() => setDeleteConfirmationId(selectedQuestion.id)}
                   onOpenLogic={() => handleOpenLogic(selectedQuestion.id)}

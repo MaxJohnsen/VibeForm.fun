@@ -5,6 +5,7 @@ import { QuestionLabel } from './QuestionLabel';
 
 interface LongTextQuestionProps {
   label: string;
+  description?: string;
   settings: any;
   initialValue?: string;
   onSubmit: (value: string) => void;
@@ -14,6 +15,7 @@ interface LongTextQuestionProps {
 
 export const LongTextQuestion = ({
   label,
+  description,
   settings,
   initialValue = '',
   onSubmit,
@@ -59,7 +61,8 @@ export const LongTextQuestion = ({
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
       <QuestionLabel 
-        label={label} 
+        label={label}
+        description={description}
         isRequired={isRequired} 
         optionalText={t.optional} 
       />

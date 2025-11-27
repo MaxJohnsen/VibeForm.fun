@@ -6,6 +6,7 @@ import { QuestionLabel } from './QuestionLabel';
 
 interface YesNoQuestionProps {
   label: string;
+  description?: string;
   settings: any;
   initialValue?: boolean;
   onSubmit: (value: boolean) => void;
@@ -15,6 +16,7 @@ interface YesNoQuestionProps {
 
 export const YesNoQuestion = ({
   label,
+  description,
   settings,
   initialValue,
   onSubmit,
@@ -46,7 +48,8 @@ export const YesNoQuestion = ({
   return (
     <div className="space-y-8 sm:space-y-12 animate-fade-in">
       <QuestionLabel 
-        label={label} 
+        label={label}
+        description={description}
         isRequired={isRequired} 
         optionalText={t.optional} 
         centered 

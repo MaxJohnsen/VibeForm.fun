@@ -29,6 +29,7 @@ const isOnlyDialCode = (value: string, countryCode: string): boolean => {
 
 interface PhoneQuestionProps {
   label: string;
+  description?: string;
   settings: any;
   initialValue?: string;
   onSubmit: (value: string) => void;
@@ -38,6 +39,7 @@ interface PhoneQuestionProps {
 
 export const PhoneQuestion = ({
   label,
+  description,
   settings,
   initialValue = '',
   onSubmit,
@@ -103,7 +105,8 @@ export const PhoneQuestion = ({
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
       <QuestionLabel 
-        label={label} 
+        label={label}
+        description={description}
         isRequired={isRequired} 
         optionalText={t.optional} 
       />

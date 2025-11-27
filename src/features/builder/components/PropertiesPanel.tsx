@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { TextInput } from '@/shared/ui/TextInput';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ import { defaultCountries, parseCountry, FlagImage, CountryIso2 } from 'react-in
 interface PropertiesPanelProps {
   question: Question | null;
   onUpdateLabel: (label: string) => void;
+  onUpdateDescription: (description: string) => void;
   onUpdateSettings?: (settings: Record<string, any>) => void;
   onDelete: () => void;
   onOpenLogic: () => void;
@@ -45,6 +47,7 @@ interface PropertiesPanelProps {
 export const PropertiesPanel = ({
   question,
   onUpdateLabel,
+  onUpdateDescription,
   onUpdateSettings,
   onDelete,
   onOpenLogic,
@@ -52,6 +55,7 @@ export const PropertiesPanel = ({
   showDelete = true
 }: PropertiesPanelProps) => {
   const [localLabel, setLocalLabel] = useState(question?.label || '');
+  const [localDescription, setLocalDescription] = useState(question?.description || '');
   const [localSettings, setLocalSettings] = useState<Record<string, any>>(
     question?.settings || {}
   );
@@ -60,6 +64,7 @@ export const PropertiesPanel = ({
   useEffect(() => {
     if (!question) return;
     setLocalLabel(question.label ?? '');
+    setLocalDescription(question.description ?? '');
     setLocalSettings(question.settings ?? {});
   }, [question?.id]);
 
@@ -68,6 +73,12 @@ export const PropertiesPanel = ({
     const newValue = e.target.value;
     setLocalLabel(newValue);
     onUpdateLabel(newValue); // This will be debounced by parent
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    setLocalDescription(newValue);
+    onUpdateDescription(newValue); // This will be debounced by parent
   };
 
   // Handle settings update
@@ -124,6 +135,20 @@ export const PropertiesPanel = ({
           placeholder="Enter your question..."
           className="text-lg font-medium"
         />
+
+        <div className="space-y-2">
+          <Label htmlFor="description" className="text-sm font-medium">
+            Description <span className="text-muted-foreground">(optional)</span>
+          </Label>
+          <Textarea
+            id="description"
+            value={localDescription}
+            onChange={handleDescriptionChange}
+            placeholder="Add context or instructions for this question..."
+            rows={2}
+            className="resize-none"
+          />
+        </div>
 
         <div className="space-y-4">
           <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Configuration</h4>
