@@ -154,6 +154,7 @@ export const RespondentPage = () => {
                 question={currentQuestion}
                 onSubmit={handleQuestionSubmit}
                 onValidationChange={handleValidationChange}
+                formLanguage={language}
               />
             </div>
           </main>

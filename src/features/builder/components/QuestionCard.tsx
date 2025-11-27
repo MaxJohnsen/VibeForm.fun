@@ -381,7 +381,6 @@ export const QuestionCard = ({
 
           {question.type === 'date' && (() => {
             const settings = question.settings as DateSettings;
-            const format = settings?.format || 'MM/DD/YYYY';
             const disablePast = settings?.disablePast || false;
             const disableFuture = settings?.disableFuture || false;
             const minDate = settings?.minDate;
@@ -398,7 +397,7 @@ export const QuestionCard = ({
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
                   <Input
-                    placeholder={format}
+                    placeholder="Pick a date"
                     disabled
                     className="opacity-50 border-border/50 pl-10"
                   />

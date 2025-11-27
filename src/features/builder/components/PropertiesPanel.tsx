@@ -679,23 +679,6 @@ const DateSettingsPanel = ({
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="date-format" className="text-sm font-medium mb-2 block">Date Format</Label>
-        <Select
-          value={settings.format ?? 'MM/DD/YYYY'}
-          onValueChange={(value: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD') => onUpdate({ format: value })}
-        >
-          <SelectTrigger id="date-format">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
-            <SelectItem value="DD/MM/YYYY">DD/MM/YYYY</SelectItem>
-            <SelectItem value="YYYY-MM-DD">YYYY-MM-DD</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
         <Label htmlFor="min-date" className="text-sm font-medium mb-2 block">Minimum Date (optional)</Label>
         <Input
           id="min-date"

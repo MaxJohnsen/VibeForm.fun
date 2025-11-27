@@ -7,17 +7,20 @@ import { RatingQuestion } from './questions/RatingQuestion';
 import { EmailQuestion } from './questions/EmailQuestion';
 import { PhoneQuestion } from './questions/PhoneQuestion';
 import { DateQuestion } from './questions/DateQuestion';
+import { SupportedLanguage } from '@/shared/constants/translations';
 
 interface QuestionRendererProps {
   question: any;
   onSubmit: (value: any) => void;
   onValidationChange: (isValid: boolean) => void;
+  formLanguage?: SupportedLanguage;
 }
 
 export const QuestionRenderer = ({
   question,
   onSubmit,
   onValidationChange,
+  formLanguage = 'en',
 }: QuestionRendererProps) => {
   const commonProps = {
     label: question.label,
@@ -25,6 +28,7 @@ export const QuestionRenderer = ({
     onSubmit,
     onValidationChange,
     initialValue: question.currentAnswer,
+    formLanguage,
   };
 
   switch (question.type) {
