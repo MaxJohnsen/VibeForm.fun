@@ -128,12 +128,16 @@ Deno.serve(async (req) => {
 
     console.log('Navigated back to question:', targetQuestionId, '(deleted answer for question:', currentQuestionId, ')');
 
+    // Normalize the existing answer - convert _skipped marker back to null
+    const existingAnswer = existingAnswerResult.data?.answer_value;
+    const normalizedAnswer = existingAnswer?._skipped === true ? null : (existingAnswer || null);
+
     return new Response(
       JSON.stringify({
         success: true,
         question: {
           ...targetQuestionResult.data,
-          currentAnswer: existingAnswerResult.data?.answer_value || null,
+          currentAnswer: normalizedAnswer,
         },
         totalQuestions: countResult.count || 0,
       }),

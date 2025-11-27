@@ -22,7 +22,12 @@ export const RespondentNameQuestion = ({
   onValidationChange,
   formLanguage = 'en',
 }: RespondentNameQuestionProps) => {
-  const [value, setValue] = useState(initialValue ?? '');
+  const getInitialValue = () => {
+    if (!initialValue) return '';
+    if (typeof initialValue === 'object') return ''; // Handle _skipped objects
+    return String(initialValue);
+  };
+  const [value, setValue] = useState(getInitialValue());
   const isRequired = settings?.required === true;
   const placeholder = settings?.placeholder || 'Enter your name...';
   const t = useQuestionTranslation(formLanguage);
