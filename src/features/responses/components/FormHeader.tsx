@@ -17,7 +17,7 @@ export const FormHeader = ({ currentQuestion, totalQuestions, onClose }: FormHea
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
           <div className="relative">
             <span className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
-              VibeForm
+              Fairform
             </span>
           </div>
         </div>
