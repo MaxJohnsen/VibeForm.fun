@@ -42,7 +42,6 @@ export interface PhoneSettings {
 
 export interface DateSettings {
   required: boolean;
-  format: 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD';
   minDate?: string;
   maxDate?: string;
   disablePast: boolean;
@@ -126,7 +125,6 @@ export const getDefaultSettings = (type: string): QuestionSettings => {
     case 'date':
       return {
         required: true,
-        format: 'MM/DD/YYYY',
         disablePast: false,
         disableFuture: false,
       } as DateSettings;
