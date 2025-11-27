@@ -56,7 +56,7 @@ export const RespondentPage = () => {
   const handleNext = useCallback(() => {
     if (isSubmittingRef.current) return;
     
-    const isRequired = currentQuestion?.settings?.required !== false;
+    const isRequired = currentQuestion?.settings?.required === true;
     const hasValidAnswer = currentAnswer !== null && 
       (typeof currentAnswer !== 'string' || currentAnswer.trim().length > 0);
     
