@@ -24,7 +24,7 @@ export const YesNoQuestion = ({
   const [value, setValue] = useState<boolean | null>(initialValue ?? null);
   const yesLabel = settings?.yesLabel || 'Yes';
   const noLabel = settings?.noLabel || 'No';
-  const isRequired = settings?.required !== false;
+  const isRequired = settings?.required === true;
   const t = useQuestionTranslation(formLanguage);
 
   useEffect(() => {

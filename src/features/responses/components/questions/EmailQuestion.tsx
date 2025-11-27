@@ -26,7 +26,7 @@ export const EmailQuestion = ({
   const [error, setError] = useState('');
   const isMobile = useIsMobile();
   const placeholder = settings?.placeholder || 'name@example.com';
-  const isRequired = settings?.required !== false;
+  const isRequired = settings?.required === true;
   const t = useQuestionTranslation(formLanguage);
 
   useEffect(() => {

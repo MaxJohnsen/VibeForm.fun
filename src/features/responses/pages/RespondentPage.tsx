@@ -50,7 +50,7 @@ export const RespondentPage = () => {
 
   const handleQuestionSubmit = useCallback((value: any) => {
     setCurrentAnswer(value);
-    setCanProceed(true);
+    // Don't set canProceed here - let onValidationChange handle it
   }, []);
 
   const handleNext = useCallback(() => {

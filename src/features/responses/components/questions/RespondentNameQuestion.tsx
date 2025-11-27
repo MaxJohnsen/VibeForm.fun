@@ -21,7 +21,7 @@ export const RespondentNameQuestion = ({
   formLanguage = 'en',
 }: RespondentNameQuestionProps) => {
   const [value, setValue] = useState(initialValue ?? '');
-  const isRequired = settings?.required !== false;
+  const isRequired = settings?.required === true;
   const placeholder = settings?.placeholder || 'Enter your name...';
   const t = useQuestionTranslation(formLanguage);
 

@@ -53,7 +53,7 @@ export const PhoneQuestion = ({
   const [touched, setTouched] = useState(false);
   const isMobile = useIsMobile();
   const defaultCountry = settings?.defaultCountry || 'us';
-  const isRequired = settings?.required !== false;
+  const isRequired = settings?.required === true;
   const t = useQuestionTranslation(formLanguage);
   
   const isEmpty = useMemo(() => isOnlyDialCode(value, defaultCountry), [value, defaultCountry]);

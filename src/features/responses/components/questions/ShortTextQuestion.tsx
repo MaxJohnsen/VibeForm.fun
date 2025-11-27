@@ -23,7 +23,7 @@ export const ShortTextQuestion = ({
 }: ShortTextQuestionProps) => {
   const [value, setValue] = useState(initialValue ?? '');
   const isMobile = useIsMobile();
-  const isRequired = settings?.required !== false;
+  const isRequired = settings?.required === true;
   const placeholder = settings?.placeholder || 'Type your answer here...';
   const maxLength = settings?.maxLength;
   const t = useQuestionTranslation(formLanguage);

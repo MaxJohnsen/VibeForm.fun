@@ -66,7 +66,7 @@ export const DateQuestion = ({
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
 
-  const isRequired = settings?.required !== false;
+  const isRequired = settings?.required === true;
   const minDate = settings?.minDate ? new Date(settings.minDate) : undefined;
   const maxDate = settings?.maxDate ? new Date(settings.maxDate) : undefined;
   const disablePast = settings?.disablePast || false;
