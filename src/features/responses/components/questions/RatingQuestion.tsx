@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
+import { SupportedLanguage } from '@/shared/constants/translations';
+import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
+import { QuestionLabel } from './QuestionLabel';
 
 interface RatingQuestionProps {
   label: string;
@@ -7,6 +10,7 @@ interface RatingQuestionProps {
   initialValue?: number;
   onSubmit: (value: number) => void;
   onValidationChange: (isValid: boolean) => void;
+  formLanguage?: SupportedLanguage;
 }
 
 export const RatingQuestion = ({
@@ -15,6 +19,7 @@ export const RatingQuestion = ({
   initialValue,
   onSubmit,
   onValidationChange,
+  formLanguage = 'en',
 }: RatingQuestionProps) => {
   const [value, setValue] = useState<number | null>(initialValue ?? null);
   const [hoveredValue, setHoveredValue] = useState<number | null>(null);
@@ -25,6 +30,7 @@ export const RatingQuestion = ({
   const minLabel = settings?.minLabel;
   const maxLabel = settings?.maxLabel;
   const isRequired = settings?.required !== false;
+  const t = useQuestionTranslation(formLanguage);
 
   const ratings = Array.from({ length: max - min + 1 }, (_, i) => min + i);
 
@@ -113,9 +119,12 @@ export const RatingQuestion = ({
 
   return (
     <div className="space-y-8 sm:space-y-12 animate-fade-in">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground text-center">
-        {label}
-      </h2>
+      <QuestionLabel 
+        label={label} 
+        isRequired={isRequired} 
+        optionalText={t.optional} 
+        centered 
+      />
 
       <div className="space-y-4 sm:space-y-6">
         <div className="flex flex-wrap gap-2 sm:gap-3 justify-center items-center">

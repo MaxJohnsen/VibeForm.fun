@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { SupportedLanguage } from '@/shared/constants/translations';
+import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
+import { QuestionLabel } from './QuestionLabel';
 
 interface LongTextQuestionProps {
   label: string;
@@ -6,6 +9,7 @@ interface LongTextQuestionProps {
   initialValue?: string;
   onSubmit: (value: string) => void;
   onValidationChange: (isValid: boolean) => void;
+  formLanguage?: SupportedLanguage;
 }
 
 export const LongTextQuestion = ({
@@ -14,11 +18,13 @@ export const LongTextQuestion = ({
   initialValue = '',
   onSubmit,
   onValidationChange,
+  formLanguage = 'en',
 }: LongTextQuestionProps) => {
   const [value, setValue] = useState(initialValue ?? '');
   const isRequired = settings?.required !== false;
   const placeholder = settings?.placeholder || 'Type your answer here...';
   const maxLength = settings?.maxLength;
+  const t = useQuestionTranslation(formLanguage);
 
   useEffect(() => {
     const isValid = !isRequired || value.trim().length > 0;
@@ -36,9 +42,11 @@ export const LongTextQuestion = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-        {label}
-      </h2>
+      <QuestionLabel 
+        label={label} 
+        isRequired={isRequired} 
+        optionalText={t.optional} 
+      />
 
       <textarea
         value={value}
@@ -52,7 +60,7 @@ export const LongTextQuestion = ({
       />
 
       <div className="flex justify-between text-xs sm:text-sm text-muted-foreground">
-        <span className="hidden sm:inline">Press Ctrl + Enter to submit</span>
+        <span className="hidden sm:inline">{t.ctrlEnterSubmit}</span>
         {maxLength && (
           <span className="ml-auto">
             {value.length} / {maxLength}

@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { X, Check } from 'lucide-react';
+import { SupportedLanguage } from '@/shared/constants/translations';
+import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
+import { QuestionLabel } from './QuestionLabel';
 
 interface MultipleChoiceQuestionProps {
   label: string;
@@ -9,6 +12,7 @@ interface MultipleChoiceQuestionProps {
   initialValue?: any;
   onSubmit: (value: any) => void;
   onValidationChange: (isValid: boolean) => void;
+  formLanguage?: SupportedLanguage;
 }
 
 export const MultipleChoiceQuestion = ({
@@ -17,11 +21,13 @@ export const MultipleChoiceQuestion = ({
   initialValue,
   onSubmit,
   onValidationChange,
+  formLanguage = 'en',
 }: MultipleChoiceQuestionProps) => {
   const allowMultiple = settings?.allowMultiple || false;
   const allowOther = settings?.allowOther || false;
   const options = settings?.options || [];
   const isRequired = settings?.required !== false;
+  const t = useQuestionTranslation(formLanguage);
 
   // Parse initialValue to detect "Other" values
   const parseInitialValue = () => {
@@ -118,9 +124,11 @@ export const MultipleChoiceQuestion = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in" onKeyPress={handleKeyPress}>
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-        {label}
-      </h2>
+      <QuestionLabel 
+        label={label} 
+        isRequired={isRequired} 
+        optionalText={t.optional} 
+      />
 
       <div className="space-y-3 sm:space-y-4">
         {allowMultiple ? (
@@ -197,11 +205,11 @@ export const MultipleChoiceQuestion = ({
                   </div>
                 )}
               </div>
-              <span className="text-base sm:text-lg text-muted-foreground shrink-0">Other:</span>
+              <span className="text-base sm:text-lg text-muted-foreground shrink-0">{t.other}:</span>
               <Input
                 value={otherValue}
                 onChange={(e) => setOtherValue(e.target.value)}
-                placeholder="Please specify..."
+                placeholder={t.pleaseSpecify}
                 autoFocus
                 className="flex-1 border-0 bg-white/50 rounded-md px-3 py-1 focus-visible:ring-0 text-base sm:text-lg"
               />
@@ -219,7 +227,7 @@ export const MultipleChoiceQuestion = ({
               className="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-lg border-2 border-border hover:border-primary/50 hover:bg-muted/50 cursor-pointer transition-all min-h-[56px]"
             >
               <div className={`w-4 h-4 border-2 border-muted-foreground/30 flex-shrink-0 ${allowMultiple ? 'rounded-[3px]' : 'rounded-full'}`} />
-              <span className="text-base sm:text-lg text-muted-foreground">Other</span>
+              <span className="text-base sm:text-lg text-muted-foreground">{t.other}</span>
             </div>
           )
         )}

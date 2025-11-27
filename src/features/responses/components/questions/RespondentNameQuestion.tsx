@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { SupportedLanguage } from '@/shared/constants/translations';
+import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
+import { QuestionLabel } from './QuestionLabel';
 
 interface RespondentNameQuestionProps {
   label: string;
@@ -6,6 +9,7 @@ interface RespondentNameQuestionProps {
   initialValue?: string;
   onSubmit: (value: string) => void;
   onValidationChange: (isValid: boolean) => void;
+  formLanguage?: SupportedLanguage;
 }
 
 export const RespondentNameQuestion = ({
@@ -14,10 +18,12 @@ export const RespondentNameQuestion = ({
   initialValue = '',
   onSubmit,
   onValidationChange,
+  formLanguage = 'en',
 }: RespondentNameQuestionProps) => {
   const [value, setValue] = useState(initialValue ?? '');
   const isRequired = settings?.required !== false;
   const placeholder = settings?.placeholder || 'Enter your name...';
+  const t = useQuestionTranslation(formLanguage);
 
   useEffect(() => {
     const isValid = !isRequired || value.trim().length > 0;
@@ -38,9 +44,11 @@ export const RespondentNameQuestion = ({
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
-        {label}
-      </h2>
+      <QuestionLabel 
+        label={label} 
+        isRequired={isRequired} 
+        optionalText={t.optional} 
+      />
 
       <input
         type="text"
