@@ -27,17 +27,33 @@ export const LongTextQuestion = ({
   const t = useQuestionTranslation(formLanguage);
 
   useEffect(() => {
-    const isValid = !isRequired || value.trim().length > 0;
+    const trimmedValue = value.trim();
+    const hasContent = trimmedValue.length > 0;
+    const isValid = !isRequired || hasContent;
+    
     onValidationChange(isValid);
-    if (isValid) {
+    
+    // Only update the answer when there's content (or for optional fields, always update)
+    if (hasContent) {
       onSubmit(value);
+    } else if (!isRequired) {
+      // For optional fields, explicitly pass empty to indicate skipped
+      onSubmit('');
     }
   }, [value, isRequired, onValidationChange, onSubmit]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && e.ctrlKey && value.trim()) {
-      onSubmit(value);
+    // Ctrl+Enter to submit (for long text)
+    if (e.key === 'Enter' && e.ctrlKey) {
+      const trimmedValue = value.trim();
+      const hasContent = trimmedValue.length > 0;
+      const isValid = !isRequired || hasContent;
+      
+      if (isValid) {
+        onSubmit(value);
+      }
     }
+    // Regular Enter creates new line (default textarea behavior)
   };
 
   return (
