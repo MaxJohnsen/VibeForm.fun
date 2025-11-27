@@ -46,11 +46,12 @@ export const PhoneQuestion = ({
   onValidationChange,
   formLanguage = 'en',
 }: PhoneQuestionProps) => {
-  const [value, setValue] = useState(() => {
-    // Handle objects like { _skipped: true } or null/undefined
-    if (typeof initialValue === 'string') return initialValue;
-    return '';
-  });
+  const getInitialValue = () => {
+    if (!initialValue) return '';
+    if (typeof initialValue === 'object') return ''; // Handle _skipped objects
+    return String(initialValue);
+  };
+  const [value, setValue] = useState(getInitialValue());
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
   const isMobile = useIsMobile();

@@ -24,7 +24,12 @@ export const EmailQuestion = ({
   onValidationChange,
   formLanguage = 'en',
 }: EmailQuestionProps) => {
-  const [value, setValue] = useState(initialValue ?? '');
+  const getInitialValue = () => {
+    if (!initialValue) return '';
+    if (typeof initialValue === 'object') return ''; // Handle _skipped objects
+    return String(initialValue);
+  };
+  const [value, setValue] = useState(getInitialValue());
   const [error, setError] = useState('');
   const isMobile = useIsMobile();
   const placeholder = settings?.placeholder || 'name@example.com';

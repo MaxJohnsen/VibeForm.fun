@@ -23,7 +23,12 @@ export const ShortTextQuestion = ({
   onValidationChange,
   formLanguage = 'en',
 }: ShortTextQuestionProps) => {
-  const [value, setValue] = useState(initialValue ?? '');
+  const getInitialValue = () => {
+    if (!initialValue) return '';
+    if (typeof initialValue === 'object') return ''; // Handle _skipped objects
+    return String(initialValue);
+  };
+  const [value, setValue] = useState(getInitialValue());
   const isMobile = useIsMobile();
   const isRequired = settings?.required === true;
   const placeholder = settings?.placeholder || 'Type your answer here...';
