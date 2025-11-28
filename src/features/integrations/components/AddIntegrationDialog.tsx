@@ -15,10 +15,16 @@ interface AddIntegrationDialogProps {
   formId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  preselectedType?: IntegrationType;
 }
 
-export const AddIntegrationDialog = ({ formId, open, onOpenChange }: AddIntegrationDialogProps) => {
-  const [selectedType, setSelectedType] = useState<IntegrationType | null>(null);
+export const AddIntegrationDialog = ({ 
+  formId, 
+  open, 
+  onOpenChange,
+  preselectedType 
+}: AddIntegrationDialogProps) => {
+  const [selectedType, setSelectedType] = useState<IntegrationType | null>(preselectedType || null);
   const [name, setName] = useState('');
   const [config, setConfig] = useState<Record<string, any>>({});
   const { createIntegration, isCreating } = useIntegrations(formId);
@@ -65,6 +71,12 @@ export const AddIntegrationDialog = ({ formId, open, onOpenChange }: AddIntegrat
   const handleClose = (open: boolean) => {
     if (!open) resetForm();
     onOpenChange(open);
+  };
+
+  const handleBack = () => {
+    setSelectedType(null);
+    setName('');
+    setConfig({});
   };
 
   if (!selectedType) {
@@ -133,13 +145,20 @@ export const AddIntegrationDialog = ({ formId, open, onOpenChange }: AddIntegrat
           {selectedType === 'zapier' && <ZapierConfig config={config} onChange={setConfig} />}
         </div>
 
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={() => handleClose(false)} disabled={isCreating}>
-            Cancel
-          </Button>
-          <Button onClick={handleCreate} disabled={!isConfigValid() || isCreating}>
-            {isCreating ? 'Creating...' : 'Create Integration'}
-          </Button>
+        <div className="flex justify-between gap-2">
+          {!preselectedType && (
+            <Button variant="ghost" onClick={handleBack} disabled={isCreating}>
+              ← Back
+            </Button>
+          )}
+          <div className="flex gap-2 ml-auto">
+            <Button variant="outline" onClick={() => handleClose(false)} disabled={isCreating}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreate} disabled={!isConfigValid() || isCreating}>
+              {isCreating ? 'Creating...' : 'Create Integration'}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
