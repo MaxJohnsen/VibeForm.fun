@@ -222,17 +222,15 @@ Deno.serve(async (req) => {
 
     // Trigger integrations in background if form is complete
     if (isComplete) {
-      EdgeRuntime.waitUntil(
-        supabase.functions.invoke('process-integrations', {
-          body: { formId: responseResult.data.form_id, responseId: responseResult.data.id },
-        }).then(({ data, error }) => {
-          if (error) {
-            console.error('Error processing integrations:', error);
-          } else {
-            console.log('Integrations processed:', data);
-          }
-        })
-      );
+      supabase.functions.invoke('process-integrations', {
+        body: { formId: responseResult.data.form_id, responseId: responseResult.data.id },
+      }).then(({ data, error }) => {
+        if (error) {
+          console.error('Error processing integrations:', error);
+        } else {
+          console.log('Integrations processed:', data);
+        }
+      });
     }
 
     return new Response(
