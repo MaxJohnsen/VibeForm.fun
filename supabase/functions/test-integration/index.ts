@@ -82,20 +82,18 @@ Deno.serve(async (req) => {
         throw new Error(`Unknown integration type: ${integration.type}`);
     }
 
-    // Log the test
-    await supabase.from('integration_logs').insert({
-      integration_id: integrationId,
-      response_id: 'test',
-      status: success ? 'success' : 'error',
-      payload: { test: true, mockResponse, mockQuestions },
-      response_data: result,
-    });
+    // Note: We skip logging test executions to avoid FK constraint violations
+    // Test results are returned directly to the user
 
     return new Response(
       JSON.stringify({
         success,
         message: success ? 'Test successful' : 'Test failed',
         result,
+        integration: {
+          type: integration.type,
+          name: integration.name,
+        },
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

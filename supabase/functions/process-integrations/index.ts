@@ -196,33 +196,46 @@ async function processSlackIntegration(integration: Integration, response: any, 
     text: `*${label}*\n${value}`,
   }));
 
+  // Slack has a 10-field limit per section, so we need to chunk
+  const fieldChunks: any[][] = [];
+  for (let i = 0; i < fields.length; i += 10) {
+    fieldChunks.push(fields.slice(i, i + 10));
+  }
+
+  // Build blocks with chunked sections
+  const blocks: any[] = [
+    {
+      type: 'header',
+      text: {
+        type: 'plain_text',
+        text: `🎉 New Response: ${response.forms?.title}`,
+      },
+    },
+  ];
+
+  // Add a section block for each chunk
+  fieldChunks.forEach((chunk) => {
+    blocks.push({
+      type: 'section',
+      fields: chunk,
+    });
+  });
+
+  // Add timestamp context
+  blocks.push({
+    type: 'context',
+    elements: [
+      {
+        type: 'mrkdwn',
+        text: `Submitted at ${new Date(response.completed_at).toLocaleString()}`,
+      },
+    ],
+  });
+
   const slackResponse = await fetch(config.webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      blocks: [
-        {
-          type: 'header',
-          text: {
-            type: 'plain_text',
-            text: `🎉 New Response: ${response.forms?.title}`,
-          },
-        },
-        {
-          type: 'section',
-          fields,
-        },
-        {
-          type: 'context',
-          elements: [
-            {
-              type: 'mrkdwn',
-              text: `Submitted at ${new Date(response.completed_at).toLocaleString()}`,
-            },
-          ],
-        },
-      ],
-    }),
+    body: JSON.stringify({ blocks }),
   });
 
   if (!slackResponse.ok) {
