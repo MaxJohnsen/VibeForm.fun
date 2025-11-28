@@ -12,6 +12,7 @@ import { FormBuilderPage } from "./features/builder";
 import { RespondentPage } from "./features/responses";
 import { DashboardPage } from "./features/analytics";
 import { LotteryPage } from "./features/lottery";
+import { IntegrationsPage } from "./features/integrations";
 import { ROUTES } from "./shared/constants/routes";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 
@@ -66,6 +67,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <FormSettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path={ROUTES.INTEGRATIONS}
+            element={
+              <ProtectedRoute>
+                <IntegrationsPage />
               </ProtectedRoute>
             }
           />

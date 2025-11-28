@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.resume-response]
 verify_jwt = false
+
+[functions.process-integrations]
+verify_jwt = false
+
+[functions.test-integration]
+verify_jwt = false

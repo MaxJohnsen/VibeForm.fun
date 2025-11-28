@@ -137,6 +137,10 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
                 <BarChart3 className="h-4 w-4 mr-2" />
                 Analytics
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(ROUTES.getIntegrationsRoute(form.id))}>
+                <Share2 className="h-4 w-4 mr-2" />
+                Connect
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate(ROUTES.getFormSettingsRoute(form.id))}>
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
@@ -225,6 +229,14 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
         >
           <BarChart3 className="h-4 w-4 mr-2" />
           Analytics
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate(ROUTES.getIntegrationsRoute(form?.id || ''))}
+        >
+          <Share2 className="h-4 w-4 mr-2" />
+          Connect
         </Button>
         <Button variant="outline" size="sm" onClick={handlePreview}>
           <Eye className="h-4 w-4 mr-2" />
