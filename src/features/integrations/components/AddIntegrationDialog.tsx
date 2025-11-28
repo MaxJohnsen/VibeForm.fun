@@ -23,8 +23,25 @@ export const AddIntegrationDialog = ({ formId, open, onOpenChange }: AddIntegrat
   const [config, setConfig] = useState<Record<string, any>>({});
   const { createIntegration, isCreating } = useIntegrations(formId);
 
+  const isConfigValid = () => {
+    if (!selectedType || !name) return false;
+
+    switch (selectedType) {
+      case 'email':
+        return !!(config.recipient && config.subject);
+      case 'slack':
+        return !!(config.webhookUrl);
+      case 'webhook':
+        return !!(config.url);
+      case 'zapier':
+        return !!(config.webhookUrl);
+      default:
+        return false;
+    }
+  };
+
   const handleCreate = () => {
-    if (!selectedType || !name) return;
+    if (!isConfigValid()) return;
 
     createIntegration({
       form_id: formId,
@@ -120,7 +137,7 @@ export const AddIntegrationDialog = ({ formId, open, onOpenChange }: AddIntegrat
           <Button variant="outline" onClick={() => handleClose(false)} disabled={isCreating}>
             Cancel
           </Button>
-          <Button onClick={handleCreate} disabled={!name || isCreating}>
+          <Button onClick={handleCreate} disabled={!isConfigValid() || isCreating}>
             {isCreating ? 'Creating...' : 'Create Integration'}
           </Button>
         </div>
