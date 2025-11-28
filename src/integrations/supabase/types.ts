@@ -53,6 +53,50 @@ export type Database = {
           },
         ]
       }
+      form_integrations: {
+        Row: {
+          config: Json
+          created_at: string
+          enabled: boolean
+          form_id: string
+          id: string
+          name: string
+          trigger: Database["public"]["Enums"]["integration_trigger"]
+          type: Database["public"]["Enums"]["integration_type"]
+          updated_at: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          form_id: string
+          id?: string
+          name: string
+          trigger?: Database["public"]["Enums"]["integration_trigger"]
+          type: Database["public"]["Enums"]["integration_type"]
+          updated_at?: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          enabled?: boolean
+          form_id?: string
+          id?: string
+          name?: string
+          trigger?: Database["public"]["Enums"]["integration_trigger"]
+          type?: Database["public"]["Enums"]["integration_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_integrations_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       forms: {
         Row: {
           created_at: string | null
@@ -94,6 +138,54 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      integration_logs: {
+        Row: {
+          error_message: string | null
+          executed_at: string
+          id: string
+          integration_id: string
+          payload: Json | null
+          response_data: Json | null
+          response_id: string
+          status: string
+        }
+        Insert: {
+          error_message?: string | null
+          executed_at?: string
+          id?: string
+          integration_id: string
+          payload?: Json | null
+          response_data?: Json | null
+          response_id: string
+          status: string
+        }
+        Update: {
+          error_message?: string | null
+          executed_at?: string
+          id?: string
+          integration_id?: string
+          payload?: Json | null
+          response_data?: Json | null
+          response_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_logs_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "form_integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_logs_response_id_fkey"
+            columns: ["response_id"]
+            isOneToOne: false
+            referencedRelation: "responses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lottery_draws: {
         Row: {
@@ -226,7 +318,11 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      integration_trigger:
+        | "form_completed"
+        | "form_started"
+        | "question_answered"
+      integration_type: "email" | "slack" | "webhook" | "zapier"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -353,6 +449,13 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      integration_trigger: [
+        "form_completed",
+        "form_started",
+        "question_answered",
+      ],
+      integration_type: ["email", "slack", "webhook", "zapier"],
+    },
   },
 } as const
