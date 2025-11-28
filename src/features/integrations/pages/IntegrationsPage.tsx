@@ -8,6 +8,7 @@ import { AvailableIntegrationCard } from '../components/AvailableIntegrationCard
 import { AddIntegrationDialog } from '../components/AddIntegrationDialog';
 import { INTEGRATION_TYPES, IntegrationTypeInfo } from '../constants/integrationTypes';
 import { IntegrationType } from '../api/integrationsApi';
+import { ROUTES } from '@/shared/constants/routes';
 
 export const IntegrationsPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -36,14 +37,14 @@ export const IntegrationsPage = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
         <div className="container max-w-5xl mx-auto px-4 py-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="mb-8 -ml-2"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+      <Button
+        variant="ghost"
+        onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
+        className="mb-8 -ml-2"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Builder
+      </Button>
 
           {/* Hero Section */}
           <div className="text-center mb-12 animate-fade-in">
@@ -88,11 +89,11 @@ export const IntegrationsPage = () => {
         <div className="mb-8">
           <Button
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
             className="mb-4 -ml-2"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
+            Back to Builder
           </Button>
           
           <div className="flex items-center justify-between">
