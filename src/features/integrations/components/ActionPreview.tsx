@@ -59,17 +59,30 @@ export const ActionPreview = ({ type, config, processedContent }: ActionPreviewP
   );
 };
 
+// Helper to convert plain text line breaks to HTML while preserving existing HTML
+function convertToHtml(text: string): string {
+  // If text already contains HTML tags, return as-is
+  if (/<[a-z][\s\S]*>/i.test(text)) {
+    return text;
+  }
+  // Otherwise, convert newlines to <br> tags
+  return text.replace(/\n/g, '<br>');
+}
+
 const EmailPreview = ({ recipient, subject, body }: any) => (
-  <div className="space-y-3 font-mono text-xs">
-    <div className="space-y-1">
+  <div className="space-y-3 text-xs">
+    <div className="space-y-1 font-mono">
       <div className="text-muted-foreground">From: Forms &lt;noreply@forms.app&gt;</div>
       <div className="text-muted-foreground">To: {recipient || '(not set)'}</div>
       <div className="font-semibold">Subject: {subject || '(not set)'}</div>
     </div>
     <div className="border-t border-border/50 pt-3">
-      <div className="whitespace-pre-wrap text-foreground/90 leading-relaxed">
-        {body || '(no content)'}
-      </div>
+      <div 
+        className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 leading-relaxed"
+        dangerouslySetInnerHTML={{ 
+          __html: convertToHtml(body || '(no content)') 
+        }}
+      />
     </div>
   </div>
 );
