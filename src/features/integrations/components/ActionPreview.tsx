@@ -59,13 +59,9 @@ export const ActionPreview = ({ type, config, processedContent }: ActionPreviewP
   );
 };
 
-// Helper to convert plain text line breaks to HTML while preserving existing HTML
+// Helper to convert newlines to HTML line breaks
 function convertToHtml(text: string): string {
-  // If text already contains HTML tags, return as-is
-  if (/<[a-z][\s\S]*>/i.test(text)) {
-    return text;
-  }
-  // Otherwise, convert newlines to <br> tags
+  // Always convert newlines to <br> tags, regardless of existing HTML
   return text.replace(/\n/g, '<br>');
 }
 
