@@ -57,13 +57,10 @@ export function buildTemplateContext(
       ? formatAnswerValue(answer.answer_value, question.type, question.settings, form.language)
       : '(not answered)';
 
-    // Add question-specific variables
-    const questionKey = `question_${index + 1}`;
-    context[questionKey] = formattedValue;
-    
-    // Also add slugified question label as key
-    const slugKey = slugify(question.label);
-    context[slugKey] = formattedValue;
+    // Add question-specific variables in new format: q1_text, q1_answer, etc.
+    const qNumber = index + 1;
+    context[`q${qNumber}_text`] = question.label;
+    context[`q${qNumber}_answer`] = formattedValue;
 
     // Build all_answers string
     allAnswersText += `${question.label}: ${formattedValue}\n`;
@@ -124,25 +121,21 @@ export function getAvailableVariables(
     },
   ];
 
-  // Add question variables
+  // Add question variables in new format
   questions.forEach((question, index) => {
+    const qNumber = index + 1;
     variables.push({
-      key: `question_${index + 1}`,
-      label: question.label,
+      key: `q${qNumber}_text`,
+      label: `Q${qNumber}: ${question.label} (text)`,
+      example: question.label,
+      category: 'question'
+    });
+    variables.push({
+      key: `q${qNumber}_answer`,
+      label: `Q${qNumber}: ${question.label} (answer)`,
       example: getExampleValue(question.type),
       category: 'question'
     });
-
-    // Also add slugified version
-    const slugKey = slugify(question.label);
-    if (slugKey !== `question_${index + 1}`) {
-      variables.push({
-        key: slugKey,
-        label: `${question.label} (slug)`,
-        example: getExampleValue(question.type),
-        category: 'question'
-      });
-    }
   });
 
   // Special variables

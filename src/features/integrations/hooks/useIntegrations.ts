@@ -24,8 +24,8 @@ export const useIntegrations = (formId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['integrations', formId] });
       toast({
-        title: 'Integration created',
-        description: 'Your integration has been created successfully.',
+        title: 'Action created',
+        description: 'Your action has been created successfully.',
       });
     },
     onError: (error: Error) => {
@@ -43,8 +43,8 @@ export const useIntegrations = (formId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['integrations', formId] });
       toast({
-        title: 'Integration updated',
-        description: 'Your integration has been updated successfully.',
+        title: 'Action updated',
+        description: 'Your action has been updated successfully.',
       });
     },
     onError: (error: Error) => {
@@ -61,8 +61,8 @@ export const useIntegrations = (formId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['integrations', formId] });
       toast({
-        title: 'Integration deleted',
-        description: 'Your integration has been deleted successfully.',
+        title: 'Action deleted',
+        description: 'Your action has been deleted successfully.',
       });
     },
     onError: (error: Error) => {

@@ -49,13 +49,10 @@ export function buildTemplateContext(
       ? formatAnswerValue(answer.answer_value)
       : '(not answered)';
 
-    // Add question-specific variables
-    const questionKey = `question_${index + 1}`;
-    context[questionKey] = formattedValue;
-    
-    // Also add slugified question label as key
-    const slugKey = slugify(question.label);
-    context[slugKey] = formattedValue;
+    // Add question-specific variables in new format: q1_text, q1_answer, etc.
+    const qNumber = index + 1;
+    context[`q${qNumber}_text`] = question.label;
+    context[`q${qNumber}_answer`] = formattedValue;
 
     // Build all_answers string
     allAnswersText += `${question.label}: ${formattedValue}\n`;
