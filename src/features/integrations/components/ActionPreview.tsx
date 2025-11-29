@@ -30,7 +30,7 @@ export const ActionPreview = ({ type, config, processedContent }: ActionPreviewP
         </Badge>
       </div>
 
-      <ScrollArea className="h-[400px] rounded-lg border border-border/50 bg-muted/30 backdrop-blur-sm">
+      <ScrollArea className="max-h-[60vh] lg:max-h-[calc(100vh-240px)] rounded-lg border border-border/50 bg-muted/30 backdrop-blur-sm transition-all duration-200">
         <div className="p-4">
           {type === 'email' && (
             <EmailPreview
