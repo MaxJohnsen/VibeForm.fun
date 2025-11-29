@@ -263,25 +263,23 @@ export const ActionConfigPanel = ({
 
             {/* Preview (Right - 40%) */}
             <div className="lg:col-span-2">
-              <div className="sticky top-24">
-                <GlassCard className="p-6">
-                  {isLoadingPreview ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                    </div>
-                  ) : previewData ? (
-                    <ActionPreview
-                      type={type}
-                      config={config}
-                      processedContent={processedContent}
-                    />
-                  ) : (
-                    <div className="text-center py-12 text-muted-foreground">
-                      Preview unavailable
-                    </div>
-                  )}
-                </GlassCard>
-              </div>
+              <GlassCard className="p-6 lg:sticky lg:top-[89px] transition-all duration-300">
+                {isLoadingPreview ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : previewData ? (
+                  <ActionPreview
+                    type={type}
+                    config={config}
+                    processedContent={processedContent}
+                  />
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    Preview unavailable
+                  </div>
+                )}
+              </GlassCard>
             </div>
           </div>
         </div>
