@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, Loader2, Settings, Mail, Info } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -215,30 +215,20 @@ export const ActionConfigPanel = ({
             <div className="space-y-6">
               <GlassCard className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* General Section */}
+                  {/* Action Name */}
                   <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <Settings className="h-4 w-4 text-muted-foreground" />
-                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                        General
-                      </h3>
-                    </div>
-                    <div>
-                      <Label htmlFor="name" className="text-sm font-semibold">
-                        Action Name <span className="text-destructive">*</span>
-                      </Label>
-                      <Input
-                        id="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="e.g., Send response summary to team"
-                        className="mt-2"
-                        required
-                      />
-                    </div>
+                    <Label htmlFor="name">Action Name *</Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="e.g., Send response summary to team"
+                      className="mt-1.5"
+                      required
+                    />
                   </div>
 
-                  <div className="pt-6">
+                  <div className="border-t border-border/50 pt-6">
                     {type === 'email' && (
                       <EmailConfiguration
                         config={config}
@@ -325,85 +315,69 @@ const EmailConfiguration = ({
 }: any) => {
   return (
     <div className="space-y-6">
-      {/* Section Header */}
-      <div className="flex items-center gap-2 mb-2">
-        <Mail className="h-4 w-4 text-muted-foreground" />
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-          Email Content
-        </h3>
-      </div>
+      <Alert>
+        <AlertDescription className="text-sm">
+          Emails will be sent using Resend. Make sure RESEND_API_KEY is configured in your secrets.
+        </AlertDescription>
+      </Alert>
 
-      {/* Subtle Info Notice */}
-      <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 px-3 py-2.5 rounded-lg border border-border/30">
-        <Info className="h-3.5 w-3.5 flex-shrink-0 mt-0.5" />
-        <span>Emails sent via Resend. Ensure RESEND_API_KEY is configured in secrets.</span>
-      </div>
-
-      {/* Recipient Field */}
       <div>
-        <Label htmlFor="recipient" className="text-sm font-semibold">
-          Recipient Email <span className="text-destructive">*</span>
-        </Label>
+        <Label htmlFor="recipient">Recipient Email *</Label>
         <Input
           id="recipient"
           type="email"
           placeholder="notifications@example.com"
           value={config.recipient || ''}
           onChange={(e) => onChange({ ...config, recipient: e.target.value })}
-          className="mt-2"
+          className="mt-1.5"
           required
         />
       </div>
 
-      {/* Content Fields Group */}
-      <div className="space-y-4 bg-muted/20 rounded-lg p-4 border border-border/30">
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <Label htmlFor="subject" className="text-sm font-semibold">
-              Subject <span className="text-destructive">*</span>
-            </Label>
-            {!isLoadingVariables && (
-              <VariablePicker
-                variables={variables}
-                onSelect={(v) => onInsertVariable('subject', v)}
-              />
-            )}
-          </div>
-          <Input
-            ref={subjectRef}
-            id="subject"
-            value={config.subject || ''}
-            onChange={(e) => onChange({ ...config, subject: e.target.value })}
-            className="font-mono text-sm"
-            required
-          />
-          <p className="text-xs text-muted-foreground mt-1.5">
-            Use {`{{variable}}`} syntax to insert dynamic content
-          </p>
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <Label htmlFor="subject">Email Subject *</Label>
+          {!isLoadingVariables && (
+            <VariablePicker
+              variables={variables}
+              onSelect={(v) => onInsertVariable('subject', v)}
+            />
+          )}
         </div>
+        <Input
+          ref={subjectRef}
+          id="subject"
+          value={config.subject || ''}
+          onChange={(e) => onChange({ ...config, subject: e.target.value })}
+          className="font-mono text-sm"
+          required
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Use {`{{variable}}`} syntax to insert dynamic content
+        </p>
+      </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <Label htmlFor="bodyTemplate" className="text-sm font-semibold">Body Template</Label>
-            {!isLoadingVariables && (
-              <VariablePicker
-                variables={variables}
-                onSelect={(v) => onInsertVariable('body', v)}
-              />
-            )}
-          </div>
-          <Textarea
-            ref={bodyRef}
-            id="bodyTemplate"
-            value={config.bodyTemplate || ''}
-            onChange={(e) => onChange({ ...config, bodyTemplate: e.target.value })}
-            className="font-mono text-sm min-h-[200px]"
-            rows={10}
-          />
-          <p className="text-xs text-muted-foreground mt-1.5">
-            Default template includes all answers formatted
-          </p>
+      <div>
+        <div className="flex items-center justify-between mb-1.5">
+          <Label htmlFor="bodyTemplate">Email Body</Label>
+          {!isLoadingVariables && (
+            <VariablePicker
+              variables={variables}
+              onSelect={(v) => onInsertVariable('body', v)}
+            />
+          )}
         </div>
+        <Textarea
+          ref={bodyRef}
+          id="bodyTemplate"
+          value={config.bodyTemplate || ''}
+          onChange={(e) => onChange({ ...config, bodyTemplate: e.target.value })}
+          className="font-mono text-sm min-h-[200px]"
+          rows={10}
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Default template includes all answers formatted
+        </p>
       </div>
     </div>
   );
