@@ -1,20 +1,15 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Plus, Zap } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
-import { useIntegrations } from '../hooks/useIntegrations';
-import { formsApi } from '@/features/forms/api/formsApi';
+import { ArrowLeft, Loader2, Plus, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useIntegrations } from '../hooks/useIntegrations';
 import { ActionRow } from '../components/ActionRow';
-import { AddIntegrationDialog } from '../components/AddIntegrationDialog';
-import { IntegrationTypePalette } from '../components/IntegrationTypePalette';
-import { INTEGRATION_TYPES } from '../constants/integrationTypes';
-import { IntegrationType } from '../api/integrationsApi';
-import { ROUTES } from '@/shared/constants/routes';
+import { ActionConfigPanel } from '../components/ActionConfigPanel';
 import { SearchBar } from '@/shared/ui/SearchBar';
 import { EmptyState } from '@/shared/ui/EmptyState';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Integration, IntegrationType } from '../api/integrationsApi';
 import {
   Select,
   SelectContent,
@@ -22,79 +17,129 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { IntegrationTypePalette } from '../components/IntegrationTypePalette';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const ActionsPage = () => {
-  const { formId } = useParams<{ formId: string }>();
+  const { formId } = useParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [preselectedType, setPreselectedType] = useState<IntegrationType | undefined>();
+  const { integrations, isLoading, createIntegration, deleteIntegration, updateIntegration, isCreating, isUpdating } = useIntegrations(formId!);
+
+  const [activeAction, setActiveAction] = useState<{
+    mode: 'create' | 'edit';
+    type?: IntegrationType;
+    action?: Integration;
+  } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<IntegrationType | 'all'>('all');
-  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
-  
-  const { integrations, isLoading } = useIntegrations(formId!);
+  const [selectedType, setSelectedType] = useState<IntegrationType | undefined>();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const { data: form } = useQuery({
     queryKey: ['form', formId],
-    queryFn: () => formsApi.getFormById(formId!),
-    enabled: !!formId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('forms')
+        .select('title')
+        .eq('id', formId!)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
   });
 
-  // Filter actions based on search and type
-  const filteredActions = integrations.filter((action) => {
+  const filteredActions = integrations.filter(action => {
     const matchesSearch = action.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesType = typeFilter === 'all' || action.type === typeFilter;
+    const matchesType = !selectedType || action.type === selectedType;
     return matchesSearch && matchesType;
   });
 
   const handleSelectType = (type: IntegrationType) => {
-    setPreselectedType(type);
-    setIsAddDialogOpen(true);
-    setMobileSheetOpen(false);
+    setActiveAction({ mode: 'create', type });
+    setIsSheetOpen(false);
   };
 
-  const handleDialogClose = (open: boolean) => {
-    setIsAddDialogOpen(open);
-    if (!open) {
-      setPreselectedType(undefined);
-    }
+  const handleEditAction = (action: Integration) => {
+    setActiveAction({ mode: 'edit', type: action.type, action });
   };
+
+  const handleSaveAction = async (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'>) => {
+    if (activeAction?.mode === 'create') {
+      await createIntegration(data);
+    } else if (activeAction?.mode === 'edit' && activeAction.action) {
+      await updateIntegration({ id: activeAction.action.id, updates: data });
+    }
+    setActiveAction(null);
+  };
+
+  const handleCancel = () => {
+    setActiveAction(null);
+  };
+
+  // Show config panel if action is active
+  if (activeAction) {
+    return (
+      <ActionConfigPanel
+        formId={formId!}
+        type={activeAction.type!}
+        action={activeAction.action}
+        onSave={handleSaveAction}
+        onCancel={handleCancel}
+        isSaving={isCreating || isUpdating}
+      />
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Sticky Top Bar */}
-      <div className="border-b border-border/50 glass-panel sticky top-0 z-10 backdrop-blur-xl bg-background/50">
-        <div className="px-4 md:px-6 py-3 md:py-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 md:gap-4 min-w-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="shrink-0 -ml-2 md:ml-0"
-                onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-base md:text-xl font-semibold truncate">
-                  {form?.title || 'Form'}
-                </h1>
-                <p className="text-xs md:text-sm text-muted-foreground truncate hidden sm:block">
-                  Actions • Automate workflows when responses are submitted
-                </p>
-              </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      {/* Header */}
+      <div className="sticky top-0 z-10 border-b border-border/50 bg-background/95 backdrop-blur-sm">
+        <div className="px-4 sm:px-6 py-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(`/forms/${formId}`)}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+            <div className="flex-1">
+              <h1 className="text-lg sm:text-xl font-semibold truncate">
+                {form?.title}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Actions • Automate workflows when responses are submitted
+              </p>
             </div>
+            {/* Mobile: Show Add button */}
             {isMobile && (
-              <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
-                  <Button size="sm" className="shrink-0">
-                    <Plus className="h-4 w-4 mr-2" />
+                  <Button size="sm" className="gap-2">
+                    <Plus className="h-4 w-4" />
                     Add
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="bottom" className="h-[80vh]">
-                  <IntegrationTypePalette onSelectType={handleSelectType} className="border-none h-full" />
+                  <SheetHeader>
+                    <SheetTitle>Add Integration</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-4">
+                    <IntegrationTypePalette
+                      onSelectType={handleSelectType}
+                      className="border-none"
+                    />
+                  </div>
                 </SheetContent>
               </Sheet>
             )}
@@ -102,86 +147,80 @@ export const ActionsPage = () => {
         </div>
       </div>
 
-      {/* Split-panel layout */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left sidebar - Desktop only */}
+      {/* Main Content - Split Layout */}
+      <div className="flex">
+        {/* Left Sidebar - Integration Types (Desktop only) */}
         {!isMobile && (
-          <IntegrationTypePalette onSelectType={handleSelectType} />
+          <div className="w-64 border-r border-border/50 bg-background/50 backdrop-blur-sm">
+            <IntegrationTypePalette onSelectType={handleSelectType} />
+          </div>
         )}
 
-        {/* Main content area */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-5xl mx-auto px-4 md:px-8 py-4 md:py-8">
-            {isLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="glass-panel p-4 rounded-lg animate-pulse">
-                    <div className="h-12 bg-muted/50 rounded" />
-                  </div>
-                ))}
+        {/* Main Area - Actions List */}
+        <div className="flex-1">
+          <div className="p-4 sm:p-6 space-y-4">
+            {/* Search and Filter Bar (only when actions exist) */}
+            {integrations.length > 0 && (
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1">
+                  <SearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="Search actions..."
+                  />
+                </div>
+                <Select
+                  value={selectedType || 'all'}
+                  onValueChange={(value) => setSelectedType(value === 'all' ? undefined : value as IntegrationType)}
+                >
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="All types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All types</SelectItem>
+                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="slack">Slack</SelectItem>
+                    <SelectItem value="webhook">Webhook</SelectItem>
+                    <SelectItem value="zapier">Zapier</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            ) : integrations.length === 0 ? (
+            )}
+
+            {/* Actions List or Empty State */}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredActions.length === 0 && integrations.length === 0 ? (
               <EmptyState
                 icon={Zap}
                 title="No actions yet"
-                description="Choose an integration from the left to create your first action and automate your workflow."
-                className="py-20"
+                description="Select an integration from the left to create your first action"
+              />
+            ) : filteredActions.length === 0 ? (
+              <EmptyState
+                icon={Zap}
+                title="No matching actions"
+                description="Try adjusting your search or filter"
               />
             ) : (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Your Actions</h2>
-                </div>
-
-                {/* Search and filter bar */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex-1">
-                    <SearchBar
-                      placeholder="Search actions..."
-                      value={searchQuery}
-                      onChange={setSearchQuery}
-                      className="max-w-full"
-                    />
-                  </div>
-                  <Select value={typeFilter} onValueChange={(value) => setTypeFilter(value as IntegrationType | 'all')}>
-                    <SelectTrigger className="w-full sm:w-[180px] glass-panel">
-                      <SelectValue placeholder="Filter by type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      {INTEGRATION_TYPES.map((type) => (
-                        <SelectItem key={type.type} value={type.type}>
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Actions list */}
-                {filteredActions.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground">
-                    No actions match your search
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {filteredActions.map((action) => (
-                      <ActionRow key={action.id} action={action} />
-                    ))}
-                  </div>
-                )}
+              <div className="space-y-3">
+                {filteredActions.map((action) => (
+                  <ActionRow
+                    key={action.id}
+                    action={action}
+                    onEdit={() => handleEditAction(action)}
+                    onUpdate={(id, updates) => updateIntegration({ id, updates })}
+                    onDelete={deleteIntegration}
+                    isUpdating={isUpdating}
+                  />
+                ))}
               </div>
             )}
           </div>
         </div>
       </div>
-
-      <AddIntegrationDialog
-        formId={formId!}
-        open={isAddDialogOpen}
-        onOpenChange={handleDialogClose}
-        preselectedType={preselectedType}
-      />
     </div>
   );
 };
