@@ -10,6 +10,7 @@ import { EmptyState } from '@/shared/ui/EmptyState';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Integration, IntegrationType } from '../api/integrationsApi';
+import { ROUTES } from '@/shared/constants/routes';
 import {
   Select,
   SelectContent,
@@ -107,7 +108,7 @@ export const ActionsPage = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(`/forms/${formId}`)}
+              onClick={() => navigate(ROUTES.getFormSettingsRoute(formId!))}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
