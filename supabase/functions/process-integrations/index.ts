@@ -194,64 +194,83 @@ async function processSlackIntegration(integration: Integration, response: any, 
     response.answers || []
   );
 
-  // Process custom message if provided, otherwise use default format
-  let messageText = config.message
-    ? processTemplate(config.message, context)
-    : context.all_answers;
-
-  const answersMap = new Map();
-  response.answers?.forEach((answer: any) => {
-    const question = questions.find((q) => q.id === answer.question_id);
-    if (question) {
-      answersMap.set(question.label, formatAnswerValue(answer.answer_value));
-    }
-  });
-
-  const fields = Array.from(answersMap.entries()).map(([label, value]) => ({
-    type: 'mrkdwn',
-    text: `*${label}*\n${value}`,
-  }));
-
-  // Slack has a 10-field limit per section, so we need to chunk
-  const fieldChunks: any[][] = [];
-  for (let i = 0; i < fields.length; i += 10) {
-    fieldChunks.push(fields.slice(i, i + 10));
-  }
-
-  // Build blocks with chunked sections
-  const blocks: any[] = [
-    {
-      type: 'header',
-      text: {
-        type: 'plain_text',
-        text: `🎉 New Response: ${response.forms?.title}`,
-      },
-    },
-  ];
-
-  // Add a section block for each chunk
-  fieldChunks.forEach((chunk) => {
-    blocks.push({
-      type: 'section',
-      fields: chunk,
+  let slackPayload: any;
+  
+  // Check if custom message template is provided
+  if (config.message && config.message.trim()) {
+    // Use custom message template
+    const processedMessage = processTemplate(config.message, context);
+    
+    slackPayload = {
+      text: processedMessage,
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: processedMessage
+          }
+        }
+      ]
+    };
+  } else {
+    // Use default format with fields
+    const answersMap = new Map();
+    response.answers?.forEach((answer: any) => {
+      const question = questions.find((q) => q.id === answer.question_id);
+      if (question) {
+        answersMap.set(question.label, formatAnswerValue(answer.answer_value));
+      }
     });
-  });
 
-  // Add timestamp context
-  blocks.push({
-    type: 'context',
-    elements: [
+    const fields = Array.from(answersMap.entries()).map(([label, value]) => ({
+      type: 'mrkdwn',
+      text: `*${label}*\n${value}`,
+    }));
+
+    // Slack has a 10-field limit per section, so we need to chunk
+    const fieldChunks: any[][] = [];
+    for (let i = 0; i < fields.length; i += 10) {
+      fieldChunks.push(fields.slice(i, i + 10));
+    }
+
+    // Build blocks with chunked sections
+    const blocks: any[] = [
       {
-        type: 'mrkdwn',
-        text: `Submitted at ${new Date(response.completed_at).toLocaleString()}`,
+        type: 'header',
+        text: {
+          type: 'plain_text',
+          text: `🎉 New Response: ${response.forms?.title}`,
+        },
       },
-    ],
-  });
+    ];
+
+    // Add a section block for each chunk
+    fieldChunks.forEach((chunk) => {
+      blocks.push({
+        type: 'section',
+        fields: chunk,
+      });
+    });
+
+    // Add timestamp context
+    blocks.push({
+      type: 'context',
+      elements: [
+        {
+          type: 'mrkdwn',
+          text: `Submitted at ${new Date(response.completed_at).toLocaleString()}`,
+        },
+      ],
+    });
+
+    slackPayload = { blocks };
+  }
 
   const slackResponse = await fetch(config.webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ blocks }),
+    body: JSON.stringify(slackPayload),
   });
 
   if (!slackResponse.ok) {

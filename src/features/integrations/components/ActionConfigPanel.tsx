@@ -61,10 +61,11 @@ export const ActionConfigPanel = ({
       const input = subjectInputRef.current;
       const start = input.selectionStart || 0;
       const end = input.selectionEnd || 0;
+      const currentSubject = config.subject || '';
       const newValue = 
-        config.subject.substring(0, start) + 
+        currentSubject.substring(0, start) + 
         variable + 
-        config.subject.substring(end);
+        currentSubject.substring(end);
       setConfig({ ...config, subject: newValue });
       
       setTimeout(() => {
@@ -75,10 +76,11 @@ export const ActionConfigPanel = ({
       const textarea = bodyTextareaRef.current;
       const start = textarea.selectionStart || 0;
       const end = textarea.selectionEnd || 0;
+      const currentBody = config.bodyTemplate || '';
       const newValue = 
-        (config.bodyTemplate || '').substring(0, start) + 
+        currentBody.substring(0, start) + 
         variable + 
-        (config.bodyTemplate || '').substring(end);
+        currentBody.substring(end);
       setConfig({ ...config, bodyTemplate: newValue });
       
       setTimeout(() => {
@@ -139,14 +141,31 @@ export const ActionConfigPanel = ({
             </div>
           </div>
           
-          <Button
-            onClick={handleSubmit}
-            disabled={isSaving || !name || !isConfigValid()}
-            className="gap-2"
-          >
-            {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-            {action ? 'Save Changes' : 'Create Action'}
-          </Button>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="trigger" className="text-sm text-muted-foreground">
+                Trigger:
+              </Label>
+              <select
+                id="trigger"
+                value={action?.trigger || 'form_completed'}
+                className="h-9 px-3 rounded-md border border-input bg-background text-sm"
+                disabled
+              >
+                <option value="form_completed">On form completed</option>
+                <option value="form_started">On form started</option>
+                <option value="question_answered">On question answered</option>
+              </select>
+            </div>
+            <Button
+              onClick={handleSubmit}
+              disabled={isSaving || !name || !isConfigValid()}
+              className="gap-2"
+            >
+              {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
+              {action ? 'Save Changes' : 'Create Action'}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -185,7 +204,11 @@ export const ActionConfigPanel = ({
                     )}
 
                     {type === 'slack' && (
-                      <SlackConfig config={config} onChange={setConfig} />
+                      <SlackConfig
+                        config={config}
+                        onChange={setConfig}
+                        variables={previewData ? getAvailableVariables(previewData.questions) : []}
+                      />
                     )}
 
                     {type === 'webhook' && (
