@@ -26,6 +26,46 @@ interface ActionConfigPanelProps {
   isSaving: boolean;
 }
 
+const getDefaultConfig = (type: IntegrationType): Record<string, any> => {
+  switch (type) {
+    case 'email':
+      return {
+        recipient: '',
+        subject: 'New response: {{form_title}}',
+        bodyTemplate: `Hi team,
+
+We received a new form response!
+
+{{all_answers}}
+
+---
+Submitted at: {{submitted_at}}
+Response ID: {{response_id}}`,
+      };
+    case 'slack':
+      return {
+        webhookUrl: '',
+        message: `📋 *New Response: {{form_title}}*
+
+{{all_answers}}
+
+_Submitted at {{submitted_at}}_`,
+      };
+    case 'webhook':
+      return {
+        url: '',
+        method: 'POST',
+        headers: '{"Content-Type": "application/json"}',
+      };
+    case 'zapier':
+      return {
+        webhookUrl: '',
+      };
+    default:
+      return {};
+  }
+};
+
 export const ActionConfigPanel = ({
   formId,
   type,
@@ -34,15 +74,13 @@ export const ActionConfigPanel = ({
   onCancel,
   isSaving,
 }: ActionConfigPanelProps) => {
-  const [name, setName] = useState(action?.name || '');
-  const [config, setConfig] = useState<Record<string, any>>(action?.config || {});
-  
+  const integrationInfo = INTEGRATION_TYPES.find(t => t.type === type);
+  const [name, setName] = useState(action?.name || `${integrationInfo?.label} notification`);
+  const [config, setConfig] = useState<Record<string, any>>(action?.config || getDefaultConfig(type));
   const subjectInputRef = useRef<HTMLInputElement>(null);
   const bodyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: previewData, isLoading: isLoadingPreview } = useTemplatePreview(formId);
-
-  const integrationInfo = INTEGRATION_TYPES.find(t => t.type === type);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -311,7 +349,6 @@ const EmailConfiguration = ({
         <Input
           ref={subjectRef}
           id="subject"
-          placeholder="New response: {{form_title}}"
           value={config.subject || ''}
           onChange={(e) => onChange({ ...config, subject: e.target.value })}
           className="font-mono text-sm"
@@ -335,14 +372,13 @@ const EmailConfiguration = ({
         <Textarea
           ref={bodyRef}
           id="bodyTemplate"
-          placeholder="Hi team,&#10;&#10;We received a new response from {{respondent_name}}!&#10;&#10;{{all_answers}}"
           value={config.bodyTemplate || ''}
           onChange={(e) => onChange({ ...config, bodyTemplate: e.target.value })}
           className="font-mono text-sm min-h-[200px]"
           rows={10}
         />
         <p className="text-xs text-muted-foreground mt-1">
-          Leave empty to use default template with all answers
+          Default template includes all answers formatted
         </p>
       </div>
     </div>

@@ -55,6 +55,34 @@ export const VariablePicker = ({ variables, onSelect }: VariablePickerProps) => 
 
         <ScrollArea className="h-[320px]">
           <div className="p-2 space-y-3">
+            {specialVars.length > 0 && (
+              <div>
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                  SPECIAL VARIABLES
+                </div>
+                <div className="space-y-0.5">
+                  {specialVars.map((variable) => (
+                    <button
+                      key={variable.key}
+                      onClick={() => handleSelect(variable.key)}
+                      className="w-full text-left px-2 py-1.5 rounded-md hover:bg-accent/50 transition-colors group"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium truncate">
+                            {variable.label}
+                          </div>
+                          <div className="text-xs text-muted-foreground font-mono">
+                            {`{{${variable.key}}}`}
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {formVars.length > 0 && (
               <div>
                 <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
@@ -117,7 +145,7 @@ export const VariablePicker = ({ variables, onSelect }: VariablePickerProps) => 
               </div>
             )}
 
-            {specialVars.length > 0 && (
+            {filteredVariables.length === 0 && (
               <div>
                 <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
                   SPECIAL VARIABLES
