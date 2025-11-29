@@ -28,9 +28,25 @@ export interface IntegrationLog {
 }
 
 export interface EmailConfig {
-  recipient: string;
+  // Provider choice
+  useCustomApiKey: boolean;
+  customApiKey?: string;
+  
+  // Sender (when using custom API key)
+  fromName?: string;
+  fromEmail?: string;
+  
+  // Recipients
+  to: string;  // Comma-separated emails
+  cc?: string;  // Comma-separated CC emails
+  bcc?: string;  // Comma-separated BCC emails
+  
+  // Content
   subject: string;
   bodyTemplate?: string;
+  
+  // Legacy support
+  recipient?: string;  // Backward compatibility
 }
 
 export interface SlackConfig {

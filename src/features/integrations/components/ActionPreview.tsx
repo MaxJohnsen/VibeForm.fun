@@ -9,7 +9,12 @@ interface ActionPreviewProps {
   processedContent: {
     subject?: string;
     body?: string;
-    recipient?: string;
+    to?: string;
+    cc?: string;
+    bcc?: string;
+    fromName?: string;
+    fromEmail?: string;
+    useCustomApiKey?: boolean;
     payload?: any;
   };
 }
@@ -34,9 +39,14 @@ export const ActionPreview = ({ type, config, processedContent }: ActionPreviewP
         <div className="p-4">
           {type === 'email' && (
             <EmailPreview
-              recipient={processedContent.recipient || config.recipient}
+              to={processedContent.to}
+              cc={processedContent.cc}
+              bcc={processedContent.bcc}
               subject={processedContent.subject}
               body={processedContent.body}
+              fromName={processedContent.fromName}
+              fromEmail={processedContent.fromEmail}
+              useCustomApiKey={processedContent.useCustomApiKey}
             />
           )}
 
@@ -65,23 +75,31 @@ function convertToHtml(text: string): string {
   return text.replace(/\n/g, '<br>');
 }
 
-const EmailPreview = ({ recipient, subject, body }: any) => (
-  <div className="space-y-3 text-xs">
-    <div className="space-y-1 font-mono">
-      <div className="text-muted-foreground">From: Forms &lt;noreply@forms.app&gt;</div>
-      <div className="text-muted-foreground">To: {recipient || '(not set)'}</div>
-      <div className="font-semibold">Subject: {subject || '(not set)'}</div>
+const EmailPreview = ({ to, cc, bcc, subject, body, fromName, fromEmail, useCustomApiKey }: any) => {
+  const fromDisplay = useCustomApiKey && fromEmail
+    ? `${fromName || 'Forms'} <${fromEmail}>`
+    : 'Fairform <action@fairform.io>';
+  
+  return (
+    <div className="space-y-3 text-xs">
+      <div className="space-y-1 font-mono">
+        <div className="text-muted-foreground">From: {fromDisplay}</div>
+        <div className="text-muted-foreground">To: {to || '(not set)'}</div>
+        {cc && <div className="text-muted-foreground">CC: {cc}</div>}
+        {bcc && <div className="text-muted-foreground">BCC: {bcc}</div>}
+        <div className="font-semibold">Subject: {subject || '(not set)'}</div>
+      </div>
+      <div className="border-t border-border/50 pt-3">
+        <div 
+          className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 leading-relaxed"
+          dangerouslySetInnerHTML={{ 
+            __html: convertToHtml(body || '(no content)') 
+          }}
+        />
+      </div>
     </div>
-    <div className="border-t border-border/50 pt-3">
-      <div 
-        className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 leading-relaxed"
-        dangerouslySetInnerHTML={{ 
-          __html: convertToHtml(body || '(no content)') 
-        }}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
 const SlackPreview = ({ message }: any) => (
   <div className="space-y-3">
