@@ -210,9 +210,9 @@ export const ActionConfigPanel = ({
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-7xl mx-auto p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Configuration (Left - 60%) */}
-            <div className="lg:col-span-3 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            {/* Configuration (Left) */}
+            <div className="space-y-6">
               <GlassCard className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Action Name */}
@@ -261,9 +261,9 @@ export const ActionConfigPanel = ({
               </GlassCard>
             </div>
 
-            {/* Preview (Right - 40%) */}
-            <div className="lg:col-span-2">
-              <GlassCard className="p-6 lg:sticky lg:top-[89px] transition-all duration-300">
+            {/* Preview (Right) */}
+            <div>
+              <GlassCard className="p-6 lg:sticky lg:top-6 transition-all duration-300">
                 {isLoadingPreview ? (
                   <div className="flex items-center justify-center py-12">
                     <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
