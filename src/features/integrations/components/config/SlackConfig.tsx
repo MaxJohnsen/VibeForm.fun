@@ -82,14 +82,13 @@ export const SlackConfig = ({ config, onChange, variables = [] }: SlackConfigPro
         <Textarea
           ref={messageInputRef}
           id="message"
-          placeholder="New response for {{form_title}}&#10;&#10;{{all_answers}}"
           value={config.message || ''}
           onChange={(e) => onChange({ ...config, message: e.target.value })}
           className="min-h-[150px] font-mono text-sm"
           rows={8}
         />
         <p className="text-xs text-muted-foreground mt-1">
-          Customize the Slack message. Use <code className="px-1 py-0.5 rounded bg-muted">{'{{variables}}'}</code> to include form data. Leave empty to use the default format.
+          Default template includes all answers formatted
         </p>
       </div>
     </div>
