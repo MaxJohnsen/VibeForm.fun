@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Resend } from 'https://esm.sh/resend@4.0.0';
+import { buildTemplateContext, processTemplate } from '../_shared/templateEngine.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -149,31 +150,33 @@ async function processEmailIntegration(integration: Integration, response: any, 
   const config = integration.config;
   const resend = new Resend(resendApiKey);
 
-  // Build answers map
-  const answersMap = new Map();
-  response.answers?.forEach((answer: any) => {
-    const question = questions.find((q) => q.id === answer.question_id);
-    if (question) {
-      answersMap.set(question.label, formatAnswerValue(answer.answer_value));
-    }
-  });
+  // Build template context
+  const context = buildTemplateContext(
+    response.forms,
+    response,
+    questions,
+    response.answers || []
+  );
 
-  // Build email body
-  let body = config.bodyTemplate || 'New form submission received:\n\n';
-  answersMap.forEach((value, label) => {
-    body += `${label}: ${value}\n`;
-  });
+  // Process templates
+  const subject = config.subject 
+    ? processTemplate(config.subject, context)
+    : `New response for ${response.forms?.title}`;
+
+  const body = config.bodyTemplate
+    ? processTemplate(config.bodyTemplate, context)
+    : context.all_answers;
 
   const emailResponse = await resend.emails.send({
     from: 'Forms <onboarding@resend.dev>',
     to: [config.recipient],
-    subject: config.subject || `New response for ${response.forms?.title}`,
+    subject,
     html: `
       <h2>New Form Response</h2>
       <p><strong>Form:</strong> ${response.forms?.title}</p>
       <p><strong>Submitted:</strong> ${new Date(response.completed_at).toLocaleString()}</p>
       <hr/>
-      <pre>${body}</pre>
+      <pre style="white-space: pre-wrap; font-family: sans-serif;">${body}</pre>
     `,
   });
 
@@ -182,6 +185,19 @@ async function processEmailIntegration(integration: Integration, response: any, 
 
 async function processSlackIntegration(integration: Integration, response: any, questions: any[]) {
   const config = integration.config;
+
+  // Build template context
+  const context = buildTemplateContext(
+    response.forms,
+    response,
+    questions,
+    response.answers || []
+  );
+
+  // Process custom message if provided, otherwise use default format
+  let messageText = config.message
+    ? processTemplate(config.message, context)
+    : context.all_answers;
 
   const answersMap = new Map();
   response.answers?.forEach((answer: any) => {
