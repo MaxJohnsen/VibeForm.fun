@@ -14,68 +14,82 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { IntegrationLogsDialog } from './IntegrationLogsDialog';
 
-interface IntegrationCardProps {
-  integration: Integration;
+interface ActionRowProps {
+  action: Integration;
 }
 
-export const IntegrationCard = ({ integration }: IntegrationCardProps) => {
-  const typeInfo = getIntegrationTypeInfo(integration.type);
+export const ActionRow = ({ action }: ActionRowProps) => {
+  const typeInfo = getIntegrationTypeInfo(action.type);
   const Icon = typeInfo.icon;
   const { updateIntegration, deleteIntegration, testIntegration, isTesting } = useIntegrations(
-    integration.form_id
+    action.form_id
   );
   const [showLogs, setShowLogs] = useState(false);
 
   const handleToggle = () => {
     updateIntegration({
-      id: integration.id,
-      updates: { enabled: !integration.enabled },
+      id: action.id,
+      updates: { enabled: !action.enabled },
     });
   };
 
   const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this integration?')) {
-      deleteIntegration(integration.id);
+    if (confirm('Are you sure you want to delete this action?')) {
+      deleteIntegration(action.id);
     }
   };
 
   const handleTest = () => {
-    testIntegration(integration.id);
+    testIntegration(action.id);
   };
+
+  const triggerLabel = action.trigger
+    .replace('form_', '')
+    .replace('_', ' ')
+    .replace(/\b\w/g, (l) => l.toUpperCase());
 
   return (
     <>
-      <div className="glass-panel p-6 rounded-xl">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-4 flex-1">
-            <div className={`p-3 rounded-lg bg-muted/50 ${typeInfo.color}`}>
-              <Icon className="h-6 w-6" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold text-foreground">{integration.name}</h3>
-                <Badge variant={integration.enabled ? 'default' : 'secondary'}>
-                  {integration.enabled ? 'Active' : 'Inactive'}
-                </Badge>
+      <div className="glass-panel p-4 rounded-lg hover:shadow-md transition-shadow">
+        <div className="flex items-center gap-4">
+          {/* Icon */}
+          <div className={`p-2 rounded-lg bg-muted/50 shrink-0 ${typeInfo.color}`}>
+            <Icon className="h-5 w-5" />
+          </div>
+
+          {/* Name & Type */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-medium text-foreground truncate">{action.name}</h3>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <div className={`w-2 h-2 rounded-full ${action.enabled ? 'bg-green-500' : 'bg-muted-foreground'}`} />
+                <span className="text-xs text-muted-foreground">
+                  {action.enabled ? 'Active' : 'Inactive'}
+                </span>
               </div>
-              <p className="text-sm text-muted-foreground mb-2">{typeInfo.label}</p>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            </div>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <Badge variant="secondary" className="font-normal">
+                {typeInfo.label}
+              </Badge>
+              <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                <span>Triggers on: {integration.trigger.replace('_', ' ')}</span>
+                <span>Triggers on {triggerLabel}</span>
               </div>
             </div>
           </div>
 
+          {/* Actions Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="shrink-0">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={handleToggle}>
                 <Power className="h-4 w-4 mr-2" />
-                {integration.enabled ? 'Disable' : 'Enable'}
+                {action.enabled ? 'Disable' : 'Enable'}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleTest} disabled={isTesting}>
                 <TestTube className="h-4 w-4 mr-2" />
@@ -96,8 +110,8 @@ export const IntegrationCard = ({ integration }: IntegrationCardProps) => {
       </div>
 
       <IntegrationLogsDialog
-        integrationId={integration.id}
-        integrationName={integration.name}
+        integrationId={action.id}
+        integrationName={action.name}
         open={showLogs}
         onOpenChange={setShowLogs}
       />

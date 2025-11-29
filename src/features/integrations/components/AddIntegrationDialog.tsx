@@ -95,16 +95,19 @@ export const AddIntegrationDialog = ({
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Add Integration</DialogTitle>
+            <DialogTitle>Create Action</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="space-y-3 py-4">
+            <p className="text-sm text-muted-foreground">
+              Choose which action you want to trigger when responses are submitted
+            </p>
             {INTEGRATION_TYPES.map((type) => {
               const Icon = type.icon;
               return (
                 <button
                   key={type.type}
                   onClick={() => setSelectedType(type.type)}
-                  className="glass-panel p-4 rounded-lg text-left hover:scale-[1.02] transition-transform"
+                  className="glass-panel p-4 rounded-lg text-left hover:scale-[1.02] transition-transform w-full"
                 >
                   <div className="flex items-start gap-4">
                     <div className={`p-3 rounded-lg bg-muted/50 ${type.color}`}>
@@ -135,15 +138,15 @@ export const AddIntegrationDialog = ({
             <div className={`p-2 rounded-lg bg-muted/50 ${typeInfo.color}`}>
               <Icon className="h-5 w-5" />
             </div>
-            <DialogTitle>Configure {typeInfo.label}</DialogTitle>
+            <DialogTitle>Configure {typeInfo.label} Action</DialogTitle>
           </div>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div>
-            <Label htmlFor="name">Integration Name</Label>
+            <Label htmlFor="name">Action Name</Label>
             <Input
               id="name"
-              placeholder={`My ${typeInfo.label} Integration`}
+              placeholder={`e.g. Send response summary to team`}
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="mt-1"
@@ -166,9 +169,9 @@ export const AddIntegrationDialog = ({
             <Button variant="outline" onClick={() => handleClose(false)} disabled={isCreating}>
               Cancel
             </Button>
-            <Button onClick={handleCreate} disabled={!isConfigValid() || isCreating}>
-              {isCreating ? 'Creating...' : 'Create Integration'}
-            </Button>
+              <Button onClick={handleCreate} disabled={!isConfigValid() || isCreating}>
+                {isCreating ? 'Creating...' : 'Create Action'}
+              </Button>
           </div>
         </div>
       </DialogContent>
