@@ -142,12 +142,17 @@ async function processIntegration(
 }
 
 async function processEmailIntegration(integration: Integration, response: any, questions: any[]) {
-  const resendApiKey = Deno.env.get('RESEND_API_KEY');
+  const config = integration.config;
+  
+  // Determine which API key to use
+  const resendApiKey = config.useCustomApiKey && config.customApiKey
+    ? config.customApiKey
+    : Deno.env.get('RESEND_API_KEY');
+  
   if (!resendApiKey) {
     throw new Error('RESEND_API_KEY not configured');
   }
 
-  const config = integration.config;
   const resend = new Resend(resendApiKey);
 
   // Build template context
@@ -167,9 +172,29 @@ async function processEmailIntegration(integration: Integration, response: any, 
     ? processTemplate(config.bodyTemplate, context)
     : context.all_answers;
 
+  // Parse email addresses (comma-separated to array)
+  const parseEmails = (input: string): string[] => {
+    if (!input) return [];
+    return input.split(',').map(e => e.trim()).filter(Boolean);
+  };
+
+  // Determine from address
+  const fromAddress = config.useCustomApiKey && config.fromEmail
+    ? `${config.fromName || 'Forms'} <${config.fromEmail}>`
+    : 'Fairform <action@fairform.io>';
+
+  // Support both new 'to' and legacy 'recipient' fields
+  const toEmails = parseEmails(config.to || config.recipient || '');
+  
+  if (toEmails.length === 0) {
+    throw new Error('No recipient email addresses specified');
+  }
+
   const emailResponse = await resend.emails.send({
-    from: 'Forms <onboarding@resend.dev>',
-    to: [config.recipient],
+    from: fromAddress,
+    to: toEmails,
+    cc: parseEmails(config.cc || ''),
+    bcc: parseEmails(config.bcc || ''),
     subject,
     html: `
       <h2>New Form Response</h2>
