@@ -1,16 +1,18 @@
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
+import { SecretInput } from '@/shared/ui';
+import { saveIntegrationSecret, updateIntegrationSecret, deleteIntegrationSecret } from '../../api/integrationsApi';
 
 interface WebhookConfigProps {
   config: Record<string, any>;
   onChange: (config: Record<string, any>) => void;
+  integrationId?: string;
 }
 
-export const WebhookConfig = ({ config, onChange }: WebhookConfigProps) => {
+export const WebhookConfig = ({ config, onChange, integrationId }: WebhookConfigProps) => {
   const handleHeadersChange = (value: string) => {
     try {
       const headers = value ? JSON.parse(value) : {};
@@ -18,6 +20,22 @@ export const WebhookConfig = ({ config, onChange }: WebhookConfigProps) => {
     } catch (e) {
       // Invalid JSON, don't update
     }
+  };
+
+  const handleSaveUrl = async (value: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    const secretId = await saveIntegrationSecret(integrationId, value, 'webhook_url');
+    return secretId;
+  };
+
+  const handleUpdateUrl = async (secretId: string, value: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    await updateIntegrationSecret(integrationId, secretId, value);
+  };
+
+  const handleDeleteUrl = async (secretId: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    await deleteIntegrationSecret(integrationId, secretId);
   };
 
   return (
@@ -29,18 +47,22 @@ export const WebhookConfig = ({ config, onChange }: WebhookConfigProps) => {
         </AlertDescription>
       </Alert>
 
-      <div>
-        <Label htmlFor="url">Webhook URL *</Label>
-        <Input
-          id="url"
-          type="url"
-          placeholder="https://your-api.com/webhook"
-          value={config.url || ''}
-          onChange={(e) => onChange({ ...config, url: e.target.value })}
-          className="mt-1 font-mono text-sm"
-          required
-        />
-      </div>
+      <SecretInput
+        label="Webhook URL *"
+        value={config.url}
+        secretId={config.urlSecretId}
+        onChange={(value, secretId) => {
+          onChange({
+            ...config,
+            url: value,
+            urlSecretId: secretId,
+          });
+        }}
+        onSave={handleSaveUrl}
+        onUpdate={handleUpdateUrl}
+        onDelete={handleDeleteUrl}
+        placeholder="https://your-api.com/webhook"
+      />
 
       <div>
         <Label htmlFor="method">HTTP Method</Label>

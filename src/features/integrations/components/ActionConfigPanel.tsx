@@ -7,11 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { GlassCard } from '@/shared/ui/GlassCard';
 import { RichTextEditor } from '@/shared/ui/RichTextEditor';
+import { SecretInput } from '@/shared/ui';
 import { VariablePicker } from './VariablePicker';
 import { ActionPreview } from './ActionPreview';
 import { useTemplatePreview } from '../hooks/useTemplatePreview';
 import { getAvailableVariables } from '@/shared/utils/templateEngine';
-import { Integration, IntegrationType } from '../api/integrationsApi';
+import { Integration, IntegrationType, saveIntegrationSecret, updateIntegrationSecret, deleteIntegrationSecret } from '../api/integrationsApi';
 import { INTEGRATION_TYPES } from '../constants/integrationTypes';
 import { SlackConfig } from './config/SlackConfig';
 import { WebhookConfig } from './config/WebhookConfig';
@@ -246,6 +247,7 @@ export const ActionConfigPanel = ({
                         subjectRef={subjectInputRef}
                         bodyRef={bodyTextareaRef}
                         isLoadingVariables={isLoadingPreview}
+                        integrationId={action?.id}
                       />
                     )}
 
@@ -254,15 +256,24 @@ export const ActionConfigPanel = ({
                         config={config}
                         onChange={setConfig}
                         variables={previewData ? getAvailableVariables(previewData.questions) : []}
+                        integrationId={action?.id}
                       />
                     )}
 
                     {type === 'webhook' && (
-                      <WebhookConfig config={config} onChange={setConfig} />
+                      <WebhookConfig 
+                        config={config} 
+                        onChange={setConfig}
+                        integrationId={action?.id}
+                      />
                     )}
 
                     {type === 'zapier' && (
-                      <ZapierConfig config={config} onChange={setConfig} />
+                      <ZapierConfig 
+                        config={config} 
+                        onChange={setConfig}
+                        integrationId={action?.id}
+                      />
                     )}
                   </div>
                 </form>
@@ -300,14 +311,16 @@ export const ActionConfigPanel = ({
       case 'email':
         const hasRecipient = !!(config.to || config.recipient);
         const hasSubject = !!config.subject;
-        const hasCustomKeyIfNeeded = config.useCustomApiKey ? !!config.customApiKey : true;
+        const hasCustomKeyIfNeeded = config.useCustomApiKey 
+          ? !!(config.customApiKeySecretId || config.customApiKey) // Allow legacy or new
+          : true;
         return hasRecipient && hasSubject && hasCustomKeyIfNeeded;
       case 'slack':
-        return !!config.webhookUrl;
+        return !!(config.webhookUrlSecretId || config.webhookUrl); // Allow legacy or new
       case 'webhook':
-        return !!config.url;
+        return !!(config.urlSecretId || config.url); // Allow legacy or new
       case 'zapier':
-        return !!config.webhookUrl;
+        return !!(config.webhookUrlSecretId || config.webhookUrl); // Allow legacy or new
       default:
         return false;
     }
@@ -323,8 +336,25 @@ const EmailConfiguration = ({
   subjectRef,
   bodyRef,
   isLoadingVariables,
+  integrationId,
 }: any) => {
   const [showCcBcc, setShowCcBcc] = useState(!!(config.cc || config.bcc));
+
+  const handleSaveApiKey = async (value: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    const secretId = await saveIntegrationSecret(integrationId, value, 'resend_api_key');
+    return secretId;
+  };
+
+  const handleUpdateApiKey = async (secretId: string, value: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    await updateIntegrationSecret(integrationId, secretId, value);
+  };
+
+  const handleDeleteApiKey = async (secretId: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    await deleteIntegrationSecret(integrationId, secretId);
+  };
   
   return (
     <div className="space-y-6">
@@ -367,21 +397,23 @@ const EmailConfiguration = ({
       {/* Custom API Key Fields */}
       {config.useCustomApiKey && (
         <div className="space-y-4 pl-4 border-l-2 border-border/50">
-          <div>
-            <Label htmlFor="customApiKey">Resend API Key *</Label>
-            <Input
-              id="customApiKey"
-              type="password"
-              placeholder="re_xxxxxxxxxxxxx"
-              value={config.customApiKey || ''}
-              onChange={(e) => onChange({ ...config, customApiKey: e.target.value })}
-              className="mt-1.5 font-mono text-sm"
-              required={config.useCustomApiKey}
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Get your API key at <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline">resend.com/api-keys</a>
-            </p>
-          </div>
+          <SecretInput
+            label="Resend API Key *"
+            value={config.customApiKey}
+            secretId={config.customApiKeySecretId}
+            onChange={(value, secretId) => {
+              onChange({
+                ...config,
+                customApiKey: value,
+                customApiKeySecretId: secretId,
+              });
+            }}
+            onSave={handleSaveApiKey}
+            onUpdate={handleUpdateApiKey}
+            onDelete={handleDeleteApiKey}
+            placeholder="re_xxxxxxxxxxxxx"
+            description="Get your API key at resend.com/api-keys"
+          />
 
           <div className="grid grid-cols-2 gap-4">
             <div>
