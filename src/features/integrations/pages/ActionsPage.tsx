@@ -32,7 +32,15 @@ export const ActionsPage = () => {
   const { formId } = useParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { integrations, isLoading, createIntegration, deleteIntegration, updateIntegration, isCreating, isUpdating } = useIntegrations(formId!);
+  const { 
+    integrations, 
+    isLoading, 
+    createIntegrationAsync, 
+    deleteIntegration, 
+    updateIntegrationAsync, 
+    isCreating, 
+    isUpdating 
+  } = useIntegrations(formId!);
 
   const [activeAction, setActiveAction] = useState<{
     mode: 'create' | 'edit';
@@ -72,13 +80,19 @@ export const ActionsPage = () => {
     setActiveAction({ mode: 'edit', type: action.type, action });
   };
 
-  const handleSaveAction = async (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'>) => {
+  const handleSaveAction = async (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'>): Promise<Integration> => {
+    let result: Integration;
+    
     if (activeAction?.mode === 'create') {
-      await createIntegration(data);
+      result = await createIntegrationAsync(data);
     } else if (activeAction?.mode === 'edit' && activeAction.action) {
-      await updateIntegration({ id: activeAction.action.id, updates: data });
+      result = await updateIntegrationAsync({ id: activeAction.action.id, updates: data });
+    } else {
+      throw new Error('Invalid action mode');
     }
+    
     setActiveAction(null);
+    return result;
   };
 
   const handleCancel = () => {
@@ -212,7 +226,7 @@ export const ActionsPage = () => {
                     key={action.id}
                     action={action}
                     onEdit={() => handleEditAction(action)}
-                    onUpdate={(id, updates) => updateIntegration({ id, updates })}
+                    onUpdate={(id, updates) => updateIntegrationAsync({ id, updates })}
                     onDelete={deleteIntegration}
                     isUpdating={isUpdating}
                   />

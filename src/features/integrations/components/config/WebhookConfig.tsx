@@ -10,9 +10,10 @@ interface WebhookConfigProps {
   config: Record<string, any>;
   onChange: (config: Record<string, any>) => void;
   integrationId?: string;
+  isPending?: boolean;
 }
 
-export const WebhookConfig = ({ config, onChange, integrationId }: WebhookConfigProps) => {
+export const WebhookConfig = ({ config, onChange, integrationId, isPending = false }: WebhookConfigProps) => {
   const handleHeadersChange = (value: string) => {
     try {
       const headers = value ? JSON.parse(value) : {};
@@ -62,6 +63,7 @@ export const WebhookConfig = ({ config, onChange, integrationId }: WebhookConfig
         onUpdate={handleUpdateUrl}
         onDelete={handleDeleteUrl}
         placeholder="https://your-api.com/webhook"
+        isPending={isPending}
       />
 
       <div>

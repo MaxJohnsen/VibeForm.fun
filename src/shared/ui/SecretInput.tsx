@@ -15,6 +15,7 @@ interface SecretInputProps {
   onDelete?: (secretId: string) => Promise<void>;
   placeholder?: string;
   description?: string;
+  isPending?: boolean; // When true, store locally until action is created
 }
 
 export const SecretInput = ({
@@ -27,6 +28,7 @@ export const SecretInput = ({
   onDelete,
   placeholder,
   description,
+  isPending = false,
 }: SecretInputProps) => {
   const [isEditing, setIsEditing] = useState(!secretId);
   const [showSecret, setShowSecret] = useState(false);
@@ -43,6 +45,14 @@ export const SecretInput = ({
         description: 'Please enter a value',
         variant: 'destructive',
       });
+      return;
+    }
+
+    // In pending mode, just update local state
+    if (isPending) {
+      onChange(localValue);
+      setIsEditing(false);
+      setShowSecret(false);
       return;
     }
 
@@ -140,6 +150,28 @@ export const SecretInput = ({
               <Trash2 className="h-4 w-4" />
             </Button>
           )}
+        </div>
+      ) : !isEditing && isPending && localValue ? (
+        // Display mode - pending secret (not yet saved)
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 px-3 py-2 rounded-md border border-amber-500/50 bg-amber-500/10 text-muted-foreground font-mono text-sm">
+              ••••••••••••••••• Ready to save
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+              disabled={isSaving}
+            >
+              <Pencil className="h-4 w-4 mr-1" />
+              Change
+            </Button>
+          </div>
+          <p className="text-xs text-amber-600 dark:text-amber-500 flex items-center gap-1">
+            🔒 Will be saved securely when action is created
+          </p>
         </div>
       ) : (
         // Edit mode

@@ -7,9 +7,10 @@ interface ZapierConfigProps {
   config: Record<string, any>;
   onChange: (config: Record<string, any>) => void;
   integrationId?: string;
+  isPending?: boolean;
 }
 
-export const ZapierConfig = ({ config, onChange, integrationId }: ZapierConfigProps) => {
+export const ZapierConfig = ({ config, onChange, integrationId, isPending = false }: ZapierConfigProps) => {
   const handleSaveWebhookUrl = async (value: string) => {
     if (!integrationId) throw new Error('Integration ID required');
     const secretId = await saveIntegrationSecret(integrationId, value, 'zapier_webhook_url');
@@ -73,6 +74,7 @@ export const ZapierConfig = ({ config, onChange, integrationId }: ZapierConfigPr
         onDelete={handleDeleteWebhookUrl}
         placeholder="https://hooks.zapier.com/hooks/catch/..."
         description="Your Zapier Catch Hook URL"
+        isPending={isPending}
       />
     </div>
   );

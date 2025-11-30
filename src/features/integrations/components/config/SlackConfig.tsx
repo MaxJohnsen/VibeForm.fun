@@ -13,9 +13,10 @@ interface SlackConfigProps {
   onChange: (config: Record<string, any>) => void;
   variables?: TemplateVariable[];
   integrationId?: string;
+  isPending?: boolean;
 }
 
-export const SlackConfig = ({ config, onChange, variables = [], integrationId }: SlackConfigProps) => {
+export const SlackConfig = ({ config, onChange, variables = [], integrationId, isPending = false }: SlackConfigProps) => {
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
   const insertVariable = (variableKey: string) => {
@@ -87,6 +88,7 @@ export const SlackConfig = ({ config, onChange, variables = [], integrationId }:
         onDelete={handleDeleteWebhookUrl}
         placeholder="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
         description="Paste your Slack Incoming Webhook URL here"
+        isPending={isPending}
       />
 
       <div>

@@ -22,7 +22,7 @@ interface ActionConfigPanelProps {
   formId: string;
   type: IntegrationType;
   action?: Integration;
-  onSave: (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'>) => void;
+  onSave: (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'>) => Promise<Integration>;
   onCancel: () => void;
   isSaving: boolean;
 }
@@ -86,16 +86,60 @@ export const ActionConfigPanel = ({
 
   const { data: previewData, isLoading: isLoadingPreview } = useTemplatePreview(formId);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
+    
+    // For existing actions, just update normally
+    if (action) {
+      await onSave({
+        form_id: formId,
+        type,
+        name,
+        config,
+        enabled: action.enabled,
+        trigger: action.trigger,
+      });
+      return;
+    }
+    
+    // For new actions: save with pending secrets first
+    const pendingSecrets = extractPendingSecrets(config, type);
+    const cleanConfig = removePlaintextSecrets(config, type);
+    
+    // Step 1: Create integration
+    const integration = await onSave({
       form_id: formId,
       type,
       name,
-      config,
-      enabled: action?.enabled ?? true,
-      trigger: action?.trigger || 'form_completed',
+      config: cleanConfig,
+      enabled: true,
+      trigger: 'form_completed',
     });
+    
+    // Step 2: Save pending secrets to vault
+    if (pendingSecrets.length > 0) {
+      const secretIds: Record<string, string> = {};
+      
+      for (const secret of pendingSecrets) {
+        try {
+          const secretId = await saveIntegrationSecret(
+            integration.id,
+            secret.value,
+            secret.name
+          );
+          secretIds[secret.field] = secretId;
+        } catch (error) {
+          console.error(`Failed to save secret ${secret.name}:`, error);
+        }
+      }
+      
+      // Step 3: Update config with secret IDs
+      if (Object.keys(secretIds).length > 0) {
+        const finalConfig = { ...cleanConfig, ...secretIds };
+        // Update the integration config with secret IDs
+        await updateIntegrationSecret(integration.id, integration.id, JSON.stringify(finalConfig));
+      }
+    }
   };
 
   const insertVariable = (field: 'subject' | 'body', variable: string) => {
@@ -257,6 +301,7 @@ export const ActionConfigPanel = ({
                         onChange={setConfig}
                         variables={previewData ? getAvailableVariables(previewData.questions) : []}
                         integrationId={action?.id}
+                        isPending={!action}
                       />
                     )}
 
@@ -265,6 +310,7 @@ export const ActionConfigPanel = ({
                         config={config} 
                         onChange={setConfig}
                         integrationId={action?.id}
+                        isPending={!action}
                       />
                     )}
 
@@ -273,6 +319,7 @@ export const ActionConfigPanel = ({
                         config={config} 
                         onChange={setConfig}
                         integrationId={action?.id}
+                        isPending={!action}
                       />
                     )}
                   </div>
@@ -307,25 +354,110 @@ export const ActionConfigPanel = ({
   );
 
   function isConfigValid(): boolean {
+    const isNewAction = !action;
+    
     switch (type) {
       case 'email':
         const hasRecipient = !!(config.to || config.recipient);
         const hasSubject = !!config.subject;
         const hasCustomKeyIfNeeded = config.useCustomApiKey 
-          ? !!(config.customApiKeySecretId || config.customApiKey) // Allow legacy or new
+          ? (isNewAction 
+              ? !!config.customApiKey  // New: check for pending value
+              : !!(config.customApiKeySecretId || config.customApiKey)) // Existing: check for secret ID or legacy
           : true;
         return hasRecipient && hasSubject && hasCustomKeyIfNeeded;
       case 'slack':
-        return !!(config.webhookUrlSecretId || config.webhookUrl); // Allow legacy or new
+        return isNewAction 
+          ? !!config.webhookUrl  // New: check for pending value
+          : !!(config.webhookUrlSecretId || config.webhookUrl); // Existing: check for secret ID or legacy
       case 'webhook':
-        return !!(config.urlSecretId || config.url); // Allow legacy or new
+        return isNewAction 
+          ? !!config.url  // New: check for pending value
+          : !!(config.urlSecretId || config.url); // Existing: check for secret ID or legacy
       case 'zapier':
-        return !!(config.webhookUrlSecretId || config.webhookUrl); // Allow legacy or new
+        return isNewAction 
+          ? !!config.webhookUrl  // New: check for pending value
+          : !!(config.webhookUrlSecretId || config.webhookUrl); // Existing: check for secret ID or legacy
       default:
         return false;
     }
   }
 };
+
+// Helper functions for managing pending secrets
+function extractPendingSecrets(config: Record<string, any>, type: IntegrationType): Array<{ field: string; name: string; value: string }> {
+  const secrets: Array<{ field: string; name: string; value: string }> = [];
+  
+  switch (type) {
+    case 'email':
+      if (config.useCustomApiKey && config.customApiKey && !config.customApiKeySecretId) {
+        secrets.push({
+          field: 'customApiKeySecretId',
+          name: 'resend_api_key',
+          value: config.customApiKey,
+        });
+      }
+      break;
+    case 'slack':
+      if (config.webhookUrl && !config.webhookUrlSecretId) {
+        secrets.push({
+          field: 'webhookUrlSecretId',
+          name: 'slack_webhook_url',
+          value: config.webhookUrl,
+        });
+      }
+      break;
+    case 'webhook':
+      if (config.url && !config.urlSecretId) {
+        secrets.push({
+          field: 'urlSecretId',
+          name: 'webhook_url',
+          value: config.url,
+        });
+      }
+      break;
+    case 'zapier':
+      if (config.webhookUrl && !config.webhookUrlSecretId) {
+        secrets.push({
+          field: 'webhookUrlSecretId',
+          name: 'zapier_webhook_url',
+          value: config.webhookUrl,
+        });
+      }
+      break;
+  }
+  
+  return secrets;
+}
+
+function removePlaintextSecrets(config: Record<string, any>, type: IntegrationType): Record<string, any> {
+  const cleaned = { ...config };
+  
+  switch (type) {
+    case 'email':
+      if (cleaned.customApiKey && !cleaned.customApiKeySecretId) {
+        delete cleaned.customApiKey;
+      }
+      break;
+    case 'slack':
+      if (cleaned.webhookUrl && !cleaned.webhookUrlSecretId) {
+        delete cleaned.webhookUrl;
+      }
+      break;
+    case 'webhook':
+      if (cleaned.url && !cleaned.urlSecretId) {
+        delete cleaned.url;
+      }
+      break;
+    case 'zapier':
+      if (cleaned.webhookUrl && !cleaned.webhookUrlSecretId) {
+        delete cleaned.webhookUrl;
+      }
+      break;
+  }
+  
+  return cleaned;
+}
 
 // Email-specific configuration component
 const EmailConfiguration = ({
@@ -413,6 +545,7 @@ const EmailConfiguration = ({
             onDelete={handleDeleteApiKey}
             placeholder="re_xxxxxxxxxxxxx"
             description="Get your API key at resend.com/api-keys"
+            isPending={!integrationId}
           />
 
           <div className="grid grid-cols-2 gap-4">
