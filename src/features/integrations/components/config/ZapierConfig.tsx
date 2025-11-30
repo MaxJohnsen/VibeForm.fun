@@ -1,14 +1,31 @@
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info, ExternalLink } from 'lucide-react';
+import { SecretInput } from '@/shared/ui';
+import { saveIntegrationSecret, updateIntegrationSecret, deleteIntegrationSecret } from '../../api/integrationsApi';
 
 interface ZapierConfigProps {
   config: Record<string, any>;
   onChange: (config: Record<string, any>) => void;
+  integrationId?: string;
 }
 
-export const ZapierConfig = ({ config, onChange }: ZapierConfigProps) => {
+export const ZapierConfig = ({ config, onChange, integrationId }: ZapierConfigProps) => {
+  const handleSaveWebhookUrl = async (value: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    const secretId = await saveIntegrationSecret(integrationId, value, 'zapier_webhook_url');
+    return secretId;
+  };
+
+  const handleUpdateWebhookUrl = async (secretId: string, value: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    await updateIntegrationSecret(integrationId, secretId, value);
+  };
+
+  const handleDeleteWebhookUrl = async (secretId: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    await deleteIntegrationSecret(integrationId, secretId);
+  };
+
   return (
     <div className="space-y-4">
       <Alert>
@@ -40,21 +57,23 @@ export const ZapierConfig = ({ config, onChange }: ZapierConfigProps) => {
         </ol>
       </div>
 
-      <div>
-        <Label htmlFor="webhookUrl">Zapier Webhook URL *</Label>
-        <Input
-          id="webhookUrl"
-          type="url"
-          placeholder="https://hooks.zapier.com/hooks/catch/..."
-          value={config.webhookUrl || ''}
-          onChange={(e) => onChange({ ...config, webhookUrl: e.target.value })}
-          className="mt-1 font-mono text-sm"
-          required
-        />
-        <p className="text-xs text-muted-foreground mt-1">
-          Your Zapier Catch Hook URL
-        </p>
-      </div>
+      <SecretInput
+        label="Zapier Webhook URL *"
+        value={config.webhookUrl}
+        secretId={config.webhookUrlSecretId}
+        onChange={(value, secretId) => {
+          onChange({
+            ...config,
+            webhookUrl: value,
+            webhookUrlSecretId: secretId,
+          });
+        }}
+        onSave={handleSaveWebhookUrl}
+        onUpdate={handleUpdateWebhookUrl}
+        onDelete={handleDeleteWebhookUrl}
+        placeholder="https://hooks.zapier.com/hooks/catch/..."
+        description="Your Zapier Catch Hook URL"
+      />
     </div>
   );
 };

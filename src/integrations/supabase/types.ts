@@ -315,7 +315,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      delete_integration_secret: {
+        Args: { secret_id: string }
+        Returns: boolean
+      }
+      get_decrypted_secret: { Args: { secret_id: string }; Returns: string }
+      save_integration_secret: {
+        Args: {
+          secret_description?: string
+          secret_name: string
+          secret_value: string
+        }
+        Returns: string
+      }
+      update_integration_secret: {
+        Args: { new_value: string; secret_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       integration_trigger:
