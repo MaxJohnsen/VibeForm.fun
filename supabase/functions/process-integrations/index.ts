@@ -111,13 +111,13 @@ async function processIntegration(
         responseData = await processEmailIntegration(integration, response, questions, supabase);
         break;
       case 'slack':
-        responseData = await processSlackIntegration(integration, response, questions);
+        responseData = await processSlackIntegration(integration, response, questions, supabase);
         break;
       case 'webhook':
         responseData = await processWebhookIntegration(integration, response, questions);
         break;
       case 'zapier':
-        responseData = await processZapierIntegration(integration, response, questions);
+        responseData = await processZapierIntegration(integration, response, questions, supabase);
         break;
       default:
         throw new Error(`Unknown integration type: ${integration.type}`);
@@ -239,8 +239,33 @@ async function processEmailIntegration(
   return emailResponse;
 }
 
-async function processSlackIntegration(integration: Integration, response: any, questions: any[]) {
+async function processSlackIntegration(
+  integration: Integration,
+  response: any,
+  questions: any[],
+  supabase: any
+) {
+  console.log('Processing Slack integration:', integration.id);
+  
   const config = integration.config;
+  
+  // Fetch encrypted webhook URL from secure storage
+  const { data: secretData, error: secretError } = await supabase
+    .from('integration_secrets')
+    .select('encrypted_value')
+    .eq('integration_id', integration.id)
+    .eq('key_type', 'slack_webhook')
+    .single();
+  
+  if (secretError || !secretData) {
+    console.error('Failed to fetch Slack webhook:', secretError);
+    throw new Error('Slack webhook URL not found in secure storage');
+  }
+  
+  // Decrypt the webhook URL
+  const { decryptSecret } = await import('../_shared/encryption.ts');
+  const webhookUrl = await decryptSecret(secretData.encrypted_value);
+  console.log('Slack webhook decrypted successfully');
 
   // Build template context
   const context = buildTemplateContext(
@@ -323,7 +348,7 @@ async function processSlackIntegration(integration: Integration, response: any, 
     slackPayload = { blocks };
   }
 
-  const slackResponse = await fetch(config.webhookUrl, {
+  const slackResponse = await fetch(webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(slackPayload),
@@ -367,10 +392,35 @@ async function processWebhookIntegration(integration: Integration, response: any
   };
 }
 
-async function processZapierIntegration(integration: Integration, response: any, questions: any[]) {
-  // Zapier is essentially a webhook with a friendly name
+async function processZapierIntegration(
+  integration: Integration,
+  response: any,
+  questions: any[],
+  supabase: any
+) {
+  console.log('Processing Zapier integration:', integration.id);
+  
+  // Fetch encrypted webhook URL from secure storage
+  const { data: secretData, error: secretError } = await supabase
+    .from('integration_secrets')
+    .select('encrypted_value')
+    .eq('integration_id', integration.id)
+    .eq('key_type', 'zapier_webhook')
+    .single();
+  
+  if (secretError || !secretData) {
+    console.error('Failed to fetch Zapier webhook:', secretError);
+    throw new Error('Zapier webhook URL not found in secure storage');
+  }
+  
+  // Decrypt the webhook URL
+  const { decryptSecret } = await import('../_shared/encryption.ts');
+  const webhookUrl = await decryptSecret(secretData.encrypted_value);
+  console.log('Zapier webhook decrypted successfully');
+
+  // Call generic webhook handler with decrypted URL
   return processWebhookIntegration(
-    { ...integration, config: { url: integration.config.webhookUrl, method: 'POST' } },
+    { ...integration, config: { url: webhookUrl, method: 'POST' } },
     response,
     questions
   );

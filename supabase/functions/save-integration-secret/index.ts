@@ -62,12 +62,6 @@ serve(async (req) => {
       throw new Error('Invalid mode: must be "insert" or "update"');
     }
 
-    // Validate keyType is in allowed list
-    const allowedKeyTypes = ['resend_api_key', 'slack_webhook', 'webhook_secret'];
-    if (!allowedKeyTypes.includes(keyType)) {
-      throw new Error(`Invalid keyType. Allowed: ${allowedKeyTypes.join(', ')}`);
-    }
-
     console.log(`[${user.id}] ${mode.toUpperCase()} secret for integration ${integrationId}, type: ${keyType}`);
 
     // === DEFENSE LAYER 1: MANUAL OWNERSHIP CHECK ===
