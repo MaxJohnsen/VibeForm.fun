@@ -315,10 +315,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      user_owns_integration: {
-        Args: { integration_id: string }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       integration_trigger:

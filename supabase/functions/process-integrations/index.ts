@@ -92,29 +92,6 @@ Deno.serve(async (req) => {
   }
 });
 
-// Helper function to decrypt a secret from vault
-async function getDecryptedSecret(supabase: any, secretId: string | undefined): Promise<string | undefined> {
-  if (!secretId) return undefined;
-  
-  try {
-    // Read from vault.decrypted_secrets view using service role
-    const { data, error } = await supabase
-      .from('vault.decrypted_secrets')
-      .select('decrypted_secret')
-      .eq('id', secretId)
-      .single();
-      
-    if (error) {
-      console.error('Error decrypting secret:', error);
-      return undefined;
-    }
-    return data.decrypted_secret;
-  } catch (error) {
-    console.error('Exception decrypting secret:', error);
-    return undefined;
-  }
-}
-
 async function processIntegration(
   integration: Integration,
   response: any,
@@ -131,16 +108,16 @@ async function processIntegration(
 
     switch (integration.type) {
       case 'email':
-        responseData = await processEmailIntegration(integration, response, questions, supabase);
+        responseData = await processEmailIntegration(integration, response, questions);
         break;
       case 'slack':
-        responseData = await processSlackIntegration(integration, response, questions, supabase);
+        responseData = await processSlackIntegration(integration, response, questions);
         break;
       case 'webhook':
-        responseData = await processWebhookIntegration(integration, response, questions, supabase);
+        responseData = await processWebhookIntegration(integration, response, questions);
         break;
       case 'zapier':
-        responseData = await processZapierIntegration(integration, response, questions, supabase);
+        responseData = await processZapierIntegration(integration, response, questions);
         break;
       default:
         throw new Error(`Unknown integration type: ${integration.type}`);
@@ -164,17 +141,12 @@ async function processIntegration(
   console.log(`Integration ${integration.name} completed in ${Date.now() - startTime}ms`);
 }
 
-async function processEmailIntegration(integration: Integration, response: any, questions: any[], supabase: any) {
+async function processEmailIntegration(integration: Integration, response: any, questions: any[]) {
   const config = integration.config;
   
-  // Decrypt API key from vault if using secret
-  const customApiKey = config.customApiKeySecretId
-    ? await getDecryptedSecret(supabase, config.customApiKeySecretId)
-    : config.customApiKey; // Fallback to legacy plaintext
-  
   // Determine which API key to use
-  const resendApiKey = config.useCustomApiKey && customApiKey
-    ? customApiKey
+  const resendApiKey = config.useCustomApiKey && config.customApiKey
+    ? config.customApiKey
     : Deno.env.get('RESEND_API_KEY');
   
   if (!resendApiKey) {
@@ -236,17 +208,8 @@ async function processEmailIntegration(integration: Integration, response: any, 
   return emailResponse;
 }
 
-async function processSlackIntegration(integration: Integration, response: any, questions: any[], supabase: any) {
+async function processSlackIntegration(integration: Integration, response: any, questions: any[]) {
   const config = integration.config;
-
-  // Decrypt webhook URL from vault if using secret
-  const webhookUrl = config.webhookUrlSecretId
-    ? await getDecryptedSecret(supabase, config.webhookUrlSecretId)
-    : config.webhookUrl; // Fallback to legacy plaintext
-
-  if (!webhookUrl) {
-    throw new Error('Slack webhook URL not configured');
-  }
 
   // Build template context
   const context = buildTemplateContext(
@@ -329,7 +292,7 @@ async function processSlackIntegration(integration: Integration, response: any, 
     slackPayload = { blocks };
   }
 
-  const slackResponse = await fetch(webhookUrl, {
+  const slackResponse = await fetch(config.webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(slackPayload),
@@ -342,17 +305,8 @@ async function processSlackIntegration(integration: Integration, response: any, 
   return { status: slackResponse.status };
 }
 
-async function processWebhookIntegration(integration: Integration, response: any, questions: any[], supabase: any) {
+async function processWebhookIntegration(integration: Integration, response: any, questions: any[]) {
   const config = integration.config;
-
-  // Decrypt webhook URL from vault if using secret
-  const url = config.urlSecretId
-    ? await getDecryptedSecret(supabase, config.urlSecretId)
-    : config.url; // Fallback to legacy plaintext
-
-  if (!url) {
-    throw new Error('Webhook URL not configured');
-  }
 
   const payload = {
     formId: response.form_id,
@@ -363,7 +317,7 @@ async function processWebhookIntegration(integration: Integration, response: any
     questions,
   };
 
-  const webhookResponse = await fetch(url, {
+  const webhookResponse = await fetch(config.url, {
     method: config.method || 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -382,24 +336,12 @@ async function processWebhookIntegration(integration: Integration, response: any
   };
 }
 
-async function processZapierIntegration(integration: Integration, response: any, questions: any[], supabase: any) {
-  const config = integration.config;
-
-  // Decrypt webhook URL from vault if using secret
-  const webhookUrl = config.webhookUrlSecretId
-    ? await getDecryptedSecret(supabase, config.webhookUrlSecretId)
-    : config.webhookUrl; // Fallback to legacy plaintext
-
-  if (!webhookUrl) {
-    throw new Error('Zapier webhook URL not configured');
-  }
-
+async function processZapierIntegration(integration: Integration, response: any, questions: any[]) {
   // Zapier is essentially a webhook with a friendly name
   return processWebhookIntegration(
-    { ...integration, config: { url: webhookUrl, method: 'POST' } },
+    { ...integration, config: { url: integration.config.webhookUrl, method: 'POST' } },
     response,
-    questions,
-    supabase
+    questions
   );
 }
 
