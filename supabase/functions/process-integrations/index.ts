@@ -108,7 +108,7 @@ async function processIntegration(
 
     switch (integration.type) {
       case 'email':
-        responseData = await processEmailIntegration(integration, response, questions);
+        responseData = await processEmailIntegration(integration, response, questions, supabase);
         break;
       case 'slack':
         responseData = await processSlackIntegration(integration, response, questions);
@@ -141,16 +141,47 @@ async function processIntegration(
   console.log(`Integration ${integration.name} completed in ${Date.now() - startTime}ms`);
 }
 
-async function processEmailIntegration(integration: Integration, response: any, questions: any[]) {
+async function processEmailIntegration(
+  integration: Integration,
+  response: any,
+  questions: any[],
+  supabase: any
+) {
+  console.log('Processing email integration:', integration.id);
+  
   const config = integration.config;
   
   // Determine which API key to use
-  const resendApiKey = config.useCustomApiKey && config.customApiKey
-    ? config.customApiKey
-    : Deno.env.get('RESEND_API_KEY');
+  let resendApiKey: string;
   
-  if (!resendApiKey) {
-    throw new Error('RESEND_API_KEY not configured');
+  if (config.useCustomApiKey) {
+    // Fetch and decrypt the custom API key from integration_secrets
+    console.log('Fetching custom Resend API key from secure storage...');
+    const { data: secretData, error: secretError } = await supabase
+      .from('integration_secrets')
+      .select('encrypted_value')
+      .eq('integration_id', integration.id)
+      .eq('key_type', 'resend_api_key')
+      .single();
+    
+    if (secretError || !secretData) {
+      console.error('Failed to fetch custom API key:', secretError);
+      throw new Error('Custom API key not found in secure storage');
+    }
+    
+    // Import decryption module
+    const { decryptSecret } = await import('../_shared/encryption.ts');
+    
+    // Decrypt the API key
+    resendApiKey = await decryptSecret(secretData.encrypted_value);
+    console.log('Custom API key decrypted successfully');
+  } else {
+    // Use Fairform's RESEND_API_KEY
+    resendApiKey = Deno.env.get('RESEND_API_KEY')!;
+    if (!resendApiKey) {
+      throw new Error('Fairform RESEND_API_KEY not configured');
+    }
+    console.log('Using Fairform Resend API key');
   }
 
   const resend = new Resend(resendApiKey);

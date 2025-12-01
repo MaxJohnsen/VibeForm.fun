@@ -9,7 +9,7 @@ import { SearchBar } from '@/shared/ui/SearchBar';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Integration, IntegrationType } from '../api/integrationsApi';
+import { Integration, IntegrationType, saveIntegrationSecret } from '../api/integrationsApi';
 import { ROUTES } from '@/shared/constants/routes';
 import {
   Select,
@@ -27,6 +27,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { toast } from 'sonner';
 
 export const ActionsPage = () => {
   const { formId } = useParams();
@@ -72,13 +73,49 @@ export const ActionsPage = () => {
     setActiveAction({ mode: 'edit', type: action.type, action });
   };
 
-  const handleSaveAction = async (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'>) => {
-    if (activeAction?.mode === 'create') {
-      await createIntegration(data);
-    } else if (activeAction?.mode === 'edit' && activeAction.action) {
-      await updateIntegration({ id: activeAction.action.id, updates: data });
+  const handleSaveAction = async (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'> & { _pendingApiKey?: string }) => {
+    try {
+      let integrationId: string;
+      
+      if (activeAction?.mode === 'create') {
+        const result = await new Promise<Integration>((resolve, reject) => {
+          createIntegration(data, {
+            onSuccess: (result: any) => resolve(result),
+            onError: (error: any) => reject(error),
+          });
+        });
+        integrationId = result.id;
+      } else if (activeAction?.mode === 'edit' && activeAction.action) {
+        await new Promise((resolve, reject) => {
+          updateIntegration(
+            { id: activeAction.action!.id, updates: data },
+            {
+              onSuccess: resolve,
+              onError: reject,
+            }
+          );
+        });
+        integrationId = activeAction.action.id;
+      } else {
+        return;
+      }
+      
+      // If there's a pending API key, save it securely
+      if (data._pendingApiKey) {
+        try {
+          await saveIntegrationSecret(integrationId, 'resend_api_key', data._pendingApiKey);
+          toast.success('Integration and API key saved securely');
+        } catch (error) {
+          console.error('Error saving API key:', error);
+          toast.error('Integration saved, but failed to save API key');
+        }
+      }
+      
+      setActiveAction(null);
+    } catch (error) {
+      console.error('Error saving integration:', error);
+      toast.error('Failed to save integration');
     }
-    setActiveAction(null);
   };
 
   const handleCancel = () => {

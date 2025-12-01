@@ -187,6 +187,41 @@ export type Database = {
           },
         ]
       }
+      integration_secrets: {
+        Row: {
+          created_at: string
+          encrypted_value: string
+          id: string
+          integration_id: string
+          key_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          encrypted_value: string
+          id?: string
+          integration_id: string
+          key_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          encrypted_value?: string
+          id?: string
+          integration_id?: string
+          key_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_secrets_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "form_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lottery_draws: {
         Row: {
           drawn_at: string

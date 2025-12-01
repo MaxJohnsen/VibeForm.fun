@@ -11,11 +11,12 @@ import { VariablePicker } from './VariablePicker';
 import { ActionPreview } from './ActionPreview';
 import { useTemplatePreview } from '../hooks/useTemplatePreview';
 import { getAvailableVariables } from '@/shared/utils/templateEngine';
-import { Integration, IntegrationType } from '../api/integrationsApi';
+import { Integration, IntegrationType, saveIntegrationSecret } from '../api/integrationsApi';
 import { INTEGRATION_TYPES } from '../constants/integrationTypes';
 import { SlackConfig } from './config/SlackConfig';
 import { WebhookConfig } from './config/WebhookConfig';
 import { ZapierConfig } from './config/ZapierConfig';
+import { toast } from 'sonner';
 
 interface ActionConfigPanelProps {
   formId: string;
@@ -84,17 +85,35 @@ export const ActionConfigPanel = ({
   const bodyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: previewData, isLoading: isLoadingPreview } = useTemplatePreview(formId);
+  const [customApiKey, setCustomApiKey] = useState<string>(''); // Temp storage for API key input
+  const [apiKeySaved, setApiKeySaved] = useState<boolean>(!!action?.id && !!action?.config?.useCustomApiKey);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
+    
+    // Prepare config without sensitive data
+    const safeConfig = { ...config };
+    
+    // Don't store API key in config
+    delete safeConfig.customApiKey;
+    
+    // Prepare integration data
+    const integrationData: any = {
       form_id: formId,
       type,
       name,
-      config,
+      config: safeConfig,
       enabled: action?.enabled ?? true,
       trigger: action?.trigger || 'form_completed',
-    });
+    };
+    
+    // If there's a custom API key to save, add it as pending
+    if (customApiKey && config.useCustomApiKey) {
+      integrationData._pendingApiKey = customApiKey;
+    }
+    
+    // Call onSave
+    onSave(integrationData);
   };
 
   const insertVariable = (field: 'subject' | 'body', variable: string) => {
@@ -246,6 +265,9 @@ export const ActionConfigPanel = ({
                         subjectRef={subjectInputRef}
                         bodyRef={bodyTextareaRef}
                         isLoadingVariables={isLoadingPreview}
+                        customApiKey={customApiKey}
+                        onCustomApiKeyChange={setCustomApiKey}
+                        apiKeySaved={apiKeySaved}
                       />
                     )}
 
@@ -300,7 +322,9 @@ export const ActionConfigPanel = ({
       case 'email':
         const hasRecipient = !!(config.to || config.recipient);
         const hasSubject = !!config.subject;
-        const hasCustomKeyIfNeeded = config.useCustomApiKey ? !!config.customApiKey : true;
+        const hasCustomKeyIfNeeded = config.useCustomApiKey 
+          ? (apiKeySaved || !!customApiKey) 
+          : true;
         return hasRecipient && hasSubject && hasCustomKeyIfNeeded;
       case 'slack':
         return !!config.webhookUrl;
@@ -323,8 +347,12 @@ const EmailConfiguration = ({
   subjectRef,
   bodyRef,
   isLoadingVariables,
+  customApiKey,
+  onCustomApiKeyChange,
+  apiKeySaved,
 }: any) => {
   const [showCcBcc, setShowCcBcc] = useState(!!(config.cc || config.bcc));
+  const [showApiKeyInput, setShowApiKeyInput] = useState(!apiKeySaved);
   
   return (
     <div className="space-y-6">
@@ -351,7 +379,10 @@ const EmailConfiguration = ({
             <input
               type="radio"
               checked={config.useCustomApiKey}
-              onChange={() => onChange({ ...config, useCustomApiKey: true })}
+              onChange={() => {
+                onChange({ ...config, useCustomApiKey: true });
+                if (!apiKeySaved) setShowApiKeyInput(true);
+              }}
               className="mt-0.5"
             />
             <div className="flex-1">
@@ -367,21 +398,45 @@ const EmailConfiguration = ({
       {/* Custom API Key Fields */}
       {config.useCustomApiKey && (
         <div className="space-y-4 pl-4 border-l-2 border-border/50">
-          <div>
-            <Label htmlFor="customApiKey">Resend API Key *</Label>
-            <Input
-              id="customApiKey"
-              type="password"
-              placeholder="re_xxxxxxxxxxxxx"
-              value={config.customApiKey || ''}
-              onChange={(e) => onChange({ ...config, customApiKey: e.target.value })}
-              className="mt-1.5 font-mono text-sm"
-              required={config.useCustomApiKey}
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              Get your API key at <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline">resend.com/api-keys</a>
-            </p>
-          </div>
+          {/* API Key Status/Input */}
+          {apiKeySaved && !showApiKeyInput ? (
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-green-500" />
+                <span className="text-sm text-muted-foreground">API key saved securely</span>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowApiKeyInput(true)}
+                className="text-xs"
+              >
+                Change API key
+              </Button>
+            </div>
+          ) : (
+            <div>
+              <Label htmlFor="customApiKey">Resend API Key *</Label>
+              <Input
+                id="customApiKey"
+                type="password"
+                placeholder="re_xxxxxxxxxxxxx"
+                value={customApiKey}
+                onChange={(e) => onCustomApiKeyChange(e.target.value)}
+                className="mt-1.5 font-mono text-sm"
+                required={config.useCustomApiKey}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Get your API key at <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline">resend.com/api-keys</a>
+              </p>
+              <Alert className="mt-2">
+                <AlertDescription className="text-xs">
+                  🔒 Your API key will be encrypted and stored securely. It cannot be viewed after saving.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
