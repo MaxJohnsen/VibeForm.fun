@@ -11,6 +11,7 @@ interface SaveSecretRequest {
   integrationId: string;
   keyType: string;
   value: string;
+  mode: 'insert' | 'update';
 }
 
 serve(async (req) => {
@@ -46,7 +47,7 @@ serve(async (req) => {
 
     // === INPUT VALIDATION ===
     const body = await req.json();
-    const { integrationId, keyType, value } = body as SaveSecretRequest;
+    const { integrationId, keyType, value, mode } = body as SaveSecretRequest;
 
     if (!integrationId || typeof integrationId !== 'string') {
       throw new Error('Invalid integrationId');
@@ -57,6 +58,9 @@ serve(async (req) => {
     if (!value || typeof value !== 'string') {
       throw new Error('Invalid value');
     }
+    if (!mode || !['insert', 'update'].includes(mode)) {
+      throw new Error('Invalid mode: must be "insert" or "update"');
+    }
 
     // Validate keyType is in allowed list
     const allowedKeyTypes = ['resend_api_key', 'slack_webhook', 'webhook_secret'];
@@ -64,7 +68,7 @@ serve(async (req) => {
       throw new Error(`Invalid keyType. Allowed: ${allowedKeyTypes.join(', ')}`);
     }
 
-    console.log(`[${user.id}] Saving secret for integration ${integrationId}, type: ${keyType}`);
+    console.log(`[${user.id}] ${mode.toUpperCase()} secret for integration ${integrationId}, type: ${keyType}`);
 
     // === DEFENSE LAYER 1: MANUAL OWNERSHIP CHECK ===
     // This check uses the user's JWT, so RLS on form_integrations also applies
@@ -93,26 +97,8 @@ serve(async (req) => {
     // === DEFENSE LAYER 2: DATABASE WRITE WITH RLS ===
     // Using user's JWT context - RLS policies will enforce authorization
     
-    // First, try to update existing secret
-    const { data: updateResult, error: updateError } = await supabase
-      .from('integration_secrets')
-      .update({ 
-        encrypted_value: encryptedValue, 
-        updated_at: new Date().toISOString() 
-      })
-      .eq('integration_id', integrationId)
-      .eq('key_type', keyType)
-      .select('id')
-      .maybeSingle();
-
-    if (updateError) {
-      console.error('Update error:', updateError);
-      throw new Error('Failed to update secret: RLS policy violation or database error');
-    }
-
-    // If no row was updated, insert a new one
-    if (!updateResult) {
-      console.log('No existing secret found, inserting new one...');
+    if (mode === 'insert') {
+      console.log('Inserting new secret...');
       const { error: insertError } = await supabase
         .from('integration_secrets')
         .insert({
@@ -123,11 +109,26 @@ serve(async (req) => {
 
       if (insertError) {
         console.error('Insert error:', insertError);
-        throw new Error('Failed to save secret: RLS policy violation or database error');
+        throw new Error('Failed to save secret');
+      }
+    } else {
+      console.log('Updating existing secret...');
+      const { error: updateError } = await supabase
+        .from('integration_secrets')
+        .update({ 
+          encrypted_value: encryptedValue, 
+          updated_at: new Date().toISOString() 
+        })
+        .eq('integration_id', integrationId)
+        .eq('key_type', keyType);
+
+      if (updateError) {
+        console.error('Update error:', updateError);
+        throw new Error('Failed to update secret');
       }
     }
 
-    console.log(`[${user.id}] Secret saved successfully for integration ${integrationId}`);
+    console.log(`[${user.id}] Secret ${mode}ed successfully for integration ${integrationId}`);
 
     return new Response(
       JSON.stringify({ success: true }),
@@ -140,7 +141,6 @@ serve(async (req) => {
     console.error('Error in save-integration-secret:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
-    // Don't leak internal error details to client
     const safeMessage = errorMessage.includes('Unauthorized') || errorMessage.includes('Invalid')
       ? errorMessage
       : 'Failed to save secret';
