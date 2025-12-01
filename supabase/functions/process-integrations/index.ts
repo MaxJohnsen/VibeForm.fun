@@ -13,12 +13,78 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Validate internal token for security
+    const internalToken = req.headers.get('x-internal-token');
+    const expectedToken = Deno.env.get('INTERNAL_FUNCTIONS_SECRET');
+    
+    if (!internalToken || internalToken !== expectedToken) {
+      console.error('Unauthorized: Invalid or missing internal token');
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const { formId, responseId } = await req.json();
     console.log('Processing integrations for form:', formId, 'response:', responseId);
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify response exists and is completed
+    const { data: responseCheck, error: responseCheckError } = await supabase
+      .from('responses')
+      .select('status, integrations_processed_at')
+      .eq('id', responseId)
+      .single();
+
+    if (responseCheckError || !responseCheck) {
+      console.error('Response not found:', responseCheckError);
+      return new Response(JSON.stringify({ error: 'Response not found' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (responseCheck.status !== 'completed') {
+      console.error('Response not completed:', responseCheck.status);
+      return new Response(JSON.stringify({ error: 'Response not completed' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Idempotency check - if already processed, return early
+    if (responseCheck.integrations_processed_at) {
+      console.log('Integrations already processed at:', responseCheck.integrations_processed_at);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        processed: 0,
+        message: 'Already processed'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Mark as processed immediately (optimistic lock)
+    const { error: updateError } = await supabase
+      .from('responses')
+      .update({ integrations_processed_at: new Date().toISOString() })
+      .eq('id', responseId)
+      .is('integrations_processed_at', null);
+
+    if (updateError) {
+      console.error('Failed to mark as processed (might be race condition):', updateError);
+      // Another process might have started processing - return early
+      return new Response(JSON.stringify({ 
+        success: true, 
+        processed: 0,
+        message: 'Processing started by another request'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Fetch enabled integrations
     const { data: integrations, error: integrationsError } = await supabase

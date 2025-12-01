@@ -310,6 +310,7 @@ export type Database = {
           current_question_id: string | null
           form_id: string
           id: string
+          integrations_processed_at: string | null
           metadata: Json | null
           session_token: string
           started_at: string
@@ -320,6 +321,7 @@ export type Database = {
           current_question_id?: string | null
           form_id: string
           id?: string
+          integrations_processed_at?: string | null
           metadata?: Json | null
           session_token: string
           started_at?: string
@@ -330,6 +332,7 @@ export type Database = {
           current_question_id?: string | null
           form_id?: string
           id?: string
+          integrations_processed_at?: string | null
           metadata?: Json | null
           session_token?: string
           started_at?: string
