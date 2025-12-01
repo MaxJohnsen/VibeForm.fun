@@ -6,6 +6,7 @@ import {
   deleteIntegration,
   testIntegration,
   fetchIntegrationLogs,
+  deleteIntegrationSecret,
   Integration,
 } from '../api/integrationsApi';
 import { useToast } from '@/hooks/use-toast';
@@ -57,7 +58,30 @@ export const useIntegrations = (formId: string) => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteIntegration,
+    mutationFn: async (id: string) => {
+      // First get the integration to find secret IDs
+      const integration = integrationsQuery.data?.find(i => i.id === id);
+      
+      // Delete associated secrets from vault
+      if (integration?.config) {
+        const secretIds = [
+          integration.config.customApiKeySecretId,
+          integration.config.webhookUrlSecretId,
+          integration.config.urlSecretId,
+        ].filter(Boolean);
+        
+        for (const secretId of secretIds) {
+          try {
+            await deleteIntegrationSecret(id, secretId);
+          } catch (error) {
+            console.error('Error deleting secret:', error);
+          }
+        }
+      }
+      
+      // Then delete the integration
+      await deleteIntegration(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['integrations', formId] });
       toast({
@@ -95,7 +119,9 @@ export const useIntegrations = (formId: string) => {
     integrations: integrationsQuery.data ?? [],
     isLoading: integrationsQuery.isLoading,
     createIntegration: createMutation.mutate,
+    createIntegrationAsync: createMutation.mutateAsync,
     updateIntegration: updateMutation.mutate,
+    updateIntegrationAsync: updateMutation.mutateAsync,
     deleteIntegration: deleteMutation.mutate,
     testIntegration: testMutation.mutate,
     isCreating: createMutation.isPending,

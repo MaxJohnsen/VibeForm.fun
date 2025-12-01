@@ -1,19 +1,22 @@
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info, ExternalLink } from 'lucide-react';
 import { VariablePicker } from '../VariablePicker';
 import { TemplateVariable } from '@/shared/utils/templateEngine';
 import { useRef } from 'react';
+import { SecretInput } from '@/shared/ui';
+import { saveIntegrationSecret, updateIntegrationSecret, deleteIntegrationSecret } from '../../api/integrationsApi';
 
 interface SlackConfigProps {
   config: Record<string, any>;
   onChange: (config: Record<string, any>) => void;
   variables?: TemplateVariable[];
+  integrationId?: string;
+  isPending?: boolean;
 }
 
-export const SlackConfig = ({ config, onChange, variables = [] }: SlackConfigProps) => {
+export const SlackConfig = ({ config, onChange, variables = [], integrationId, isPending = false }: SlackConfigProps) => {
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
   const insertVariable = (variableKey: string) => {
@@ -31,6 +34,22 @@ export const SlackConfig = ({ config, onChange, variables = [] }: SlackConfigPro
         input.setSelectionRange(start + variableKey.length, start + variableKey.length);
       }, 0);
     }
+  };
+
+  const handleSaveWebhookUrl = async (value: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    const secretId = await saveIntegrationSecret(integrationId, value, 'slack_webhook_url');
+    return secretId;
+  };
+
+  const handleUpdateWebhookUrl = async (secretId: string, value: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    await updateIntegrationSecret(integrationId, secretId, value);
+  };
+
+  const handleDeleteWebhookUrl = async (secretId: string) => {
+    if (!integrationId) throw new Error('Integration ID required');
+    await deleteIntegrationSecret(integrationId, secretId);
   };
 
   return (
@@ -53,21 +72,24 @@ export const SlackConfig = ({ config, onChange, variables = [] }: SlackConfigPro
         </AlertDescription>
       </Alert>
 
-      <div>
-        <Label htmlFor="webhookUrl">Slack Webhook URL *</Label>
-        <Input
-          id="webhookUrl"
-          type="url"
-          placeholder="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
-          value={config.webhookUrl || ''}
-          onChange={(e) => onChange({ ...config, webhookUrl: e.target.value })}
-          className="mt-1 font-mono text-sm"
-          required
-        />
-        <p className="text-xs text-muted-foreground mt-1">
-          Paste your Slack Incoming Webhook URL here
-        </p>
-      </div>
+      <SecretInput
+        label="Slack Webhook URL *"
+        value={config.webhookUrl}
+        secretId={config.webhookUrlSecretId}
+        onChange={(value, secretId) => {
+          onChange({
+            ...config,
+            webhookUrl: value,
+            webhookUrlSecretId: secretId,
+          });
+        }}
+        onSave={handleSaveWebhookUrl}
+        onUpdate={handleUpdateWebhookUrl}
+        onDelete={handleDeleteWebhookUrl}
+        placeholder="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+        description="Paste your Slack Incoming Webhook URL here"
+        isPending={isPending}
+      />
 
       <div>
         <div className="flex items-center justify-between mb-1">
