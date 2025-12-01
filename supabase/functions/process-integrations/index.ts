@@ -1,18 +1,11 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { Resend } from 'https://esm.sh/resend@4.0.0';
-import { buildTemplateContext, processTemplate } from '../_shared/templateEngine.ts';
+import { getHandler, hasHandler } from '../_shared/integrations/registry.ts';
+import type { Integration, HandlerContext } from '../_shared/integrations/types.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-interface Integration {
-  id: string;
-  type: 'email' | 'slack' | 'webhook' | 'zapier';
-  name: string;
-  config: Record<string, any>;
-}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -64,7 +57,7 @@ Deno.serve(async (req) => {
     // Process each integration
     const results = await Promise.allSettled(
       integrations.map((integration: Integration) =>
-        processIntegration(integration, response, questions, supabase)
+        executeIntegration({ integration, response, questions, supabase })
       )
     );
 
@@ -92,12 +85,8 @@ Deno.serve(async (req) => {
   }
 });
 
-async function processIntegration(
-  integration: Integration,
-  response: any,
-  questions: any[],
-  supabase: any
-) {
+async function executeIntegration(ctx: HandlerContext) {
+  const { integration, response, supabase } = ctx;
   const startTime = Date.now();
   let status: 'success' | 'error' = 'success';
   let errorMessage: string | undefined;
@@ -106,22 +95,17 @@ async function processIntegration(
   try {
     console.log(`Processing ${integration.type} integration: ${integration.name}`);
 
-    switch (integration.type) {
-      case 'email':
-        responseData = await processEmailIntegration(integration, response, questions, supabase);
-        break;
-      case 'slack':
-        responseData = await processSlackIntegration(integration, response, questions, supabase);
-        break;
-      case 'webhook':
-        responseData = await processWebhookIntegration(integration, response, questions);
-        break;
-      case 'zapier':
-        responseData = await processZapierIntegration(integration, response, questions, supabase);
-        break;
-      default:
-        throw new Error(`Unknown integration type: ${integration.type}`);
+    if (!hasHandler(integration.type)) {
+      throw new Error(`Unknown integration type: ${integration.type}`);
     }
+
+    const handler = getHandler(integration.type);
+    const result = await handler(ctx);
+
+    if (!result.success) {
+      throw new Error(result.error || 'Unknown handler error');
+    }
+    responseData = result.data;
   } catch (error: any) {
     status = 'error';
     errorMessage = error.message;
@@ -133,301 +117,10 @@ async function processIntegration(
     integration_id: integration.id,
     response_id: response.id,
     status,
-    payload: { response, questions },
+    payload: { response, questions: ctx.questions },
     response_data: responseData,
     error_message: errorMessage,
   });
 
   console.log(`Integration ${integration.name} completed in ${Date.now() - startTime}ms`);
-}
-
-async function processEmailIntegration(
-  integration: Integration,
-  response: any,
-  questions: any[],
-  supabase: any
-) {
-  console.log('Processing email integration:', integration.id);
-  
-  const config = integration.config;
-  
-  // Determine which API key to use
-  let resendApiKey: string;
-  
-  if (config.useCustomApiKey) {
-    // Fetch and decrypt the custom API key from integration_secrets
-    console.log('Fetching custom Resend API key from secure storage...');
-    const { data: secretData, error: secretError } = await supabase
-      .from('integration_secrets')
-      .select('encrypted_value')
-      .eq('integration_id', integration.id)
-      .eq('key_type', 'resend_api_key')
-      .single();
-    
-    if (secretError || !secretData) {
-      console.error('Failed to fetch custom API key:', secretError);
-      throw new Error('Custom API key not found in secure storage');
-    }
-    
-    // Import decryption module
-    const { decryptSecret } = await import('../_shared/encryption.ts');
-    
-    // Decrypt the API key
-    resendApiKey = await decryptSecret(secretData.encrypted_value);
-    console.log('Custom API key decrypted successfully');
-  } else {
-    // Use Fairform's RESEND_API_KEY
-    resendApiKey = Deno.env.get('RESEND_API_KEY')!;
-    if (!resendApiKey) {
-      throw new Error('Fairform RESEND_API_KEY not configured');
-    }
-    console.log('Using Fairform Resend API key');
-  }
-
-  const resend = new Resend(resendApiKey);
-
-  // Build template context
-  const context = buildTemplateContext(
-    response.forms,
-    response,
-    questions,
-    response.answers || []
-  );
-
-  // Process templates
-  const subject = config.subject 
-    ? processTemplate(config.subject, context)
-    : `New response for ${response.forms?.title}`;
-
-  const body = config.bodyTemplate
-    ? processTemplate(config.bodyTemplate, context)
-    : context.all_answers;
-
-  // Parse email addresses (comma-separated to array)
-  const parseEmails = (input: string): string[] => {
-    if (!input) return [];
-    return input.split(',').map(e => e.trim()).filter(Boolean);
-  };
-
-  // Determine from address
-  const fromAddress = config.useCustomApiKey && config.fromEmail
-    ? `${config.fromName || 'Forms'} <${config.fromEmail}>`
-    : 'Fairform <action@fairform.io>';
-
-  // Support both new 'to' and legacy 'recipient' fields
-  const toEmails = parseEmails(config.to || config.recipient || '');
-  
-  if (toEmails.length === 0) {
-    throw new Error('No recipient email addresses specified');
-  }
-
-  const emailResponse = await resend.emails.send({
-    from: fromAddress,
-    to: toEmails,
-    cc: parseEmails(config.cc || ''),
-    bcc: parseEmails(config.bcc || ''),
-    subject,
-    html: `
-      <h2>New Form Response</h2>
-      <p><strong>Form:</strong> ${response.forms?.title}</p>
-      <p><strong>Submitted:</strong> ${new Date(response.completed_at).toLocaleString()}</p>
-      <hr/>
-      <pre style="white-space: pre-wrap; font-family: sans-serif;">${body}</pre>
-    `,
-  });
-
-  return emailResponse;
-}
-
-async function processSlackIntegration(
-  integration: Integration,
-  response: any,
-  questions: any[],
-  supabase: any
-) {
-  console.log('Processing Slack integration:', integration.id);
-  
-  const config = integration.config;
-  
-  // Fetch encrypted webhook URL from secure storage
-  const { data: secretData, error: secretError } = await supabase
-    .from('integration_secrets')
-    .select('encrypted_value')
-    .eq('integration_id', integration.id)
-    .eq('key_type', 'slack_webhook')
-    .single();
-  
-  if (secretError || !secretData) {
-    console.error('Failed to fetch Slack webhook:', secretError);
-    throw new Error('Slack webhook URL not found in secure storage');
-  }
-  
-  // Decrypt the webhook URL
-  const { decryptSecret } = await import('../_shared/encryption.ts');
-  const webhookUrl = await decryptSecret(secretData.encrypted_value);
-  console.log('Slack webhook decrypted successfully');
-
-  // Build template context
-  const context = buildTemplateContext(
-    response.forms,
-    response,
-    questions,
-    response.answers || []
-  );
-
-  let slackPayload: any;
-  
-  // Check if custom message template is provided
-  if (config.message && config.message.trim()) {
-    // Use custom message template
-    const processedMessage = processTemplate(config.message, context);
-    
-    slackPayload = {
-      text: processedMessage,
-      blocks: [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: processedMessage
-          }
-        }
-      ]
-    };
-  } else {
-    // Use default format with fields
-    const answersMap = new Map();
-    response.answers?.forEach((answer: any) => {
-      const question = questions.find((q) => q.id === answer.question_id);
-      if (question) {
-        answersMap.set(question.label, formatAnswerValue(answer.answer_value));
-      }
-    });
-
-    const fields = Array.from(answersMap.entries()).map(([label, value]) => ({
-      type: 'mrkdwn',
-      text: `*${label}*\n${value}`,
-    }));
-
-    // Slack has a 10-field limit per section, so we need to chunk
-    const fieldChunks: any[][] = [];
-    for (let i = 0; i < fields.length; i += 10) {
-      fieldChunks.push(fields.slice(i, i + 10));
-    }
-
-    // Build blocks with chunked sections
-    const blocks: any[] = [
-      {
-        type: 'header',
-        text: {
-          type: 'plain_text',
-          text: `🎉 New Response: ${response.forms?.title}`,
-        },
-      },
-    ];
-
-    // Add a section block for each chunk
-    fieldChunks.forEach((chunk) => {
-      blocks.push({
-        type: 'section',
-        fields: chunk,
-      });
-    });
-
-    // Add timestamp context
-    blocks.push({
-      type: 'context',
-      elements: [
-        {
-          type: 'mrkdwn',
-          text: `Submitted at ${new Date(response.completed_at).toLocaleString()}`,
-        },
-      ],
-    });
-
-    slackPayload = { blocks };
-  }
-
-  const slackResponse = await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(slackPayload),
-  });
-
-  if (!slackResponse.ok) {
-    throw new Error(`Slack API error: ${slackResponse.statusText}`);
-  }
-
-  return { status: slackResponse.status };
-}
-
-async function processWebhookIntegration(integration: Integration, response: any, questions: any[]) {
-  const config = integration.config;
-
-  const payload = {
-    formId: response.form_id,
-    responseId: response.id,
-    formTitle: response.forms?.title,
-    completedAt: response.completed_at,
-    answers: response.answers,
-    questions,
-  };
-
-  const webhookResponse = await fetch(config.url, {
-    method: config.method || 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(config.headers || {}),
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (!webhookResponse.ok) {
-    throw new Error(`Webhook error: ${webhookResponse.statusText}`);
-  }
-
-  return {
-    status: webhookResponse.status,
-    body: await webhookResponse.text(),
-  };
-}
-
-async function processZapierIntegration(
-  integration: Integration,
-  response: any,
-  questions: any[],
-  supabase: any
-) {
-  console.log('Processing Zapier integration:', integration.id);
-  
-  // Fetch encrypted webhook URL from secure storage
-  const { data: secretData, error: secretError } = await supabase
-    .from('integration_secrets')
-    .select('encrypted_value')
-    .eq('integration_id', integration.id)
-    .eq('key_type', 'zapier_webhook')
-    .single();
-  
-  if (secretError || !secretData) {
-    console.error('Failed to fetch Zapier webhook:', secretError);
-    throw new Error('Zapier webhook URL not found in secure storage');
-  }
-  
-  // Decrypt the webhook URL
-  const { decryptSecret } = await import('../_shared/encryption.ts');
-  const webhookUrl = await decryptSecret(secretData.encrypted_value);
-  console.log('Zapier webhook decrypted successfully');
-
-  // Call generic webhook handler with decrypted URL
-  return processWebhookIntegration(
-    { ...integration, config: { url: webhookUrl, method: 'POST' } },
-    response,
-    questions
-  );
-}
-
-function formatAnswerValue(value: any): string {
-  if (value === null || value === undefined) return 'No answer';
-  if (typeof value === 'object') return JSON.stringify(value, null, 2);
-  return String(value);
 }
