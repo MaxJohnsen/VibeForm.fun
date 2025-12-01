@@ -85,7 +85,15 @@ export const ActionConfigPanel = ({
   const bodyTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { data: previewData, isLoading: isLoadingPreview } = useTemplatePreview(formId);
-  const [customApiKey, setCustomApiKey] = useState<string>(''); // Temp storage for API key input
+  
+  // Generic pending secret state (replaces type-specific states)
+  const [pendingSecret, setPendingSecret] = useState<string>('');
+  
+  // Check if this integration type has a secret field configuration
+  const hasExistingSecret = !!action?.id && !!integrationInfo?.secretField;
+  
+  // For email: backward compatibility with old customApiKey state
+  const [customApiKey, setCustomApiKey] = useState<string>('');
   const [apiKeySaved, setApiKeySaved] = useState<boolean>(!!action?.id && !!action?.config?.useCustomApiKey);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,7 +102,10 @@ export const ActionConfigPanel = ({
     // Prepare config without sensitive data
     const safeConfig = { ...config };
     
-    // Don't store API key in config
+    // Remove secret from config if applicable
+    if (integrationInfo?.secretField?.configPath) {
+      delete safeConfig[integrationInfo.secretField.configPath];
+    }
     delete safeConfig.customApiKey;
     
     // Prepare integration data
@@ -107,9 +118,14 @@ export const ActionConfigPanel = ({
       trigger: action?.trigger || 'form_completed',
     };
     
-    // If there's a custom API key to save, add it as pending
+    // Add pending secret (generic approach)
+    if (pendingSecret) {
+      integrationData._pendingSecret = pendingSecret;
+    }
+    
+    // Backward compatibility: email custom API key
     if (customApiKey && config.useCustomApiKey) {
-      integrationData._pendingApiKey = customApiKey;
+      integrationData._pendingSecret = customApiKey;
     }
     
     // Call onSave
@@ -276,6 +292,9 @@ export const ActionConfigPanel = ({
                         config={config}
                         onChange={setConfig}
                         variables={previewData ? getAvailableVariables(previewData.questions) : []}
+                        onSecretChange={setPendingSecret}
+                        hasExistingSecret={hasExistingSecret}
+                        secretField={integrationInfo?.secretField}
                       />
                     )}
 
@@ -284,7 +303,13 @@ export const ActionConfigPanel = ({
                     )}
 
                     {type === 'zapier' && (
-                      <ZapierConfig config={config} onChange={setConfig} />
+                      <ZapierConfig 
+                        config={config} 
+                        onChange={setConfig}
+                        onSecretChange={setPendingSecret}
+                        hasExistingSecret={hasExistingSecret}
+                        secretField={integrationInfo?.secretField}
+                      />
                     )}
                   </div>
                 </form>
@@ -323,15 +348,15 @@ export const ActionConfigPanel = ({
         const hasRecipient = !!(config.to || config.recipient);
         const hasSubject = !!config.subject;
         const hasCustomKeyIfNeeded = config.useCustomApiKey 
-          ? (apiKeySaved || !!customApiKey) 
+          ? (apiKeySaved || !!customApiKey || !!pendingSecret) 
           : true;
         return hasRecipient && hasSubject && hasCustomKeyIfNeeded;
       case 'slack':
-        return !!config.webhookUrl;
+        return hasExistingSecret || !!pendingSecret || !!config.webhookUrl;
       case 'webhook':
         return !!config.url;
       case 'zapier':
-        return !!config.webhookUrl;
+        return hasExistingSecret || !!pendingSecret || !!config.webhookUrl;
       default:
         return false;
     }

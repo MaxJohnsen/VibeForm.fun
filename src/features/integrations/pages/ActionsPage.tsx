@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Integration, IntegrationType, saveIntegrationSecret } from '../api/integrationsApi';
 import { ROUTES } from '@/shared/constants/routes';
+import { INTEGRATION_TYPES } from '../constants/integrationTypes';
 import {
   Select,
   SelectContent,
@@ -73,9 +74,9 @@ export const ActionsPage = () => {
     setActiveAction({ mode: 'edit', type: action.type, action });
   };
 
-  const handleSaveAction = async (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'> & { _pendingApiKey?: string }) => {
+  const handleSaveAction = async (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'> & { _pendingSecret?: string }) => {
     try {
-      const { _pendingApiKey, ...integrationData } = data;
+      const { _pendingSecret, ...integrationData } = data;
       let integrationId: string;
       
       // Step 1: Save integration
@@ -89,15 +90,20 @@ export const ActionsPage = () => {
         return;
       }
       
-      // Step 2: Save API key if needed
-      if (_pendingApiKey) {
-        const secretMode = activeAction?.mode === 'create' ? 'insert' : 'update';
-        await saveIntegrationSecret(integrationId, 'resend_api_key', _pendingApiKey, secretMode);
+      // Step 2: Save secret if provided (generic approach)
+      if (_pendingSecret) {
+        const integrationTypeInfo = INTEGRATION_TYPES.find(t => t.type === data.type);
+        const secretField = integrationTypeInfo?.secretField;
+        
+        if (secretField) {
+          const secretMode = activeAction?.mode === 'create' ? 'insert' : 'update';
+          await saveIntegrationSecret(integrationId, secretField.key, _pendingSecret, secretMode);
+        }
       }
       
       // Step 3: Single success toast
-      toast.success(_pendingApiKey 
-        ? 'Action saved with secure API key' 
+      toast.success(_pendingSecret 
+        ? 'Action saved with secure credentials' 
         : 'Action saved successfully');
       
       // Step 4: Navigate after everything completes
