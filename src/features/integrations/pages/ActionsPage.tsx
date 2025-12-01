@@ -33,7 +33,7 @@ export const ActionsPage = () => {
   const { formId } = useParams();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { integrations, isLoading, createIntegration, deleteIntegration, updateIntegration, isCreating, isUpdating } = useIntegrations(formId!);
+  const { integrations, isLoading, createIntegrationAsync, updateIntegrationAsync, deleteIntegration, updateIntegration, isCreating, isUpdating } = useIntegrations(formId!);
 
   const [activeAction, setActiveAction] = useState<{
     mode: 'create' | 'edit';
@@ -75,51 +75,36 @@ export const ActionsPage = () => {
 
   const handleSaveAction = async (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'> & { _pendingApiKey?: string }) => {
     try {
-      // Extract _pendingApiKey before saving to database
       const { _pendingApiKey, ...integrationData } = data;
       let integrationId: string;
       
+      // Step 1: Save integration
       if (activeAction?.mode === 'create') {
-        const result = await new Promise<Integration>((resolve, reject) => {
-          createIntegration(integrationData, {
-            onSuccess: (result: any) => resolve(result),
-            onError: (error: any) => reject(error),
-          });
-        });
+        const result = await createIntegrationAsync(integrationData);
         integrationId = result.id;
       } else if (activeAction?.mode === 'edit' && activeAction.action) {
-        await new Promise((resolve, reject) => {
-          updateIntegration(
-            { id: activeAction.action!.id, updates: integrationData },
-            {
-              onSuccess: resolve,
-              onError: reject,
-            }
-          );
-        });
+        await updateIntegrationAsync({ id: activeAction.action.id, updates: integrationData });
         integrationId = activeAction.action.id;
       } else {
         return;
       }
       
-      // If there's a pending API key, save it securely
+      // Step 2: Save API key if needed
       if (_pendingApiKey) {
-        try {
-          const secretMode = activeAction?.mode === 'create' ? 'insert' : 'update';
-          await saveIntegrationSecret(integrationId, 'resend_api_key', _pendingApiKey, secretMode);
-          toast.success('Integration and API key saved securely');
-        } catch (error) {
-          console.error('Error saving API key:', error);
-          toast.error('Integration saved, but failed to save API key');
-        }
-      } else {
-        toast.success('Integration saved');
+        const secretMode = activeAction?.mode === 'create' ? 'insert' : 'update';
+        await saveIntegrationSecret(integrationId, 'resend_api_key', _pendingApiKey, secretMode);
       }
       
+      // Step 3: Single success toast
+      toast.success(_pendingApiKey 
+        ? 'Action saved with secure API key' 
+        : 'Action saved successfully');
+      
+      // Step 4: Navigate after everything completes
       setActiveAction(null);
     } catch (error) {
-      console.error('Error saving integration:', error);
-      toast.error('Failed to save integration');
+      console.error('Error saving action:', error);
+      toast.error('Failed to save action');
     }
   };
 

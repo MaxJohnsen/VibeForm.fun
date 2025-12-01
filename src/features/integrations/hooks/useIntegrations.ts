@@ -23,10 +23,6 @@ export const useIntegrations = (formId: string) => {
     mutationFn: createIntegration,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['integrations', formId] });
-      toast({
-        title: 'Action created',
-        description: 'Your action has been created successfully.',
-      });
     },
     onError: (error: Error) => {
       toast({
@@ -42,10 +38,6 @@ export const useIntegrations = (formId: string) => {
       updateIntegration(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['integrations', formId] });
-      toast({
-        title: 'Action updated',
-        description: 'Your action has been updated successfully.',
-      });
     },
     onError: (error: Error) => {
       toast({
@@ -98,6 +90,8 @@ export const useIntegrations = (formId: string) => {
     updateIntegration: updateMutation.mutate,
     deleteIntegration: deleteMutation.mutate,
     testIntegration: testMutation.mutate,
+    createIntegrationAsync: createMutation.mutateAsync,
+    updateIntegrationAsync: updateMutation.mutateAsync,
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,

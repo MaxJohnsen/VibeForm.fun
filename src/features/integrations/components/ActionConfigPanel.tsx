@@ -228,7 +228,7 @@ export const ActionConfigPanel = ({
               className="gap-2"
             >
               {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-              {action ? 'Save Changes' : 'Create Action'}
+              {isSaving ? 'Saving...' : (action ? 'Save Changes' : 'Create Action')}
             </Button>
           </div>
         </div>
@@ -420,7 +420,7 @@ const EmailConfiguration = ({
               <Label htmlFor="customApiKey">Resend API Key *</Label>
               <Input
                 id="customApiKey"
-                type="password"
+                type="text"
                 placeholder="re_xxxxxxxxxxxxx"
                 value={customApiKey}
                 onChange={(e) => onCustomApiKeyChange(e.target.value)}
@@ -432,7 +432,7 @@ const EmailConfiguration = ({
               </p>
               <Alert className="mt-2">
                 <AlertDescription className="text-xs">
-                  🔒 Your API key will be encrypted and stored securely. It cannot be viewed after saving.
+                  🔒 Your API key will be encrypted and stored securely.
                 </AlertDescription>
               </Alert>
             </div>
