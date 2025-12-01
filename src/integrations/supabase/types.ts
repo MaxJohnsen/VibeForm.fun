@@ -315,21 +315,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      delete_integration_secret: {
-        Args: { secret_id: string }
-        Returns: boolean
-      }
-      get_decrypted_secret: { Args: { secret_id: string }; Returns: string }
-      save_integration_secret: {
-        Args: {
-          secret_description?: string
-          secret_name: string
-          secret_value: string
-        }
-        Returns: string
-      }
-      update_integration_secret: {
-        Args: { new_value: string; secret_id: string }
+      user_owns_integration: {
+        Args: { integration_id: string }
         Returns: boolean
       }
     }

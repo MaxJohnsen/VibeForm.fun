@@ -73,20 +73,24 @@ Deno.serve(async (req) => {
 
         console.log('Creating secret:', secretName);
         
-        // Call database function to save to vault
-        const { data, error } = await supabaseAdmin.rpc('save_integration_secret', {
-          secret_value: secretValue,
-          secret_name: secretName,
-          secret_description: `Integration secret for ${integrationId}`
-        });
+        // Insert directly into vault.secrets using service role
+        const { data, error } = await supabaseAdmin
+          .from('vault.secrets')
+          .insert({
+            secret: secretValue,
+            name: secretName,
+            description: `Integration secret for ${integrationId}`
+          })
+          .select('id')
+          .single();
 
         if (error) {
           console.error('Error saving secret:', error);
           throw new Error(`Failed to save secret: ${error.message}`);
         }
 
-        result = { secretId: data };
-        console.log('Secret created with ID:', data);
+        result = { secretId: data.id };
+        console.log('Secret created with ID:', data.id);
         break;
       }
 
@@ -97,18 +101,21 @@ Deno.serve(async (req) => {
 
         console.log('Updating secret:', secretId);
 
-        // Call database function to update vault secret
-        const { data, error } = await supabaseAdmin.rpc('update_integration_secret', {
-          secret_id: secretId,
-          new_value: secretValue
-        });
+        // Update directly in vault.secrets using service role
+        const { error } = await supabaseAdmin
+          .from('vault.secrets')
+          .update({
+            secret: secretValue,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', secretId);
 
         if (error) {
           console.error('Error updating secret:', error);
           throw new Error(`Failed to update secret: ${error.message}`);
         }
 
-        result = { success: data };
+        result = { success: true };
         console.log('Secret updated successfully');
         break;
       }
@@ -120,17 +127,18 @@ Deno.serve(async (req) => {
 
         console.log('Deleting secret:', secretId);
 
-        // Call database function to delete vault secret
-        const { data, error } = await supabaseAdmin.rpc('delete_integration_secret', {
-          secret_id: secretId
-        });
+        // Delete directly from vault.secrets using service role
+        const { error } = await supabaseAdmin
+          .from('vault.secrets')
+          .delete()
+          .eq('id', secretId);
 
         if (error) {
           console.error('Error deleting secret:', error);
           throw new Error(`Failed to delete secret: ${error.message}`);
         }
 
-        result = { success: data };
+        result = { success: true };
         console.log('Secret deleted successfully');
         break;
       }

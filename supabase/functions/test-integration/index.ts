@@ -98,12 +98,18 @@ async function getDecryptedSecret(supabase: any, secretId: string | undefined): 
   if (!secretId) return undefined;
   
   try {
-    const { data, error } = await supabase.rpc('get_decrypted_secret', { secret_id: secretId });
+    // Read from vault.decrypted_secrets view using service role
+    const { data, error } = await supabase
+      .from('vault.decrypted_secrets')
+      .select('decrypted_secret')
+      .eq('id', secretId)
+      .single();
+      
     if (error) {
       console.error('Error decrypting secret:', error);
       return undefined;
     }
-    return data;
+    return data.decrypted_secret;
   } catch (error) {
     console.error('Exception decrypting secret:', error);
     return undefined;
