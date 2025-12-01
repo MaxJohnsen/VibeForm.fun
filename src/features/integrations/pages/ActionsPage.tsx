@@ -75,11 +75,13 @@ export const ActionsPage = () => {
 
   const handleSaveAction = async (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'> & { _pendingApiKey?: string }) => {
     try {
+      // Extract _pendingApiKey before saving to database
+      const { _pendingApiKey, ...integrationData } = data;
       let integrationId: string;
       
       if (activeAction?.mode === 'create') {
         const result = await new Promise<Integration>((resolve, reject) => {
-          createIntegration(data, {
+          createIntegration(integrationData, {
             onSuccess: (result: any) => resolve(result),
             onError: (error: any) => reject(error),
           });
@@ -88,7 +90,7 @@ export const ActionsPage = () => {
       } else if (activeAction?.mode === 'edit' && activeAction.action) {
         await new Promise((resolve, reject) => {
           updateIntegration(
-            { id: activeAction.action!.id, updates: data },
+            { id: activeAction.action!.id, updates: integrationData },
             {
               onSuccess: resolve,
               onError: reject,
@@ -101,14 +103,16 @@ export const ActionsPage = () => {
       }
       
       // If there's a pending API key, save it securely
-      if (data._pendingApiKey) {
+      if (_pendingApiKey) {
         try {
-          await saveIntegrationSecret(integrationId, 'resend_api_key', data._pendingApiKey);
+          await saveIntegrationSecret(integrationId, 'resend_api_key', _pendingApiKey);
           toast.success('Integration and API key saved securely');
         } catch (error) {
           console.error('Error saving API key:', error);
           toast.error('Integration saved, but failed to save API key');
         }
+      } else {
+        toast.success('Integration saved');
       }
       
       setActiveAction(null);
