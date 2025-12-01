@@ -30,8 +30,7 @@ export interface IntegrationLog {
 export interface EmailConfig {
   // Provider choice
   useCustomApiKey: boolean;
-  customApiKey?: string; // Legacy - for display only
-  customApiKeySecretId?: string; // Vault secret ID
+  customApiKey?: string;
   
   // Sender (when using custom API key)
   fromName?: string;
@@ -51,20 +50,17 @@ export interface EmailConfig {
 }
 
 export interface SlackConfig {
-  webhookUrl?: string; // Legacy - for display only
-  webhookUrlSecretId?: string; // Vault secret ID
+  webhookUrl: string;
 }
 
 export interface WebhookConfig {
-  url?: string; // Legacy - for display only
-  urlSecretId?: string; // Vault secret ID
+  url: string;
   method: 'GET' | 'POST' | 'PUT' | 'PATCH';
   headers?: Record<string, string>;
 }
 
 export interface ZapierConfig {
-  webhookUrl?: string; // Legacy - for display only
-  webhookUrlSecretId?: string; // Vault secret ID
+  webhookUrl: string;
 }
 
 export const fetchIntegrations = async (formId: string) => {
@@ -129,45 +125,4 @@ export const fetchIntegrationLogs = async (integrationId: string, limit = 20) =>
 
   if (error) throw error;
   return data as IntegrationLog[];
-};
-
-export const saveIntegrationSecret = async (integrationId: string, secretValue: string, secretName: string) => {
-  const { data, error } = await supabase.functions.invoke('manage-integration-secrets', {
-    body: {
-      operation: 'create',
-      integrationId,
-      secretValue,
-      secretName,
-    },
-  });
-
-  if (error) throw error;
-  return data.secretId as string;
-};
-
-export const updateIntegrationSecret = async (integrationId: string, secretId: string, secretValue: string) => {
-  const { data, error } = await supabase.functions.invoke('manage-integration-secrets', {
-    body: {
-      operation: 'update',
-      integrationId,
-      secretId,
-      secretValue,
-    },
-  });
-
-  if (error) throw error;
-  return data;
-};
-
-export const deleteIntegrationSecret = async (integrationId: string, secretId: string) => {
-  const { data, error } = await supabase.functions.invoke('manage-integration-secrets', {
-    body: {
-      operation: 'delete',
-      integrationId,
-      secretId,
-    },
-  });
-
-  if (error) throw error;
-  return data;
 };
