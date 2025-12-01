@@ -30,13 +30,13 @@ export function buildTemplateContext(
 ): TemplateContext {
   const context: TemplateContext = {
     // Form-level variables
-    form_title: form.title,
-    form_slug: form.slug || '',
-    response_id: response.id,
-    submitted_at: response.completed_at 
+    form_title: form?.title || 'Untitled Form',
+    form_slug: form?.slug || '',
+    response_id: response?.id || '',
+    submitted_at: response?.completed_at 
       ? format(new Date(response.completed_at), 'PPpp')
       : 'N/A',
-    response_number: String(answers.length),
+    response_number: String(answers?.length || 0),
   };
 
   // Build all_answers text

@@ -15,7 +15,7 @@ export const webhookHandler: IntegrationHandler = async (ctx): Promise<HandlerRe
   const payload = {
     form_id: response.form_id,
     response_id: response.id,
-    form_title: response.form?.title,
+    form_title: response.forms?.title,
     completed_at: response.completed_at,
     answers: response.answers?.map((answer: any) => {
       const question = questions.find((q) => q.id === answer.question_id);
