@@ -74,9 +74,15 @@ serve(async (req) => {
     console.log('Encrypting secret...');
     const encryptedValue = await encryptSecret(value);
 
-    // Store in integration_secrets table
+    // Create service role client to bypass RLS (we've already validated ownership)
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Store in integration_secrets table using service role
     // Use upsert to handle both insert and update cases
-    const { error: saveError } = await supabase
+    const { error: saveError } = await supabaseAdmin
       .from('integration_secrets')
       .upsert({
         integration_id: integrationId,
