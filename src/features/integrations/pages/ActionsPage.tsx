@@ -105,7 +105,8 @@ export const ActionsPage = () => {
       // If there's a pending API key, save it securely
       if (_pendingApiKey) {
         try {
-          await saveIntegrationSecret(integrationId, 'resend_api_key', _pendingApiKey);
+          const secretMode = activeAction?.mode === 'create' ? 'insert' : 'update';
+          await saveIntegrationSecret(integrationId, 'resend_api_key', _pendingApiKey, secretMode);
           toast.success('Integration and API key saved securely');
         } catch (error) {
           console.error('Error saving API key:', error);

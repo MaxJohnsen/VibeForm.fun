@@ -118,10 +118,11 @@ export const testIntegration = async (integrationId: string) => {
 export const saveIntegrationSecret = async (
   integrationId: string,
   keyType: string,
-  value: string
+  value: string,
+  mode: 'insert' | 'update'
 ): Promise<void> => {
   const { error } = await supabase.functions.invoke('save-integration-secret', {
-    body: { integrationId, keyType, value },
+    body: { integrationId, keyType, value, mode },
   });
 
   if (error) throw error;
