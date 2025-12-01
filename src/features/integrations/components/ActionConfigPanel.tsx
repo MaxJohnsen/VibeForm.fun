@@ -403,7 +403,7 @@ const EmailConfiguration = ({
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-green-500" />
-                <span className="text-sm text-muted-foreground">API key saved securely</span>
+                <span className="text-sm text-muted-foreground">API key saved</span>
               </div>
               <Button
                 type="button"
@@ -430,11 +430,6 @@ const EmailConfiguration = ({
               <p className="text-xs text-muted-foreground mt-1">
                 Get your API key at <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline">resend.com/api-keys</a>
               </p>
-              <Alert className="mt-2">
-                <AlertDescription className="text-xs">
-                  🔒 Your API key will be encrypted and stored securely.
-                </AlertDescription>
-              </Alert>
             </div>
           )}
 
