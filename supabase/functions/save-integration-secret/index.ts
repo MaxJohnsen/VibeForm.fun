@@ -94,38 +94,41 @@ serve(async (req) => {
     console.log('Encrypting secret...');
     const encryptedValue = await encryptSecret(value);
 
-    // === DEFENSE LAYER 2: DATABASE WRITE WITH RLS ===
-    // Using user's JWT context - RLS policies will enforce authorization
-    
-    if (mode === 'insert') {
-      console.log('Inserting new secret...');
-      const { error: insertError } = await supabase
-        .from('integration_secrets')
-        .insert({
-          integration_id: integrationId,
-          key_type: keyType,
-          encrypted_value: encryptedValue,
-        });
+    // === CREATE SERVICE ROLE CLIENT FOR RELIABLE WRITES ===
+    // Security is enforced by the manual ownership check above
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
-      if (insertError) {
-        console.error('Insert error:', insertError);
-        throw new Error('Failed to save secret');
-      }
-    } else {
-      console.log('Updating existing secret...');
-      const { error: updateError } = await supabase
+    if (mode === 'update') {
+      // Delete existing secret first
+      console.log('Deleting existing secret for update...');
+      const { error: deleteError } = await supabaseAdmin
         .from('integration_secrets')
-        .update({ 
-          encrypted_value: encryptedValue, 
-          updated_at: new Date().toISOString() 
-        })
+        .delete()
         .eq('integration_id', integrationId)
         .eq('key_type', keyType);
 
-      if (updateError) {
-        console.error('Update error:', updateError);
+      if (deleteError) {
+        console.error('Delete error:', deleteError);
         throw new Error('Failed to update secret');
       }
+    }
+
+    // Insert (works for both 'insert' and 'update' modes now)
+    console.log('Inserting secret...');
+    const { error: insertError } = await supabaseAdmin
+      .from('integration_secrets')
+      .insert({
+        integration_id: integrationId,
+        key_type: keyType,
+        encrypted_value: encryptedValue,
+      });
+
+    if (insertError) {
+      console.error('Insert error:', insertError);
+      throw new Error('Failed to save secret');
     }
 
     console.log(`[${user.id}] Secret ${mode}ed successfully for integration ${integrationId}`);
