@@ -9,7 +9,7 @@ export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
   console.log('Processing email integration:', integration.name);
 
   // Build template context
-  const form = response.form;
+  const form = response.forms;
   const answers = response.answers || [];
   const context = buildTemplateContext(form, response, questions, answers);
 

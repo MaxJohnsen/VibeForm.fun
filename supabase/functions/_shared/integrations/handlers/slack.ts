@@ -12,7 +12,7 @@ export const slackHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
   const webhookUrl = await fetchAndDecryptSecret(supabase, integration.id, 'slack_webhook');
 
   // Build template context
-  const form = response.form;
+  const form = response.forms;
   const answers = response.answers || [];
   const context = buildTemplateContext(form, response, questions, answers);
 
@@ -31,7 +31,7 @@ export const slackHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
         type: 'header',
         text: {
           type: 'plain_text',
-          text: `📋 ${form.title}`,
+          text: `📋 ${form?.title || 'Untitled Form'}`,
           emoji: true,
         },
       },
