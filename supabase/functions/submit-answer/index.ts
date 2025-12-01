@@ -1,5 +1,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+// EdgeRuntime global for background task management
+declare const EdgeRuntime: {
+  waitUntil(promise: Promise<any>): void;
+};
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -221,20 +226,23 @@ Deno.serve(async (req) => {
     console.log('Answer submitted:', { questionId, nextQuestionId, isComplete });
 
     // Trigger integrations in background if form is complete
+    // EdgeRuntime.waitUntil ensures the background task completes even after response is sent
     if (isComplete) {
       const internalSecret = Deno.env.get('INTERNAL_FUNCTIONS_SECRET');
-      supabase.functions.invoke('process-integrations', {
-        body: { formId: responseResult.data.form_id, responseId: responseResult.data.id },
-        headers: {
-          'x-internal-token': internalSecret || '',
-        },
-      }).then(({ data, error }) => {
-        if (error) {
-          console.error('Error processing integrations:', error);
-        } else {
-          console.log('Integrations processed:', data);
-        }
-      });
+      EdgeRuntime.waitUntil(
+        supabase.functions.invoke('process-integrations', {
+          body: { formId: responseResult.data.form_id, responseId: responseResult.data.id },
+          headers: {
+            'x-internal-token': internalSecret || '',
+          },
+        }).then(({ data, error }) => {
+          if (error) {
+            console.error('Error processing integrations:', error);
+          } else {
+            console.log('Integrations processed:', data);
+          }
+        })
+      );
     }
 
     return new Response(
