@@ -115,6 +115,18 @@ export const testIntegration = async (integrationId: string) => {
   return data;
 };
 
+export const saveIntegrationSecret = async (
+  integrationId: string,
+  keyType: string,
+  value: string
+): Promise<void> => {
+  const { error } = await supabase.functions.invoke('save-integration-secret', {
+    body: { integrationId, keyType, value },
+  });
+
+  if (error) throw error;
+};
+
 export const fetchIntegrationLogs = async (integrationId: string, limit = 20) => {
   const { data, error } = await supabase
     .from('integration_logs')
