@@ -222,8 +222,12 @@ Deno.serve(async (req) => {
 
     // Trigger integrations in background if form is complete
     if (isComplete) {
+      const internalSecret = Deno.env.get('INTERNAL_FUNCTIONS_SECRET');
       supabase.functions.invoke('process-integrations', {
         body: { formId: responseResult.data.form_id, responseId: responseResult.data.id },
+        headers: {
+          'x-internal-token': internalSecret || '',
+        },
       }).then(({ data, error }) => {
         if (error) {
           console.error('Error processing integrations:', error);
