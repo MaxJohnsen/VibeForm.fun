@@ -1,5 +1,10 @@
-import { format, parseISO } from 'date-fns';
-import { formatAnswerValue } from '@/shared/utils/formatAnswerValue';
+/**
+ * Template Engine - Frontend utilities
+ * 
+ * Note: Template processing (buildTemplateContext, processTemplate) is handled by
+ * the backend edge function (preview-template) to maintain a single source of truth.
+ * This file only contains UI-specific utilities for displaying available variables.
+ */
 
 export interface TemplateVariable {
   key: string;
@@ -8,85 +13,9 @@ export interface TemplateVariable {
   category: 'form' | 'question' | 'special';
 }
 
-export interface TemplateContext {
-  [key: string]: string | number | undefined;
-}
-
-/**
- * Process template with {{variable}} syntax
- */
-export function processTemplate(
-  template: string,
-  context: TemplateContext
-): string {
-  return template.replace(/\{\{([^}]+)\}\}/g, (match, varName) => {
-    const trimmedVar = varName.trim();
-    return context[trimmedVar] !== undefined 
-      ? String(context[trimmedVar]) 
-      : match;
-  });
-}
-
-/**
- * Build template context from response data
- * This should match the backend version in supabase/functions/_shared/templateEngine.ts
- */
-export function buildTemplateContext(
-  form: any,
-  response: any,
-  questions: any[],
-  answers: any[]
-): TemplateContext {
-  const safeQuestions = questions || [];
-  const safeAnswers = answers || [];
-  
-  const context: TemplateContext = {
-    // Form-level variables (with null safety)
-    form_title: form?.title || 'Untitled Form',
-    form_slug: form?.slug || '',
-    response_id: response?.id || '',
-    submitted_at: response?.completed_at 
-      ? format(parseISO(response.completed_at), 'PPpp')
-      : 'N/A',
-    response_number: safeAnswers.length > 0 ? String(safeAnswers.length) : '1',
-  };
-
-  // Build all_answers text
-  let allAnswersText = '';
-  let allAnswersHtml = '';
-
-  safeQuestions.forEach((question, index) => {
-    const answer = safeAnswers.find(a => a.question_id === question.id);
-    const formattedValue = answer 
-      ? formatAnswerValue(answer.answer_value, question.type, question.settings)
-      : '(not answered)';
-
-    // Add question-specific variables in new format: q1_text, q1_answer, etc.
-    const qNumber = index + 1;
-    context[`q${qNumber}_text`] = question.label;
-    context[`q${qNumber}_answer`] = formattedValue;
-
-    // Build all_answers string
-    allAnswersText += `${question.label}: ${formattedValue}\n`;
-    allAnswersHtml += `<p><strong>${question.label}:</strong> ${formattedValue}</p>`;
-  });
-
-  context.all_answers = allAnswersText.trim();
-  context.all_answers_html = allAnswersHtml;
-  context.all_answers_json = JSON.stringify(
-    safeQuestions.map((q) => ({
-      question: q.label,
-      answer: safeAnswers.find(a => a.question_id === q.id)?.answer_value || null
-    })),
-    null,
-    2
-  );
-
-  return context;
-}
-
 /**
  * Get available template variables for a form
+ * Used by VariablePicker to show users what variables they can use
  */
 export function getAvailableVariables(
   questions: any[]
@@ -169,6 +98,7 @@ export function getAvailableVariables(
 
 /**
  * Get example value for question type
+ * Used for displaying placeholder examples in the variable picker
  */
 function getExampleValue(type: string): string {
   const examples: Record<string, string> = {
