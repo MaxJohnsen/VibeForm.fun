@@ -1,27 +1,24 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { GlassCard } from '@/shared/ui/GlassCard';
-import { RichTextEditor } from '@/shared/ui/RichTextEditor';
 import { VariablePicker } from './VariablePicker';
 import { ActionPreview } from './ActionPreview';
 import { useTemplatePreview } from '../hooks/useTemplatePreview';
-import { Integration, IntegrationType, saveIntegrationSecret } from '../api/integrationsApi';
+import { Integration, IntegrationType } from '../api/integrationsApi';
 import { INTEGRATION_TYPES } from '../constants/integrationTypes';
 import { SlackConfig } from './config/SlackConfig';
 import { WebhookConfig } from './config/WebhookConfig';
 import { ZapierConfig } from './config/ZapierConfig';
-import { toast } from 'sonner';
 
-interface ActionConfigPanelProps {
+interface ActionConfigFormProps {
   formId: string;
   type: IntegrationType;
   action?: Integration;
-  onSave: (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'>) => void;
+  onSave: (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'> & { _pendingSecret?: string }) => void;
   onCancel: () => void;
   isSaving: boolean;
 }
@@ -70,14 +67,14 @@ _Submitted at {{submitted_at}}_`,
   }
 };
 
-export const ActionConfigPanel = ({
+export const ActionConfigForm = ({
   formId,
   type,
   action,
   onSave,
   onCancel,
   isSaving,
-}: ActionConfigPanelProps) => {
+}: ActionConfigFormProps) => {
   const integrationInfo = INTEGRATION_TYPES.find(t => t.type === type);
   const [name, setName] = useState(action?.name || `${integrationInfo?.label} notification`);
   const [config, setConfig] = useState<Record<string, any>>(action?.config || getDefaultConfig(type));
@@ -86,29 +83,23 @@ export const ActionConfigPanel = ({
 
   const { data: previewData, isLoading: isLoadingPreview } = useTemplatePreview(formId);
   
-  // Generic pending secret state (replaces type-specific states)
   const [pendingSecret, setPendingSecret] = useState<string>('');
-  
-  // Check if this integration type has a secret field configuration
   const hasExistingSecret = !!action?.id && !!integrationInfo?.secretField;
   
-  // For email: backward compatibility with old customApiKey state
+  // For email: backward compatibility
   const [customApiKey, setCustomApiKey] = useState<string>('');
   const [apiKeySaved, setApiKeySaved] = useState<boolean>(!!action?.id && !!action?.config?.useCustomApiKey);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Prepare config without sensitive data
     const safeConfig = { ...config };
     
-    // Remove secret from config if applicable
     if (integrationInfo?.secretField?.configPath) {
       delete safeConfig[integrationInfo.secretField.configPath];
     }
     delete safeConfig.customApiKey;
     
-    // Prepare integration data
     const integrationData: any = {
       form_id: formId,
       type,
@@ -118,17 +109,14 @@ export const ActionConfigPanel = ({
       trigger: action?.trigger || 'form_completed',
     };
     
-    // Add pending secret (generic approach)
     if (pendingSecret) {
       integrationData._pendingSecret = pendingSecret;
     }
     
-    // Backward compatibility: email custom API key
     if (customApiKey && config.useCustomApiKey) {
       integrationData._pendingSecret = customApiKey;
     }
     
-    // Call onSave
     onSave(integrationData);
   };
 
@@ -166,7 +154,6 @@ export const ActionConfigPanel = ({
     }
   };
 
-  // Build preview content
   const processedContent = previewData ? {
     subject: config.subject ? previewData.processTemplate(config.subject) : undefined,
     body: type === 'email' 
@@ -206,153 +193,7 @@ export const ActionConfigPanel = ({
     } : undefined,
   } : {};
 
-  return (
-    <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="border-b border-border/50 bg-background/95 backdrop-blur-sm sticky top-0 z-10">
-        <div className="px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onCancel}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-            <div className="h-6 w-px bg-border/50" />
-            <div className="flex items-center gap-2">
-              {integrationInfo?.icon && (
-                <integrationInfo.icon className="h-5 w-5 text-muted-foreground" />
-              )}
-              <h1 className="text-lg font-semibold">
-                {action ? 'Edit' : 'Create'} {integrationInfo?.label} Action
-              </h1>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Label htmlFor="trigger" className="text-sm text-muted-foreground">
-                Trigger:
-              </Label>
-              <select
-                id="trigger"
-                value={action?.trigger || 'form_completed'}
-                className="h-9 px-3 rounded-md border border-input bg-background text-sm"
-                disabled
-              >
-                <option value="form_completed">On form completed</option>
-                <option value="form_started">On form started</option>
-                <option value="question_answered">On question answered</option>
-              </select>
-            </div>
-            <Button
-              onClick={handleSubmit}
-              disabled={isSaving || !name || !isConfigValid()}
-              className="gap-2"
-            >
-              {isSaving && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isSaving ? 'Saving...' : (action ? 'Save Changes' : 'Create Action')}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-[minmax(300px,35%)_1fr] gap-6 items-start">
-            {/* Configuration (Left) */}
-            <div className="space-y-6">
-              <GlassCard className="p-6">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Action Name */}
-                  <div>
-                    <Label htmlFor="name">Action Name *</Label>
-                    <Input
-                      id="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g., Send response summary to team"
-                      className="mt-1.5"
-                      required
-                    />
-                  </div>
-
-                  <div className="border-t border-border/50 pt-6">
-                    {type === 'email' && (
-                      <EmailConfiguration
-                        config={config}
-                        onChange={setConfig}
-                        variables={previewData?.availableVariables || []}
-                        onInsertVariable={insertVariable}
-                        subjectRef={subjectInputRef}
-                        bodyRef={bodyTextareaRef}
-                        isLoadingVariables={isLoadingPreview}
-                        customApiKey={customApiKey}
-                        onCustomApiKeyChange={setCustomApiKey}
-                        apiKeySaved={apiKeySaved}
-                      />
-                    )}
-
-                    {type === 'slack' && (
-                      <SlackConfig
-                        config={config}
-                        onChange={setConfig}
-                        variables={previewData?.availableVariables || []}
-                        onSecretChange={setPendingSecret}
-                        hasExistingSecret={hasExistingSecret}
-                        secretField={integrationInfo?.secretField}
-                      />
-                    )}
-
-                    {type === 'webhook' && (
-                      <WebhookConfig config={config} onChange={setConfig} />
-                    )}
-
-                    {type === 'zapier' && (
-                      <ZapierConfig 
-                        config={config} 
-                        onChange={setConfig}
-                        onSecretChange={setPendingSecret}
-                        hasExistingSecret={hasExistingSecret}
-                        secretField={integrationInfo?.secretField}
-                      />
-                    )}
-                  </div>
-                </form>
-              </GlassCard>
-            </div>
-
-            {/* Preview (Right) */}
-            <div>
-              <GlassCard className="p-6 lg:sticky lg:top-6 transition-all duration-300">
-                {isLoadingPreview ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                  </div>
-                ) : previewData ? (
-                  <ActionPreview
-                    type={type}
-                    config={config}
-                    processedContent={processedContent}
-                  />
-                ) : (
-                  <div className="text-center py-12 text-muted-foreground">
-                    Preview unavailable
-                  </div>
-                )}
-              </GlassCard>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  function isConfigValid(): boolean {
+  const isConfigValid = (): boolean => {
     switch (type) {
       case 'email':
         const hasRecipient = !!(config.to || config.recipient);
@@ -370,7 +211,120 @@ export const ActionConfigPanel = ({
       default:
         return false;
     }
-  }
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Form Content */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        {/* Configuration Section */}
+        <GlassCard className="p-6">
+          <form onSubmit={handleSubmit} id="action-form" className="space-y-6">
+            {/* Action Name */}
+            <div>
+              <Label htmlFor="name">Action Name *</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Send response summary to team"
+                className="mt-1.5"
+                required
+              />
+            </div>
+
+            {/* Trigger Info */}
+            <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 px-3 py-2 rounded-md">
+              <Label className="text-muted-foreground">Trigger:</Label>
+              <span>On form completed</span>
+            </div>
+
+            <div className="border-t border-border/50 pt-6">
+              {type === 'email' && (
+                <EmailConfiguration
+                  config={config}
+                  onChange={setConfig}
+                  variables={previewData?.availableVariables || []}
+                  onInsertVariable={insertVariable}
+                  subjectRef={subjectInputRef}
+                  bodyRef={bodyTextareaRef}
+                  isLoadingVariables={isLoadingPreview}
+                  customApiKey={customApiKey}
+                  onCustomApiKeyChange={setCustomApiKey}
+                  apiKeySaved={apiKeySaved}
+                />
+              )}
+
+              {type === 'slack' && (
+                <SlackConfig
+                  config={config}
+                  onChange={setConfig}
+                  variables={previewData?.availableVariables || []}
+                  onSecretChange={setPendingSecret}
+                  hasExistingSecret={hasExistingSecret}
+                  secretField={integrationInfo?.secretField}
+                />
+              )}
+
+              {type === 'webhook' && (
+                <WebhookConfig config={config} onChange={setConfig} />
+              )}
+
+              {type === 'zapier' && (
+                <ZapierConfig 
+                  config={config} 
+                  onChange={setConfig}
+                  onSecretChange={setPendingSecret}
+                  hasExistingSecret={hasExistingSecret}
+                  secretField={integrationInfo?.secretField}
+                />
+              )}
+            </div>
+          </form>
+        </GlassCard>
+
+        {/* Preview Section */}
+        <GlassCard className="p-6">
+          <h3 className="text-sm font-medium mb-4 text-muted-foreground uppercase tracking-wide">Preview</h3>
+          {isLoadingPreview ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : previewData ? (
+            <ActionPreview
+              type={type}
+              config={config}
+              processedContent={processedContent}
+            />
+          ) : (
+            <div className="text-center py-12 text-muted-foreground">
+              Preview unavailable
+            </div>
+          )}
+        </GlassCard>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="shrink-0 px-6 py-4 border-t border-border/50 bg-background/95 backdrop-blur-sm flex items-center justify-end gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isSaving}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          form="action-form"
+          disabled={isSaving || !name || !isConfigValid()}
+        >
+          {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          {isSaving ? 'Saving...' : (action ? 'Save Changes' : 'Create Action')}
+        </Button>
+      </div>
+    </div>
+  );
 };
 
 // Email-specific configuration component
@@ -433,7 +387,6 @@ const EmailConfiguration = ({
       {/* Custom API Key Fields */}
       {config.useCustomApiKey && (
         <div className="space-y-4 pl-4 border-l-2 border-border/50">
-          {/* API Key Status/Input */}
           {apiKeySaved && !showApiKeyInput ? (
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-2">

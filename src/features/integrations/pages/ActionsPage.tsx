@@ -4,9 +4,10 @@ import { ArrowLeft, Loader2, Plus, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIntegrations } from '../hooks/useIntegrations';
 import { ActionRow } from '../components/ActionRow';
-import { ActionConfigPanel } from '../components/ActionConfigPanel';
+import { ActionConfigForm } from '../components/ActionConfigForm';
 import { SearchBar } from '@/shared/ui/SearchBar';
 import { EmptyState } from '@/shared/ui/EmptyState';
+import { SlidePanel } from '@/shared/ui/SlidePanel';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Integration, IntegrationType, saveIntegrationSecret } from '../api/integrationsApi';
@@ -43,7 +44,7 @@ export const ActionsPage = () => {
   } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<IntegrationType | undefined>();
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isTypeSheetOpen, setIsTypeSheetOpen] = useState(false);
 
   const { data: form } = useQuery({
     queryKey: ['form', formId],
@@ -67,7 +68,7 @@ export const ActionsPage = () => {
 
   const handleSelectType = (type: IntegrationType) => {
     setActiveAction({ mode: 'create', type });
-    setIsSheetOpen(false);
+    setIsTypeSheetOpen(false);
   };
 
   const handleEditAction = (action: Integration) => {
@@ -79,7 +80,6 @@ export const ActionsPage = () => {
       const { _pendingSecret, ...integrationData } = data;
       let integrationId: string;
       
-      // Step 1: Save integration
       if (activeAction?.mode === 'create') {
         const result = await createIntegrationAsync(integrationData);
         integrationId = result.id;
@@ -90,7 +90,6 @@ export const ActionsPage = () => {
         return;
       }
       
-      // Step 2: Save secret if provided (generic approach)
       if (_pendingSecret) {
         const integrationTypeInfo = INTEGRATION_TYPES.find(t => t.type === data.type);
         const secretField = integrationTypeInfo?.secretField;
@@ -101,12 +100,10 @@ export const ActionsPage = () => {
         }
       }
       
-      // Step 3: Single success toast
       toast.success(_pendingSecret 
         ? 'Action saved with secure credentials' 
         : 'Action saved successfully');
       
-      // Step 4: Navigate after everything completes
       setActiveAction(null);
     } catch (error) {
       console.error('Error saving action:', error);
@@ -114,23 +111,14 @@ export const ActionsPage = () => {
     }
   };
 
-  const handleCancel = () => {
+  const handleClosePanel = () => {
     setActiveAction(null);
   };
 
-  // Show config panel if action is active
-  if (activeAction) {
-    return (
-      <ActionConfigPanel
-        formId={formId!}
-        type={activeAction.type!}
-        action={activeAction.action}
-        onSave={handleSaveAction}
-        onCancel={handleCancel}
-        isSaving={isCreating || isUpdating}
-      />
-    );
-  }
+  // Get integration info for panel title
+  const activeIntegrationInfo = activeAction?.type 
+    ? INTEGRATION_TYPES.find(t => t.type === activeAction.type) 
+    : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -157,7 +145,7 @@ export const ActionsPage = () => {
             </div>
             {/* Mobile: Show Add button */}
             {isMobile && (
-              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+              <Sheet open={isTypeSheetOpen} onOpenChange={setIsTypeSheetOpen}>
                 <SheetTrigger asChild>
                   <Button size="sm" className="gap-2">
                     <Plus className="h-4 w-4" />
@@ -255,6 +243,29 @@ export const ActionsPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Action Configuration SlidePanel */}
+      <SlidePanel
+        open={!!activeAction}
+        onOpenChange={(open) => !open && handleClosePanel()}
+        title={`${activeAction?.mode === 'edit' ? 'Edit' : 'Create'} ${activeIntegrationInfo?.label || ''} Action`}
+        description={activeIntegrationInfo?.description}
+        size="xl"
+        icon={activeIntegrationInfo?.icon && (
+          <activeIntegrationInfo.icon className="h-5 w-5 text-muted-foreground" />
+        )}
+      >
+        {activeAction?.type && (
+          <ActionConfigForm
+            formId={formId!}
+            type={activeAction.type}
+            action={activeAction.action}
+            onSave={handleSaveAction}
+            onCancel={handleClosePanel}
+            isSaving={isCreating || isUpdating}
+          />
+        )}
+      </SlidePanel>
     </div>
   );
 };
