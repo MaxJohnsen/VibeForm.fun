@@ -185,14 +185,24 @@ export const ActionConfigPanel = ({
     fromEmail: config.fromEmail,
     useCustomApiKey: config.useCustomApiKey,
     payload: (type === 'webhook' || type === 'zapier') ? {
-      formId,
-      formTitle: previewData.form.title,
-      responseId: 'sample-response-id',
-      submittedAt: String(previewData.context.submitted_at),
-      answers: previewData.sampleAnswers.map((a: any) => ({
-        questionId: a.question_id,
-        answer: a.answer_value,
-      })),
+      form_id: formId,
+      form_title: previewData.form.title,
+      form_slug: previewData.form.slug || '',
+      response_id: 'sample-response-id',
+      completed_at: new Date().toISOString(),
+      answers: previewData.sampleAnswers.map((a: any) => {
+        const question = previewData.questions.find((q: any) => q.id === a.question_id);
+        return {
+          question_id: a.question_id,
+          question_label: question?.label || 'Unknown',
+          question_type: question?.type || 'unknown',
+          answer: a.answer_value,
+        };
+      }),
+      metadata: {
+        submitted_at: String(previewData.context.submitted_at),
+        response_number: String(previewData.context.response_number),
+      },
     } : undefined,
   } : {};
 

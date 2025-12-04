@@ -1,4 +1,5 @@
 import { format } from 'https://esm.sh/date-fns@3.6.0';
+import { formatAnswerValue } from './formatters.ts';
 
 export interface TemplateContext {
   [key: string]: string | number | undefined;
@@ -79,33 +80,5 @@ export function buildTemplateContext(
   return context;
 }
 
-/**
- * Format answer value for display
- * Enhanced to match frontend formatAnswerValue logic
- */
-function formatAnswerValue(value: any, type?: string, settings?: any): string {
-  if (value === null || value === undefined) return 'No answer';
-  
-  // Handle boolean (yes/no questions)
-  if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
-  }
-  
-  // Handle rating
-  if (type === 'rating' && typeof value === 'number') {
-    const max = settings?.max || 5;
-    return `${value}/${max}`;
-  }
-  
-  // Handle arrays (multiple choice with multiple selections)
-  if (Array.isArray(value)) {
-    return value.join(', ');
-  }
-  
-  // Handle objects
-  if (typeof value === 'object') {
-    return JSON.stringify(value);
-  }
-  
-  return String(value);
-}
+// Re-export formatAnswerValue for convenience
+export { formatAnswerValue };

@@ -1,16 +1,8 @@
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-export function formatAnswerValue(value: any): string {
-  if (value === null || value === undefined) return 'No answer';
-  if (typeof value === 'object') {
-    if (Array.isArray(value)) {
-      return value.join(', ');
-    }
-    return JSON.stringify(value, null, 2);
-  }
-  return String(value);
-}
-
+/**
+ * Fetch and decrypt a secret from integration_secrets table
+ */
 export async function fetchAndDecryptSecret(
   supabase: SupabaseClient,
   integrationId: string,

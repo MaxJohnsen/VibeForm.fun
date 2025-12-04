@@ -1,9 +1,9 @@
 import type { IntegrationHandler, HandlerResult } from '../types.ts';
-import { buildTemplateContext, processTemplate } from '../../templateEngine.ts';
-import { fetchAndDecryptSecret, formatAnswerValue } from '../utils.ts';
+import { processTemplate, formatAnswerValue } from '../../templateEngine.ts';
+import { fetchAndDecryptSecret } from '../utils.ts';
 
 export const slackHandler: IntegrationHandler = async (ctx): Promise<HandlerResult> => {
-  const { integration, response, questions, supabase } = ctx;
+  const { integration, form, questions, answers, templateContext, supabase } = ctx;
   const config = integration.config;
 
   console.log('Processing Slack integration:', integration.name);
@@ -11,16 +11,11 @@ export const slackHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
   // Fetch and decrypt webhook URL
   const webhookUrl = await fetchAndDecryptSecret(supabase, integration.id, 'slack_webhook');
 
-  // Build template context
-  const form = response.forms;
-  const answers = response.answers || [];
-  const context = buildTemplateContext(form, response, questions, answers);
-
   let slackPayload: any;
 
   if (config.message) {
-    // Custom message template
-    const message = processTemplate(config.message, context);
+    // Custom message template - use pre-built context
+    const message = processTemplate(config.message, templateContext);
     slackPayload = {
       text: message,
     };
@@ -39,7 +34,7 @@ export const slackHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text: `*New response received*\nCompleted: ${new Date(response.completed_at).toLocaleString()}`,
+          text: `*New response received*\nCompleted: ${templateContext.submitted_at}`,
         },
       },
       {
@@ -47,7 +42,7 @@ export const slackHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
       },
     ];
 
-    // Add each answer as a section
+    // Add each answer as a section - use shared formatAnswerValue with type/settings
     for (const answer of answers) {
       const question = questions.find((q) => q.id === answer.question_id);
       if (question) {
@@ -55,7 +50,7 @@ export const slackHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: `*${question.label}*\n${formatAnswerValue(answer.answer_value)}`,
+            text: `*${question.label}*\n${formatAnswerValue(answer.answer_value, question.type, question.settings)}`,
           },
         });
       }
