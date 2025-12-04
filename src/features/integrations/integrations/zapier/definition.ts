@@ -1,7 +1,8 @@
 import { Zap } from 'lucide-react';
-import { IntegrationDefinition, ValidationContext } from '../../types/integrationDefinition';
+import { IntegrationDefinition, ValidationContext, PreviewBuildContext } from '../../types/integrationDefinition';
 import { ZapierConfig } from './ZapierConfig';
 import { WebhookPreview } from '../webhook/WebhookPreview';
+import { buildWebhookPayload } from '../webhook/definition';
 
 export const zapierDefinition: IntegrationDefinition = {
   type: 'zapier',
@@ -27,4 +28,8 @@ export const zapierDefinition: IntegrationDefinition = {
   validateConfig: (_config: Record<string, any>, context: ValidationContext): boolean => {
     return context.hasExistingSecret || !!context.pendingSecret;
   },
+  
+  buildProcessedContent: (_config, ctx: PreviewBuildContext) => ({
+    payload: buildWebhookPayload(ctx),
+  }),
 };

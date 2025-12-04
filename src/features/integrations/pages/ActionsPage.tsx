@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Integration, IntegrationType, saveIntegrationSecret } from '../api/integrationsApi';
 import { ROUTES } from '@/shared/constants/routes';
-import { getIntegration } from '../integrations';
+import { getIntegration, getAllIntegrations } from '../integrations';
 import {
   Select,
   SelectContent,
@@ -200,10 +200,11 @@ export const ActionsPage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All types</SelectItem>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="slack">Slack</SelectItem>
-                    <SelectItem value="webhook">Webhook</SelectItem>
-                    <SelectItem value="zapier">Zapier</SelectItem>
+                    {getAllIntegrations().map((integration) => (
+                      <SelectItem key={integration.type} value={integration.type}>
+                        {integration.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

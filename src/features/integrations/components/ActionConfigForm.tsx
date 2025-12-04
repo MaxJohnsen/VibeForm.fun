@@ -94,44 +94,16 @@ export const ActionConfigForm = ({
     }
   };
 
-  const processedContent = previewData ? {
-    subject: config.subject ? previewData.processTemplate(config.subject) : undefined,
-    body: type === 'email' 
-      ? (config.bodyTemplate 
-          ? previewData.processTemplate(config.bodyTemplate)
-          : String(previewData.context.all_answers))
-      : type === 'slack'
-      ? (config.message
-          ? previewData.processTemplate(config.message)
-          : `New response for ${previewData.form.title}\n\n${String(previewData.context.all_answers)}`)
-      : undefined,
-    to: config.to || config.recipient,
-    cc: config.cc,
-    bcc: config.bcc,
-    fromName: config.fromName,
-    fromEmail: config.fromEmail,
-    useCustomApiKey: config.useCustomApiKey,
-    payload: (type === 'webhook' || type === 'zapier') ? {
-      form_id: formId,
-      form_title: previewData.form.title,
-      form_slug: previewData.form.slug || '',
-      response_id: 'sample-response-id',
-      completed_at: new Date().toISOString(),
-      answers: previewData.sampleAnswers.map((a: any) => {
-        const question = previewData.questions.find((q: any) => q.id === a.question_id);
-        return {
-          question_id: a.question_id,
-          question_label: question?.label || 'Unknown',
-          question_type: question?.type || 'unknown',
-          answer: a.answer_value,
-        };
-      }),
-      metadata: {
-        submitted_at: String(previewData.context.submitted_at),
-        response_number: String(previewData.context.response_number),
-      },
-    } : undefined,
-  } : {};
+  const processedContent = previewData 
+    ? integration.buildProcessedContent(config, {
+        formId,
+        form: previewData.form,
+        processTemplate: previewData.processTemplate,
+        context: previewData.context,
+        questions: previewData.questions,
+        sampleAnswers: previewData.sampleAnswers,
+      })
+    : {};
 
   const isConfigValid = (): boolean => {
     return integration.validateConfig(config, {
