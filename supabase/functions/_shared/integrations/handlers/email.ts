@@ -1,6 +1,6 @@
 import type { IntegrationHandler, HandlerResult } from '../types.ts';
 import { buildTemplateContext, processTemplate } from '../../templateEngine.ts';
-import { fetchAndDecryptSecret, formatAnswerValue } from '../utils.ts';
+import { fetchAndDecryptSecret } from '../utils.ts';
 
 export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResult> => {
   const { integration, response, questions, supabase } = ctx;
@@ -14,14 +14,29 @@ export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
   const context = buildTemplateContext(form, response, questions, answers);
 
   // Process subject and body templates
-  const subject = processTemplate(config.subject || '{{form_title}} - New Response', context);
+  // Support both field naming conventions (recipient/to, bodyTemplate/body)
+  const subject = processTemplate(
+    config.subject || '{{form_title}} - New Response', 
+    context
+  );
+  
+  // Default template uses all_answers (matching the template engine output)
+  const defaultBodyTemplate = `New response received for {{form_title}}
+
+{{all_answers}}
+
+---
+Submitted at: {{submitted_at}}
+Response ID: {{response_id}}`;
+
   const body = processTemplate(
-    config.body || 'New response received for {{form_title}}:\n\n{{answers_text}}',
+    config.bodyTemplate || config.body || defaultBodyTemplate,
     context
   );
 
-  // Parse email addresses
-  const toEmails = config.to?.split(',').map((e: string) => e.trim()).filter(Boolean) || [];
+  // Parse email addresses - support both 'recipient' (frontend) and 'to' (legacy)
+  const recipientField = config.recipient || config.to || '';
+  const toEmails = recipientField.split(',').map((e: string) => e.trim()).filter(Boolean);
   const ccEmails = config.cc?.split(',').map((e: string) => e.trim()).filter(Boolean) || [];
   const bccEmails = config.bcc?.split(',').map((e: string) => e.trim()).filter(Boolean) || [];
 
@@ -31,18 +46,27 @@ export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
 
   // Get API key (custom or default)
   let apiKey: string;
+  let fromEmail: string;
+  
   if (config.useCustomApiKey) {
     apiKey = await fetchAndDecryptSecret(supabase, integration.id, 'resend_api_key');
+    // When using custom API key, allow custom from address
+    const fromName = config.fromName || 'Forms';
+    fromEmail = config.fromEmail 
+      ? `${fromName} <${config.fromEmail}>`
+      : 'Forms <noreply@resend.dev>';
   } else {
     apiKey = Deno.env.get('RESEND_API_KEY') || '';
     if (!apiKey) {
       throw new Error('RESEND_API_KEY not configured');
     }
+    // Default sender for Fairform's Resend account
+    fromEmail = 'Fairform <action@fairform.io>';
   }
 
   // Send email via Resend
   const emailPayload = {
-    from: config.from || 'noreply@resend.dev',
+    from: fromEmail,
     to: toEmails,
     cc: ccEmails.length > 0 ? ccEmails : undefined,
     bcc: bccEmails.length > 0 ? bccEmails : undefined,
@@ -50,7 +74,7 @@ export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
     text: body,
   };
 
-  console.log('Sending email to:', toEmails);
+  console.log('Sending email to:', toEmails, 'from:', fromEmail);
 
   const emailResponse = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -63,6 +87,7 @@ export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
 
   if (!emailResponse.ok) {
     const errorData = await emailResponse.text();
+    console.error('Resend API error:', errorData);
     throw new Error(`Resend API error: ${errorData}`);
   }
 

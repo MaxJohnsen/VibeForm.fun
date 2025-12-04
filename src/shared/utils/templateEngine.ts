@@ -29,6 +29,7 @@ export function processTemplate(
 
 /**
  * Build template context from response data
+ * This should match the backend version in supabase/functions/_shared/templateEngine.ts
  */
 export function buildTemplateContext(
   form: any,
@@ -36,25 +37,28 @@ export function buildTemplateContext(
   questions: any[],
   answers: any[]
 ): TemplateContext {
+  const safeQuestions = questions || [];
+  const safeAnswers = answers || [];
+  
   const context: TemplateContext = {
-    // Form-level variables
-    form_title: form.title,
-    form_slug: form.slug || '',
-    response_id: response.id,
-    submitted_at: response.completed_at 
+    // Form-level variables (with null safety)
+    form_title: form?.title || 'Untitled Form',
+    form_slug: form?.slug || '',
+    response_id: response?.id || '',
+    submitted_at: response?.completed_at 
       ? format(parseISO(response.completed_at), 'PPpp')
       : 'N/A',
-    response_number: answers.length > 0 ? String(answers.length) : '1',
+    response_number: safeAnswers.length > 0 ? String(safeAnswers.length) : '1',
   };
 
   // Build all_answers text
   let allAnswersText = '';
   let allAnswersHtml = '';
 
-  questions.forEach((question, index) => {
-    const answer = answers.find(a => a.question_id === question.id);
+  safeQuestions.forEach((question, index) => {
+    const answer = safeAnswers.find(a => a.question_id === question.id);
     const formattedValue = answer 
-      ? formatAnswerValue(answer.answer_value, question.type, question.settings, form.language)
+      ? formatAnswerValue(answer.answer_value, question.type, question.settings, form?.language)
       : '(not answered)';
 
     // Add question-specific variables in new format: q1_text, q1_answer, etc.
@@ -70,9 +74,9 @@ export function buildTemplateContext(
   context.all_answers = allAnswersText.trim();
   context.all_answers_html = allAnswersHtml;
   context.all_answers_json = JSON.stringify(
-    questions.map((q, idx) => ({
+    safeQuestions.map((q) => ({
       question: q.label,
-      answer: answers.find(a => a.question_id === q.id)?.answer_value || null
+      answer: safeAnswers.find(a => a.question_id === q.id)?.answer_value || null
     })),
     null,
     2
