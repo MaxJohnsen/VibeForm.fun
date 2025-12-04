@@ -1,26 +1,17 @@
+import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Info, ExternalLink } from 'lucide-react';
-import { useState } from 'react';
-import { SecretFieldConfig } from '../../constants/integrationTypes';
-
-interface ZapierConfigProps {
-  config: Record<string, any>;
-  onChange: (config: Record<string, any>) => void;
-  onSecretChange?: (value: string) => void;
-  hasExistingSecret?: boolean;
-  secretField?: SecretFieldConfig;
-}
+import { IntegrationConfigProps } from '../../types/integrationDefinition';
 
 export const ZapierConfig = ({ 
   config, 
   onChange,
   onSecretChange,
   hasExistingSecret = false,
-  secretField,
-}: ZapierConfigProps) => {
+}: IntegrationConfigProps) => {
   const [showWebhookInput, setShowWebhookInput] = useState(!hasExistingSecret);
 
   return (
@@ -30,17 +21,15 @@ export const ZapierConfig = ({
         <AlertDescription>
           <div className="space-y-1">
             <p>Connect your form to thousands of apps via Zapier.</p>
-            {secretField?.helpUrl && (
-              <a
-                href={secretField.helpUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-primary hover:underline text-sm"
-              >
-                Learn how to create a Zapier webhook trigger
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            )}
+            <a
+              href="https://zapier.com/apps/webhook/integrations"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-primary hover:underline text-sm"
+            >
+              Learn how to create a Zapier webhook trigger
+              <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
         </AlertDescription>
       </Alert>
@@ -75,11 +64,11 @@ export const ZapierConfig = ({
         </div>
       ) : (
         <div>
-          <Label htmlFor="webhookUrl">{secretField?.label || 'Zapier Webhook URL'} *</Label>
+          <Label htmlFor="webhookUrl">Zapier Webhook URL *</Label>
           <Input
             id="webhookUrl"
             type="url"
-            placeholder={secretField?.placeholder || 'https://hooks.zapier.com/hooks/catch/...'}
+            placeholder="https://hooks.zapier.com/hooks/catch/..."
             value={config.webhookUrl || ''}
             onChange={(e) => {
               const value = e.target.value;

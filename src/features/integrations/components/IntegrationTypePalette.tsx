@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { INTEGRATION_TYPES } from '../constants/integrationTypes';
 import { IntegrationType } from '../api/integrationsApi';
+import { getAllIntegrations } from '../integrations';
 import { cn } from '@/lib/utils';
 
 interface IntegrationTypePaletteProps {
@@ -12,10 +12,11 @@ interface IntegrationTypePaletteProps {
 
 export const IntegrationTypePalette = ({ onSelectType, className }: IntegrationTypePaletteProps) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const integrations = getAllIntegrations();
 
-  const filteredTypes = INTEGRATION_TYPES.filter((type) =>
-    type.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    type.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredTypes = integrations.filter((integration) =>
+    integration.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    integration.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -38,27 +39,27 @@ export const IntegrationTypePalette = ({ onSelectType, className }: IntegrationT
 
       <div className="p-4 space-y-2">
         {filteredTypes.length > 0 ? (
-          filteredTypes.map((type) => {
-            const Icon = type.icon;
+          filteredTypes.map((integration) => {
+            const Icon = integration.icon;
             return (
               <button
-                key={type.type}
-                onClick={() => onSelectType(type.type)}
+                key={integration.type}
+                onClick={() => onSelectType(integration.type)}
                 className="w-full text-left p-4 rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group"
               >
                 <div className="flex items-start gap-3">
                   <div className={cn(
                     'rounded-lg p-2 bg-muted/50 transition-colors',
-                    type.color
+                    integration.color
                   )}>
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm group-hover:text-primary transition-colors">
-                      {type.label}
+                      {integration.label}
                     </div>
                     <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                      {type.description}
+                      {integration.description}
                     </div>
                   </div>
                 </div>

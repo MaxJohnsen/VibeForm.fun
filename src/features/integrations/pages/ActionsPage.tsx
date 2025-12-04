@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Integration, IntegrationType, saveIntegrationSecret } from '../api/integrationsApi';
 import { ROUTES } from '@/shared/constants/routes';
-import { INTEGRATION_TYPES } from '../constants/integrationTypes';
+import { getIntegration } from '../integrations';
 import {
   Select,
   SelectContent,
@@ -91,8 +91,8 @@ export const ActionsPage = () => {
       }
       
       if (_pendingSecret) {
-        const integrationTypeInfo = INTEGRATION_TYPES.find(t => t.type === data.type);
-        const secretField = integrationTypeInfo?.secretField;
+        const integrationDef = getIntegration(data.type);
+        const secretField = integrationDef?.secretField;
         
         if (secretField) {
           const secretMode = activeAction?.mode === 'create' ? 'insert' : 'update';
@@ -116,8 +116,8 @@ export const ActionsPage = () => {
   };
 
   // Get integration info for panel title
-  const activeIntegrationInfo = activeAction?.type 
-    ? INTEGRATION_TYPES.find(t => t.type === activeAction.type) 
+  const activeIntegrationDef = activeAction?.type 
+    ? getIntegration(activeAction.type) 
     : null;
 
   return (
@@ -248,11 +248,11 @@ export const ActionsPage = () => {
       <SlidePanel
         open={!!activeAction}
         onOpenChange={(open) => !open && handleClosePanel()}
-        title={`${activeAction?.mode === 'edit' ? 'Edit' : 'Create'} ${activeIntegrationInfo?.label || ''} Action`}
-        description={activeIntegrationInfo?.description}
+        title={`${activeAction?.mode === 'edit' ? 'Edit' : 'Create'} ${activeIntegrationDef?.label || ''} Action`}
+        description={activeIntegrationDef?.description}
         size="md"
-        icon={activeIntegrationInfo?.icon && (
-          <activeIntegrationInfo.icon className="h-5 w-5 text-muted-foreground" />
+        icon={activeIntegrationDef?.icon && (
+          <activeIntegrationDef.icon className="h-5 w-5 text-muted-foreground" />
         )}
       >
         {activeAction?.type && (

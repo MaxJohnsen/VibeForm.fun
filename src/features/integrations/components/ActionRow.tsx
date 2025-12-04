@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreVertical, Mail, MessageSquare, Webhook, Zap, Play, Trash2, History, Loader2, Settings } from 'lucide-react';
+import { MoreVertical, Play, Trash2, History, Loader2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { GlassCard } from '@/shared/ui/GlassCard';
@@ -13,6 +13,7 @@ import {
 import { Integration } from '../api/integrationsApi';
 import { useIntegrations } from '../hooks/useIntegrations';
 import { IntegrationLogsDialog } from './IntegrationLogsDialog';
+import { getIntegration } from '../integrations';
 
 interface ActionRowProps {
   action: Integration;
@@ -25,18 +26,9 @@ interface ActionRowProps {
 export const ActionRow = ({ action, onEdit, onUpdate, onDelete, isUpdating }: ActionRowProps) => {
   const [isLogsDialogOpen, setIsLogsDialogOpen] = useState(false);
   const { testIntegration, isTesting } = useIntegrations(action.form_id);
-
-  const getIcon = () => {
-    switch (action.type) {
-      case 'email': return Mail;
-      case 'slack': return MessageSquare;
-      case 'webhook': return Webhook;
-      case 'zapier': return Zap;
-      default: return Webhook;
-    }
-  };
-
-  const Icon = getIcon();
+  
+  const integration = getIntegration(action.type);
+  const Icon = integration.icon;
 
   const handleTest = async () => {
     await testIntegration(action.id);
@@ -57,8 +49,8 @@ export const ActionRow = ({ action, onEdit, onUpdate, onDelete, isUpdating }: Ac
       <GlassCard className="p-4 hover:shadow-lg transition-all duration-200">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Icon className="h-5 w-5 text-primary" />
+            <div className={`p-2 rounded-lg bg-primary/10 ${integration.color}`}>
+              <Icon className="h-5 w-5" />
             </div>
             
             <div className="flex-1 min-w-0">
@@ -72,7 +64,7 @@ export const ActionRow = ({ action, onEdit, onUpdate, onDelete, isUpdating }: Ac
                 </Badge>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="capitalize">{action.type}</span>
+                <span>{integration.label}</span>
                 <span>•</span>
                 <span className="capitalize">{action.trigger.replace('_', ' ')}</span>
               </div>
