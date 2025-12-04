@@ -11,7 +11,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
       <div
         ref={ref}
         className={cn(
-          'glass-panel rounded-2xl p-8 w-full max-w-[420px]',
+          'glass-panel rounded-2xl p-8 w-full',
           'animate-fade-in',
           className
         )}

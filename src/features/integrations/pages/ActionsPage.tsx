@@ -250,7 +250,7 @@ export const ActionsPage = () => {
         onOpenChange={(open) => !open && handleClosePanel()}
         title={`${activeAction?.mode === 'edit' ? 'Edit' : 'Create'} ${activeIntegrationInfo?.label || ''} Action`}
         description={activeIntegrationInfo?.description}
-        size="xl"
+        size="md"
         icon={activeIntegrationInfo?.icon && (
           <activeIntegrationInfo.icon className="h-5 w-5 text-muted-foreground" />
         )}
