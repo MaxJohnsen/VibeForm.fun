@@ -1,20 +1,15 @@
+import { useRef, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Info, ExternalLink } from 'lucide-react';
-import { VariablePicker } from '../VariablePicker';
-import { TemplateVariable } from '../../hooks/useTemplatePreview';
-import { useRef, useState } from 'react';
-import { SecretFieldConfig } from '../../constants/integrationTypes';
+import { VariablePicker } from '../../components/VariablePicker';
+import { IntegrationConfigProps, SecretFieldConfig } from '../../types/integrationDefinition';
+import { insertVariableAtCursor, focusAndSetCursor } from '../../utils/insertVariable';
 
-interface SlackConfigProps {
-  config: Record<string, any>;
-  onChange: (config: Record<string, any>) => void;
-  variables?: TemplateVariable[];
-  onSecretChange?: (value: string) => void;
-  hasExistingSecret?: boolean;
+interface SlackConfigProps extends IntegrationConfigProps {
   secretField?: SecretFieldConfig;
 }
 
@@ -24,25 +19,19 @@ export const SlackConfig = ({
   variables = [],
   onSecretChange,
   hasExistingSecret = false,
-  secretField,
 }: SlackConfigProps) => {
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
   const [showWebhookInput, setShowWebhookInput] = useState(!hasExistingSecret);
 
   const insertVariable = (variableKey: string) => {
     if (messageInputRef.current) {
-      const input = messageInputRef.current;
-      const start = input.selectionStart || 0;
-      const end = input.selectionEnd || 0;
-      const currentMessage = config.message || '';
-      const newValue = currentMessage.substring(0, start) + variableKey + currentMessage.substring(end);
+      const { newValue, cursorPosition } = insertVariableAtCursor(
+        messageInputRef.current,
+        config.message || '',
+        variableKey
+      );
       onChange({ ...config, message: newValue });
-      
-      // Reset cursor position after the inserted variable
-      setTimeout(() => {
-        input.focus();
-        input.setSelectionRange(start + variableKey.length, start + variableKey.length);
-      }, 0);
+      focusAndSetCursor(messageInputRef.current, cursorPosition);
     }
   };
 
@@ -53,17 +42,15 @@ export const SlackConfig = ({
         <AlertDescription>
           <div className="space-y-1">
             <p>You'll need to create an Incoming Webhook in Slack.</p>
-            {secretField?.helpUrl && (
-              <a
-                href={secretField.helpUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-primary hover:underline text-sm"
-              >
-                Learn how to create a Slack webhook
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            )}
+            <a
+              href="https://api.slack.com/messaging/webhooks"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-primary hover:underline text-sm"
+            >
+              Learn how to create a Slack webhook
+              <ExternalLink className="h-3 w-3" />
+            </a>
           </div>
         </AlertDescription>
       </Alert>
@@ -87,11 +74,11 @@ export const SlackConfig = ({
         </div>
       ) : (
         <div>
-          <Label htmlFor="webhookUrl">{secretField?.label || 'Slack Webhook URL'} *</Label>
+          <Label htmlFor="webhookUrl">Slack Webhook URL *</Label>
           <Input
             id="webhookUrl"
             type="url"
-            placeholder={secretField?.placeholder || 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL'}
+            placeholder="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
             value={config.webhookUrl || ''}
             onChange={(e) => {
               const value = e.target.value;

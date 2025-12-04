@@ -1,4 +1,31 @@
+// Pages
 export { ActionsPage } from './pages/ActionsPage';
+
+// Components
 export { ActionConfigForm } from './components/ActionConfigForm';
+export { ActionPreview } from './components/ActionPreview';
+export { ActionRow } from './components/ActionRow';
+export { IntegrationTypePalette } from './components/IntegrationTypePalette';
+
+// Hooks
 export { useIntegrations, useIntegrationLogs } from './hooks/useIntegrations';
+
+// API Types
 export type { Integration, IntegrationType, IntegrationTrigger } from './api/integrationsApi';
+
+// Integration Registry
+export { 
+  INTEGRATION_REGISTRY, 
+  getAllIntegrations, 
+  getIntegration,
+  hasIntegration,
+} from './integrations';
+
+// Types
+export type { 
+  IntegrationDefinition, 
+  IntegrationConfigProps, 
+  IntegrationPreviewProps,
+  SecretFieldConfig,
+  ValidationContext,
+} from './types/integrationDefinition';

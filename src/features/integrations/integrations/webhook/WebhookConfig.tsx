@@ -4,13 +4,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
+import { IntegrationConfigProps } from '../../types/integrationDefinition';
 
-interface WebhookConfigProps {
-  config: Record<string, any>;
-  onChange: (config: Record<string, any>) => void;
-}
-
-export const WebhookConfig = ({ config, onChange }: WebhookConfigProps) => {
+export const WebhookConfig = ({ config, onChange }: IntegrationConfigProps) => {
   const handleHeadersChange = (value: string) => {
     try {
       const headers = value ? JSON.parse(value) : {};
