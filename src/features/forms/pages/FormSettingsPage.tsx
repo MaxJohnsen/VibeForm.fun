@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  ArrowLeft,
   Loader2,
   Copy,
   ExternalLink,
@@ -11,7 +10,6 @@ import {
   Check,
   X,
   AlertCircle,
-  Globe,
 } from 'lucide-react';
 import { formsApi } from '../api/formsApi';
 import { Button } from '@/components/ui/button';
@@ -27,9 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { SettingsCard } from '@/shared/ui/SettingsCard';
-import { SettingsRow } from '@/shared/ui/SettingsRow';
-import { LanguageSelector } from '@/shared/ui/LanguageSelector';
+import { SettingsCard, SettingsRow, LanguageSelector, PageHeader, ContentPageLayout } from '@/shared/ui';
 import { StatusMenu } from '../components/StatusMenu';
 import { useToast } from '@/hooks/use-toast';
 import { ROUTES } from '@/shared/constants/routes';
@@ -286,248 +282,229 @@ export const FormSettingsPage = () => {
   const shareUrl = `${window.location.origin}${ROUTES.getRespondentRoute(formId!)}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      {/* Sticky Top Bar */}
-      <div className="sticky top-0 z-10 backdrop-blur-xl bg-background/50 border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
-              className="h-9 w-9 rounded-xl"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-semibold text-foreground truncate">
-                {form.title}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Form Settings
-                {saveStatus === 'saving' && ' · Saving...'}
-                {saveStatus === 'saved' && ' · Saved'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <ContentPageLayout
+      maxWidth="7xl"
+      header={
+        <PageHeader
+          title={form.title}
+          subtitle="Form Settings"
+          backTo={ROUTES.getBuilderRoute(formId!)}
+          saveStatus={saveStatus}
+        />
+      }
+    >
+      <div className="max-w-3xl mx-auto space-y-8">
+        {/* Main Settings Card */}
+        <SettingsCard>
+          {/* Form Name */}
+          <SettingsRow 
+            label="Form Name"
+            description="The title of your form"
+          >
+            <Input
+              value={title}
+              onChange={(e) => handleTitleChange(e.target.value)}
+              placeholder="Enter form name"
+              className="h-11 text-base"
+            />
+          </SettingsRow>
 
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
-        <div className="max-w-3xl mx-auto space-y-8">
-          {/* Main Settings Card */}
-          <SettingsCard>
-            {/* Form Name */}
-            <SettingsRow 
-              label="Form Name"
-              description="The title of your form"
-            >
-              <Input
-                value={title}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                placeholder="Enter form name"
-                className="h-11 text-base"
-              />
-            </SettingsRow>
+          {/* Internal Description */}
+          <SettingsRow 
+            label="Internal Description"
+            description="Private notes for your reference (not shown to respondents)"
+            fullWidth
+          >
+            <Textarea
+              value={description}
+              onChange={(e) => handleDescriptionChange(e.target.value)}
+              placeholder="Add internal notes about this form..."
+              className="min-h-[100px] resize-none text-base leading-relaxed"
+            />
+          </SettingsRow>
 
-            {/* Internal Description */}
-            <SettingsRow 
-              label="Internal Description"
-              description="Private notes for your reference (not shown to respondents)"
-              fullWidth
-            >
-              <Textarea
-                value={description}
-                onChange={(e) => handleDescriptionChange(e.target.value)}
-                placeholder="Add internal notes about this form..."
-                className="min-h-[100px] resize-none text-base leading-relaxed"
-              />
-            </SettingsRow>
+          {/* Status */}
+          <SettingsRow 
+            label="Status" 
+            description={questionCount === 0 ? 'Add questions to activate your form' : 'Control who can access your form'}
+          >
+            <StatusMenu
+              formId={formId!}
+              currentStatus={form.status}
+              questionCount={questionCount}
+              onStatusChange={handleStatusChange}
+            />
+          </SettingsRow>
 
-            {/* Status */}
-            <SettingsRow 
-              label="Status" 
-              description={questionCount === 0 ? 'Add questions to activate your form' : 'Control who can access your form'}
-            >
-              <StatusMenu
-                formId={formId!}
-                currentStatus={form.status}
-                questionCount={questionCount}
-                onStatusChange={handleStatusChange}
-              />
-            </SettingsRow>
+          {/* Language */}
+          <SettingsRow 
+            label="Language"
+            description="Set the language for form interface elements"
+          >
+            <LanguageSelector
+              value={(form.language as SupportedLanguage) || 'en'}
+              onChange={(language) => {
+                updateFormMutation.mutate({ language });
+              }}
+              className="w-full sm:w-[240px]"
+            />
+          </SettingsRow>
 
-            {/* Language */}
-            <SettingsRow 
-              label="Language"
-              description="Set the language for form interface elements"
-            >
-              <LanguageSelector
-                value={(form.language as SupportedLanguage) || 'en'}
-                onChange={(language) => {
-                  updateFormMutation.mutate({ language });
-                }}
-                className="w-full sm:w-[240px]"
-              />
-            </SettingsRow>
-
-            {/* Custom Slug */}
-            <SettingsRow 
-              label="Custom Link"
-              description="Create a memorable link (optional)"
-              fullWidth
-            >
-              <div className="space-y-3">
-                <div className="flex gap-2 w-full">
-                  <span className="text-sm text-muted-foreground flex-shrink-0 font-mono self-center">
-                    {window.location.origin}/f/
-                  </span>
-                  <div className="flex-1 min-w-[200px] relative">
-                    <Input
-                      value={slug}
-                      onChange={(e) => handleSlugChange(e.target.value)}
-                      placeholder="my-custom-link"
-                      className={`h-11 text-base font-mono pr-10 ${
-                        slugError ? 'border-destructive' : 
-                        slugStatus === 'available' ? 'border-green-500' : ''
-                      }`}
-                    />
-                    {slugStatus === 'checking' && (
-                      <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-                    )}
-                    {slugStatus === 'available' && slug && (
-                      <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
-                    )}
-                    {slugStatus === 'taken' && (
-                      <X className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-destructive" />
-                    )}
-                  </div>
-                  <Button
-                    onClick={() => handleCopyUrl(true)}
-                    variant="outline"
-                    size="icon"
-                    disabled={!slug || slugStatus !== 'available'}
-                    className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
-                    title="Copy to clipboard"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    onClick={() => handleOpenUrl(true)}
-                    variant="outline"
-                    size="icon"
-                    disabled={!slug || slugStatus !== 'available'}
-                    className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
-                    title="Open in new tab"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                {slugError && (
-                  <div className="flex items-start gap-2 text-sm text-destructive animate-fade-in">
-                    <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                    <span>{slugError}</span>
-                  </div>
-                )}
-                
-                {slugStatus === 'available' && slug && (
-                  <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-500 animate-fade-in">
-                    <Check className="h-4 w-4 flex-shrink-0" />
-                    <span>This slug is available!</span>
-                  </div>
-                )}
-                
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Use lowercase letters, numbers, and hyphens (3-50 characters)
-                </p>
-              </div>
-            </SettingsRow>
-
-            {/* Default Form URL */}
-            <SettingsRow 
-              label="Default Link"
-              description="Your form's permanent link"
-            >
+          {/* Custom Slug */}
+          <SettingsRow 
+            label="Custom Link"
+            description="Create a memorable link (optional)"
+            fullWidth
+          >
+            <div className="space-y-3">
               <div className="flex gap-2 w-full">
-                <Input
-                  value={shareUrl}
-                  readOnly
-                  className="flex-1 text-sm font-mono h-11"
-                />
+                <span className="text-sm text-muted-foreground flex-shrink-0 font-mono self-center">
+                  {window.location.origin}/f/
+                </span>
+                <div className="flex-1 min-w-[200px] relative">
+                  <Input
+                    value={slug}
+                    onChange={(e) => handleSlugChange(e.target.value)}
+                    placeholder="my-custom-link"
+                    className={`h-11 text-base font-mono pr-10 ${
+                      slugError ? 'border-destructive' : 
+                      slugStatus === 'available' ? 'border-green-500' : ''
+                    }`}
+                  />
+                  {slugStatus === 'checking' && (
+                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                  {slugStatus === 'available' && slug && (
+                    <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                  )}
+                  {slugStatus === 'taken' && (
+                    <X className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-destructive" />
+                  )}
+                </div>
                 <Button
-                  onClick={() => handleCopyUrl(false)}
+                  onClick={() => handleCopyUrl(true)}
                   variant="outline"
                   size="icon"
+                  disabled={!slug || slugStatus !== 'available'}
                   className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
                   title="Copy to clipboard"
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
                 <Button
-                  onClick={() => handleOpenUrl(false)}
+                  onClick={() => handleOpenUrl(true)}
                   variant="outline"
                   size="icon"
+                  disabled={!slug || slugStatus !== 'available'}
                   className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
                   title="Open in new tab"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </Button>
               </div>
-            </SettingsRow>
-
-            {/* QR Code */}
-            <SettingsRow 
-              label="QR Code"
-              description="Let people scan to open your form"
-            >
-              <div className="flex items-center gap-4">
-                <div className="bg-white p-3 rounded-xl flex-shrink-0 border-2 border-border/50 shadow-sm">
-                  <QRCode
-                    id="qr-code-svg"
-                    value={shareUrl}
-                    size={80}
-                    level="H"
-                  />
+              
+              {slugError && (
+                <div className="flex items-start gap-2 text-sm text-destructive animate-fade-in">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                  <span>{slugError}</span>
                 </div>
-                <Button
-                  onClick={handleDownloadQR}
-                  variant="outline"
-                  className="hover:bg-accent hover:text-accent-foreground transition-colors"
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download PNG
-                </Button>
-              </div>
-            </SettingsRow>
-          </SettingsCard>
-
-          {/* Danger Zone Card */}
-          <SettingsCard className="border-destructive/20 bg-destructive/[0.02]">
-            <div className="py-5 px-6">
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div className="flex-1">
-                  <h3 className="text-sm font-semibold text-destructive flex items-center gap-2">
-                    <Trash2 className="h-4 w-4" />
-                    Delete Form
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                    Permanently delete this form, all questions, and response data. This action cannot be undone.
-                  </p>
+              )}
+              
+              {slugStatus === 'available' && slug && (
+                <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-500 animate-fade-in">
+                  <Check className="h-4 w-4 flex-shrink-0" />
+                  <span>This slug is available!</span>
                 </div>
-                <Button
-                  onClick={() => setDeleteDialogOpen(true)}
-                  variant="destructive"
-                  size="sm"
-                  className="flex-shrink-0 sm:mt-0.5"
-                >
-                  Delete Form
-                </Button>
-              </div>
+              )}
+              
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Use lowercase letters, numbers, and hyphens (3-50 characters)
+              </p>
             </div>
-          </SettingsCard>
-        </div>
+          </SettingsRow>
+
+          {/* Default Form URL */}
+          <SettingsRow 
+            label="Default Link"
+            description="Your form's permanent link"
+          >
+            <div className="flex gap-2 w-full">
+              <Input
+                value={shareUrl}
+                readOnly
+                className="flex-1 text-sm font-mono h-11"
+              />
+              <Button
+                onClick={() => handleCopyUrl(false)}
+                variant="outline"
+                size="icon"
+                className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
+                title="Copy to clipboard"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={() => handleOpenUrl(false)}
+                variant="outline"
+                size="icon"
+                className="flex-shrink-0 h-11 w-11 hover:bg-accent hover:text-accent-foreground transition-colors"
+                title="Open in new tab"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </div>
+          </SettingsRow>
+
+          {/* QR Code */}
+          <SettingsRow 
+            label="QR Code"
+            description="Let people scan to open your form"
+          >
+            <div className="flex items-center gap-4">
+              <div className="bg-white p-3 rounded-xl flex-shrink-0 border-2 border-border/50 shadow-sm">
+                <QRCode
+                  id="qr-code-svg"
+                  value={shareUrl}
+                  size={80}
+                  level="H"
+                />
+              </div>
+              <Button
+                onClick={handleDownloadQR}
+                variant="outline"
+                className="hover:bg-accent hover:text-accent-foreground transition-colors"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download PNG
+              </Button>
+            </div>
+          </SettingsRow>
+        </SettingsCard>
+
+        {/* Danger Zone Card */}
+        <SettingsCard className="border-destructive/20 bg-destructive/[0.02]">
+          <div className="py-5 px-6">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div className="flex-1">
+                <h3 className="text-sm font-semibold text-destructive flex items-center gap-2">
+                  <Trash2 className="h-4 w-4" />
+                  Delete Form
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                  Permanently delete this form, all questions, and response data. This action cannot be undone.
+                </p>
+              </div>
+              <Button
+                onClick={() => setDeleteDialogOpen(true)}
+                variant="destructive"
+                size="sm"
+                className="flex-shrink-0 sm:mt-0.5"
+              >
+                Delete Form
+              </Button>
+            </div>
+          </div>
+        </SettingsCard>
       </div>
 
       {/* Delete Confirmation Dialog */}
@@ -551,6 +528,6 @@ export const FormSettingsPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </ContentPageLayout>
   );
 };
