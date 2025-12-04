@@ -10,7 +10,6 @@ import { RichTextEditor } from '@/shared/ui/RichTextEditor';
 import { VariablePicker } from './VariablePicker';
 import { ActionPreview } from './ActionPreview';
 import { useTemplatePreview } from '../hooks/useTemplatePreview';
-import { getAvailableVariables } from '@/shared/utils/templateEngine';
 import { Integration, IntegrationType, saveIntegrationSecret } from '../api/integrationsApi';
 import { INTEGRATION_TYPES } from '../constants/integrationTypes';
 import { SlackConfig } from './config/SlackConfig';
@@ -286,7 +285,7 @@ export const ActionConfigPanel = ({
                       <EmailConfiguration
                         config={config}
                         onChange={setConfig}
-                        variables={previewData ? getAvailableVariables(previewData.questions) : []}
+                        variables={previewData?.availableVariables || []}
                         onInsertVariable={insertVariable}
                         subjectRef={subjectInputRef}
                         bodyRef={bodyTextareaRef}
@@ -301,7 +300,7 @@ export const ActionConfigPanel = ({
                       <SlackConfig
                         config={config}
                         onChange={setConfig}
-                        variables={previewData ? getAvailableVariables(previewData.questions) : []}
+                        variables={previewData?.availableVariables || []}
                         onSecretChange={setPendingSecret}
                         hasExistingSecret={hasExistingSecret}
                         secretField={integrationInfo?.secretField}

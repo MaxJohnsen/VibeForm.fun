@@ -5,7 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Info, ExternalLink } from 'lucide-react';
 import { VariablePicker } from '../VariablePicker';
-import { TemplateVariable } from '@/shared/utils/templateEngine';
+import { TemplateVariable } from '../../hooks/useTemplatePreview';
 import { useRef, useState } from 'react';
 import { SecretFieldConfig } from '../../constants/integrationTypes';
 
