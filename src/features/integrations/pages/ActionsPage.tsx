@@ -129,7 +129,7 @@ export const ActionsPage = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate(ROUTES.getFormSettingsRoute(formId!))}
+              onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
               className="gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
