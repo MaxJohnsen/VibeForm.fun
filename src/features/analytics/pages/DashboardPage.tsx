@@ -12,7 +12,7 @@ import { QuestionPerformance } from '../components/QuestionPerformance';
 import { ExportButton } from '../components/ExportButton';
 import { ROUTES } from '@/shared/constants/routes';
 import { formatDuration } from '@/shared/utils/timeFormatter';
-import { PageHeader, ContentPageLayout } from '@/shared/ui';
+import { AppShell, AppHeader, ContentContainer } from '@/shared/ui';
 
 export const DashboardPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -45,10 +45,9 @@ export const DashboardPage = () => {
   }
 
   return (
-    <ContentPageLayout
-      maxWidth="7xl"
+    <AppShell
       header={
-        <PageHeader
+        <AppHeader
           title={form?.title || 'Form'}
           subtitle="Real-time response tracking and statistics"
           backTo={ROUTES.getBuilderRoute(formId!)}
@@ -68,42 +67,46 @@ export const DashboardPage = () => {
         />
       }
     >
-      <div className="space-y-4 md:space-y-8">
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-          <StatisticsCard
-            icon={CheckCircle2}
-            label="Completion Rate"
-            value={`${stats?.completionRate.toFixed(0)}%`}
-            subtitle={`${stats?.completedSubmissions} of ${stats?.totalSubmissions} completed`}
-          />
-          <StatisticsCard
-            icon={Users}
-            label="Total Submissions"
-            value={stats?.totalSubmissions || 0}
-            subtitle={`${stats?.completedSubmissions} completed, ${(stats?.totalSubmissions || 0) - (stats?.completedSubmissions || 0)} incomplete`}
-          />
-          <StatisticsCard
-            icon={Clock}
-            label="Avg. Completion Time"
-            value={stats?.averageCompletionTime ? formatDuration(Math.round(stats.averageCompletionTime)) : 'N/A'}
-            subtitle={stats?.primaryDropoffQuestion ? `Most drop at: ${stats.primaryDropoffQuestion.questionLabel}` : 'No drop-offs detected'}
-          />
-        </div>
+      <div className="overflow-y-auto h-full">
+        <ContentContainer maxWidth="7xl">
+          <div className="space-y-4 md:space-y-8">
+            {/* Statistics Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
+              <StatisticsCard
+                icon={CheckCircle2}
+                label="Completion Rate"
+                value={`${stats?.completionRate.toFixed(0)}%`}
+                subtitle={`${stats?.completedSubmissions} of ${stats?.totalSubmissions} completed`}
+              />
+              <StatisticsCard
+                icon={Users}
+                label="Total Submissions"
+                value={stats?.totalSubmissions || 0}
+                subtitle={`${stats?.completedSubmissions} completed, ${(stats?.totalSubmissions || 0) - (stats?.completedSubmissions || 0)} incomplete`}
+              />
+              <StatisticsCard
+                icon={Clock}
+                label="Avg. Completion Time"
+                value={stats?.averageCompletionTime ? formatDuration(Math.round(stats.averageCompletionTime)) : 'N/A'}
+                subtitle={stats?.primaryDropoffQuestion ? `Most drop at: ${stats.primaryDropoffQuestion.questionLabel}` : 'No drop-offs detected'}
+              />
+            </div>
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-          {/* Question Performance - First on mobile */}
-          <div className="order-1 lg:order-2">
-            <QuestionPerformance questions={questions} responses={responses} formId={formId} />
-          </div>
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              {/* Question Performance - First on mobile */}
+              <div className="order-1 lg:order-2">
+                <QuestionPerformance questions={questions} responses={responses} formId={formId} />
+              </div>
 
-          {/* Recent Responses - Second on mobile */}
-          <div className="order-2 lg:order-1">
-            <ResponsesList responses={responses} totalQuestions={questions.length} questions={questions} />
+              {/* Recent Responses - Second on mobile */}
+              <div className="order-2 lg:order-1">
+                <ResponsesList responses={responses} totalQuestions={questions.length} questions={questions} />
+              </div>
+            </div>
           </div>
-        </div>
+        </ContentContainer>
       </div>
-    </ContentPageLayout>
+    </AppShell>
   );
 };

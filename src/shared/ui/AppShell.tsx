@@ -5,38 +5,35 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
-export interface BuilderLayoutProps {
+export interface AppShellProps {
   header: ReactNode;
-  sidebar: ReactNode;
+  leftSidebar?: ReactNode;
+  leftSidebarWidth?: string;
+  rightSidebar?: ReactNode;
+  rightSidebarWidth?: string;
   sidebarTitle?: string;
-  sidebarWidth?: string;
-  rightPanel?: ReactNode;
-  rightPanelWidth?: string;
-  children: ReactNode;
-  className?: string;
-  /** For controlling mobile sheet externally */
   mobileSheetOpen?: boolean;
   onMobileSheetOpenChange?: (open: boolean) => void;
-  /** Custom mobile trigger - if not provided, a default Plus button is shown */
   mobileTrigger?: ReactNode;
-  /** Hide the default mobile trigger */
   hideMobileTrigger?: boolean;
+  children: ReactNode;
+  className?: string;
 }
 
-export const BuilderLayout = ({
+export const AppShell = ({
   header,
-  sidebar,
-  sidebarTitle = 'Add Item',
-  sidebarWidth = 'w-64',
-  rightPanel,
-  rightPanelWidth = 'w-80',
-  children,
-  className,
+  leftSidebar,
+  leftSidebarWidth = 'w-64',
+  rightSidebar,
+  rightSidebarWidth = 'w-80',
+  sidebarTitle = 'Menu',
   mobileSheetOpen,
   onMobileSheetOpenChange,
   mobileTrigger,
   hideMobileTrigger = false,
-}: BuilderLayoutProps) => {
+  children,
+  className,
+}: AppShellProps) => {
   const isMobile = useIsMobile();
 
   return (
@@ -44,10 +41,10 @@ export const BuilderLayout = ({
       {header}
       
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Desktop Sidebar */}
-        {!isMobile && (
-          <div className={cn("h-full shrink-0", sidebarWidth)}>
-            {sidebar}
+        {/* Desktop Left Sidebar */}
+        {!isMobile && leftSidebar && (
+          <div className={cn("h-full shrink-0", leftSidebarWidth)}>
+            {leftSidebar}
           </div>
         )}
 
@@ -56,16 +53,16 @@ export const BuilderLayout = ({
           {children}
         </div>
 
-        {/* Desktop Right Panel */}
-        {!isMobile && rightPanel && (
-          <div className={cn("h-full shrink-0", rightPanelWidth)}>
-            {rightPanel}
+        {/* Desktop Right Sidebar */}
+        {!isMobile && rightSidebar && (
+          <div className={cn("h-full shrink-0", rightSidebarWidth)}>
+            {rightSidebar}
           </div>
         )}
       </div>
 
       {/* Mobile Sidebar Sheet */}
-      {isMobile && !hideMobileTrigger && (
+      {isMobile && leftSidebar && !hideMobileTrigger && (
         <Sheet open={mobileSheetOpen} onOpenChange={onMobileSheetOpenChange}>
           {mobileTrigger ? (
             <SheetTrigger asChild>
@@ -86,7 +83,7 @@ export const BuilderLayout = ({
               <SheetTitle>{sidebarTitle}</SheetTitle>
             </SheetHeader>
             <div className="mt-4 overflow-y-auto h-full pb-6">
-              {sidebar}
+              {leftSidebar}
             </div>
           </SheetContent>
         </Sheet>
