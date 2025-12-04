@@ -1,11 +1,11 @@
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
-export interface ContentPageLayoutProps {
-  header: ReactNode;
+export interface ContentContainerProps {
   children: ReactNode;
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl';
   className?: string;
+  padding?: boolean;
 }
 
 const maxWidthClasses: Record<string, string> = {
@@ -21,18 +21,20 @@ const maxWidthClasses: Record<string, string> = {
   '7xl': 'max-w-7xl',
 };
 
-export const ContentPageLayout = ({
-  header,
+export const ContentContainer = ({
   children,
   maxWidth = '7xl',
   className,
-}: ContentPageLayoutProps) => {
+  padding = true,
+}: ContentContainerProps) => {
   return (
-    <div className={cn("min-h-screen bg-gradient-to-b from-background to-muted/20", className)}>
-      {header}
-      <div className={cn("mx-auto px-4 md:px-8 py-4 md:py-8", maxWidthClasses[maxWidth])}>
-        {children}
-      </div>
+    <div className={cn(
+      "mx-auto w-full",
+      maxWidthClasses[maxWidth],
+      padding && "px-4 md:px-8 py-4 md:py-8",
+      className
+    )}>
+      {children}
     </div>
   );
 };

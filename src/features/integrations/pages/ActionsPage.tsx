@@ -6,7 +6,7 @@ import { useIntegrations } from '../hooks/useIntegrations';
 import { ActionRow } from '../components/ActionRow';
 import { ActionConfigForm } from '../components/ActionConfigForm';
 import { IntegrationTypePalette } from '../components/IntegrationTypePalette';
-import { SearchBar, SlidePanel, BuilderLayout, PageHeader } from '@/shared/ui';
+import { SearchBar, SlidePanel, AppShell, AppHeader } from '@/shared/ui';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -121,9 +121,9 @@ export const ActionsPage = () => {
 
   return (
     <>
-      <BuilderLayout
+      <AppShell
         header={
-          <PageHeader
+          <AppHeader
             title={form?.title || ''}
             subtitle="Actions • Automate workflows when responses are submitted"
             backTo={ROUTES.getBuilderRoute(formId!)}
@@ -137,7 +137,7 @@ export const ActionsPage = () => {
             }
           />
         }
-        sidebar={sidebarContent}
+        leftSidebar={sidebarContent}
         sidebarTitle="Add Integration"
         mobileSheetOpen={isTypeSheetOpen}
         onMobileSheetOpenChange={setIsTypeSheetOpen}
@@ -205,7 +205,7 @@ export const ActionsPage = () => {
             </div>
           )}
         </div>
-      </BuilderLayout>
+      </AppShell>
 
       {/* Action Configuration SlidePanel */}
       <SlidePanel

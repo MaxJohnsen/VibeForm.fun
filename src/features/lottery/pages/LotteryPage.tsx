@@ -10,7 +10,7 @@ import { DrawHistory } from '../components/DrawHistory';
 import { ConfettiCelebration } from '../components/ConfettiCelebration';
 import { Winner, lotteryApi } from '../api/lotteryApi';
 import { ROUTES } from '@/shared/constants/routes';
-import { PageHeader, ContentPageLayout } from '@/shared/ui';
+import { AppShell, AppHeader, ContentContainer } from '@/shared/ui';
 
 type DisplayState = 'idle' | 'loading' | 'animating' | 'revealed';
 
@@ -94,51 +94,54 @@ export const LotteryPage = () => {
   }
 
   return (
-    <ContentPageLayout
-      maxWidth="6xl"
+    <AppShell
       className="bg-gradient-to-br from-background via-background to-primary/5"
       header={
-        <PageHeader
+        <AppHeader
           title={form.title}
           subtitle="🎲 The Lottery"
           backTo={ROUTES.getResponsesDashboardRoute(formId!)}
         />
       }
     >
-      <ConfettiCelebration trigger={showConfetti} />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Controls + History (1/3) */}
-        <div className="lg:col-span-1 space-y-6">
-          <DrawControls
-            formId={formId!}
-            hasNameQuestion={hasNameQuestion}
-            onDraw={handleDraw}
-            isDrawing={isDrawing || displayState === 'loading' || displayState === 'animating'}
-          />
+      <div className="overflow-y-auto h-full">
+        <ContentContainer maxWidth="6xl">
+          <ConfettiCelebration trigger={showConfetti} />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column: Controls + History (1/3) */}
+            <div className="lg:col-span-1 space-y-6">
+              <DrawControls
+                formId={formId!}
+                hasNameQuestion={hasNameQuestion}
+                onDraw={handleDraw}
+                isDrawing={isDrawing || displayState === 'loading' || displayState === 'animating'}
+              />
 
-          {/* Draw History */}
-          {isLoadingHistory ? (
-            <Skeleton className="h-32 w-full rounded-2xl" />
-          ) : drawHistory.length > 0 ? (
-            <DrawHistory
-              draws={drawHistory}
-              onDelete={deleteDraw}
-              isDeletingDraw={isDeletingDraw}
-            />
-          ) : null}
-        </div>
+              {/* Draw History */}
+              {isLoadingHistory ? (
+                <Skeleton className="h-32 w-full rounded-2xl" />
+              ) : drawHistory.length > 0 ? (
+                <DrawHistory
+                  draws={drawHistory}
+                  onDelete={deleteDraw}
+                  isDeletingDraw={isDeletingDraw}
+                />
+              ) : null}
+            </div>
 
-        {/* Right Column: Winner Display (2/3) */}
-        <div className="lg:col-span-2 flex flex-col min-h-[600px]">
-          <WinnerDisplayCard
-            state={displayState}
-            candidates={candidates}
-            winners={currentWinners}
-            onAnimationComplete={handleAnimationComplete}
-          />
-        </div>
+            {/* Right Column: Winner Display (2/3) */}
+            <div className="lg:col-span-2 flex flex-col min-h-[600px]">
+              <WinnerDisplayCard
+                state={displayState}
+                candidates={candidates}
+                winners={currentWinners}
+                onAnimationComplete={handleAnimationComplete}
+              />
+            </div>
+          </div>
+        </ContentContainer>
       </div>
-    </ContentPageLayout>
+    </AppShell>
   );
 };
