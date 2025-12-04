@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getHandler, hasHandler } from '../_shared/integrations/registry.ts';
-import type { Integration, HandlerContext } from '../_shared/integrations/types.ts';
+import { buildTemplateContext } from '../_shared/templateEngine.ts';
+import type { Integration, HandlerContext, ResponseWithForm, Form, Question, Answer } from '../_shared/integrations/types.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -105,7 +106,7 @@ Deno.serve(async (req) => {
     // Fetch complete response data with answers
     const { data: response, error: responseError } = await supabase
       .from('responses')
-      .select('*, answers(*), forms(title, slug)')
+      .select('*, answers(*), forms(id, title, slug)')
       .eq('id', responseId)
       .single();
 
@@ -120,10 +121,28 @@ Deno.serve(async (req) => {
 
     if (questionsError) throw questionsError;
 
-    // Process each integration
+    // Extract typed data
+    const form: Form = response.forms as Form;
+    const answers: Answer[] = (response.answers || []) as Answer[];
+    const typedQuestions: Question[] = (questions || []) as Question[];
+    const typedResponse: ResponseWithForm = response as ResponseWithForm;
+
+    // PRE-BUILD template context ONCE for all handlers
+    const templateContext = buildTemplateContext(form, response, typedQuestions, answers);
+    console.log('Template context built with variables:', Object.keys(templateContext).length);
+
+    // Process each integration with pre-built context
     const results = await Promise.allSettled(
       integrations.map((integration: Integration) =>
-        executeIntegration({ integration, response, questions, supabase })
+        executeIntegration({
+          integration,
+          response: typedResponse,
+          form,
+          questions: typedQuestions,
+          answers,
+          templateContext,
+          supabase,
+        })
       )
     );
 
@@ -183,7 +202,7 @@ async function executeIntegration(ctx: HandlerContext) {
     integration_id: integration.id,
     response_id: response.id,
     status,
-    payload: { response, questions: ctx.questions },
+    payload: { templateContext: ctx.templateContext },
     response_data: responseData,
     error_message: errorMessage,
   });

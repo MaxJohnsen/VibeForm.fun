@@ -1,7 +1,7 @@
 import type { IntegrationHandler, HandlerResult } from '../types.ts';
 
 export const webhookHandler: IntegrationHandler = async (ctx): Promise<HandlerResult> => {
-  const { integration, response, questions } = ctx;
+  const { integration, form, response, questions, answers, templateContext } = ctx;
   const config = integration.config;
 
   console.log('Processing webhook integration:', integration.name);
@@ -11,31 +11,48 @@ export const webhookHandler: IntegrationHandler = async (ctx): Promise<HandlerRe
     throw new Error('Webhook URL not configured');
   }
 
-  // Build payload
+  const method = config.method || 'POST';
+  
+  // Parse custom headers
+  let headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (config.headers) {
+    try {
+      const customHeaders = typeof config.headers === 'string' 
+        ? JSON.parse(config.headers) 
+        : config.headers;
+      headers = { ...headers, ...customHeaders };
+    } catch (e) {
+      console.warn('Failed to parse custom headers:', e);
+    }
+  }
+
+  // Build payload with snake_case keys (consistent with actual output)
   const payload = {
-    form_id: response.form_id,
+    form_id: form.id,
+    form_title: form.title,
+    form_slug: form.slug,
     response_id: response.id,
-    form_title: response.forms?.title,
     completed_at: response.completed_at,
-    answers: response.answers?.map((answer: any) => {
-      const question = questions.find((q) => q.id === answer.question_id);
+    answers: answers.map((a) => {
+      const question = questions.find((q) => q.id === a.question_id);
       return {
-        question_id: answer.question_id,
-        question_label: question?.label,
-        question_type: question?.type,
-        answer_value: answer.answer_value,
+        question_id: a.question_id,
+        question_label: question?.label || 'Unknown',
+        question_type: question?.type || 'unknown',
+        answer: a.answer_value,
       };
     }),
+    // Include template context for additional variables
+    metadata: {
+      submitted_at: templateContext.submitted_at,
+      response_number: templateContext.response_number,
+    },
   };
 
-  // Configure request
-  const method = config.method || 'POST';
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(config.headers || {}),
-  };
-
-  console.log(`Sending webhook ${method} to:`, webhookUrl);
+  console.log(`Sending ${method} request to:`, webhookUrl);
 
   const webhookResponse = await fetch(webhookUrl, {
     method,
@@ -48,7 +65,13 @@ export const webhookHandler: IntegrationHandler = async (ctx): Promise<HandlerRe
     throw new Error(`Webhook error (${webhookResponse.status}): ${errorText}`);
   }
 
-  const responseData = await webhookResponse.json().catch(() => ({}));
+  let responseData;
+  try {
+    responseData = await webhookResponse.json();
+  } catch {
+    responseData = await webhookResponse.text();
+  }
+
   console.log('Webhook sent successfully');
 
   return {

@@ -1,23 +1,17 @@
 import type { IntegrationHandler, HandlerResult } from '../types.ts';
-import { buildTemplateContext, processTemplate } from '../../templateEngine.ts';
+import { processTemplate } from '../../templateEngine.ts';
 import { fetchAndDecryptSecret } from '../utils.ts';
 
 export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResult> => {
-  const { integration, response, questions, supabase } = ctx;
+  const { integration, templateContext, supabase } = ctx;
   const config = integration.config;
 
   console.log('Processing email integration:', integration.name);
 
-  // Build template context
-  const form = response.forms;
-  const answers = response.answers || [];
-  const context = buildTemplateContext(form, response, questions, answers);
-
-  // Process subject and body templates
-  // Support both field naming conventions (recipient/to, bodyTemplate/body)
+  // Process subject and body templates using pre-built context
   const subject = processTemplate(
     config.subject || '{{form_title}} - New Response', 
-    context
+    templateContext
   );
   
   // Default template uses all_answers (matching the template engine output)
@@ -29,13 +23,14 @@ export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
 Submitted at: {{submitted_at}}
 Response ID: {{response_id}}`;
 
+  // Support both field naming conventions: bodyTemplate (frontend), body (legacy)
   const body = processTemplate(
     config.bodyTemplate || config.body || defaultBodyTemplate,
-    context
+    templateContext
   );
 
-  // Parse email addresses - support both 'recipient' (frontend) and 'to' (legacy)
-  const recipientField = config.recipient || config.to || '';
+  // Parse email addresses - support both 'to' (canonical) and 'recipient' (legacy)
+  const recipientField = config.to || config.recipient || '';
   const toEmails = recipientField.split(',').map((e: string) => e.trim()).filter(Boolean);
   const ccEmails = config.cc?.split(',').map((e: string) => e.trim()).filter(Boolean) || [];
   const bccEmails = config.bcc?.split(',').map((e: string) => e.trim()).filter(Boolean) || [];
