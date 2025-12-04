@@ -56,6 +56,8 @@ export const QuestionTypePalette = ({ onSelectType, className }: QuestionTypePal
       items={paletteItems}
       onSelect={onSelectType}
       className={cn("w-64", className)}
+      searchable
+      searchPlaceholder="Search question types..."
       renderItem={(item, defaultRender) => (
         <DraggableItem key={item.id} item={item}>
           {defaultRender}
