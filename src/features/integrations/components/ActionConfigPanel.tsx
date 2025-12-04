@@ -39,10 +39,12 @@ const getDefaultConfig = (type: IntegrationType): Record<string, any> => {
 
 We received a new form response!
 
-{{all_answers}}
+{{all_answers_html}}
 
----
+—
+
 Submitted at: {{submitted_at}}
+
 Response ID: {{response_id}}`,
       };
     case 'slack':

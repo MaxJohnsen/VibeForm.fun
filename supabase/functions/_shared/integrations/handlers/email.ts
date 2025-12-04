@@ -18,8 +18,8 @@ function prepareHtmlBody(body: string): string {
   return escaped.replace(/\n/g, '<br>');
 }
 
-// Wrap content in a beautiful, minimal HTML email template
-function wrapInHtmlEmail(formTitle: string, bodyContent: string, submittedAt: string, responseId: string): string {
+// Wrap content in a minimal HTML email container (body only, no header/footer)
+function wrapInHtmlEmail(bodyContent: string): string {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -32,19 +32,8 @@ function wrapInHtmlEmail(formTitle: string, bodyContent: string, submittedAt: st
       <td align="center" style="padding: 40px 20px;">
         <table width="100%" style="max-width: 600px; background: #ffffff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" cellspacing="0" cellpadding="0">
           <tr>
-            <td style="padding: 24px 32px; border-bottom: 1px solid #eaeaea;">
-              <h1 style="margin: 0; font-size: 18px; font-weight: 600; color: #111111;">${formTitle}</h1>
-              <p style="margin: 8px 0 0; font-size: 13px; color: #666666;">New form response received</p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 24px 32px; font-size: 14px; line-height: 1.6; color: #333333;">
+            <td style="padding: 32px; font-size: 14px; line-height: 1.6; color: #333333;">
               ${bodyContent}
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 16px 32px 24px; border-top: 1px solid #eaeaea; font-size: 12px; color: #888888;">
-              Submitted ${submittedAt} · Response ID: ${responseId}
             </td>
           </tr>
         </table>
@@ -108,14 +97,9 @@ export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
 
   // Prepare HTML body and wrap in email template
   const htmlBody = prepareHtmlBody(body);
-  const fullHtml = wrapInHtmlEmail(
-    String(templateContext.form_title || 'Form Response'),
-    htmlBody,
-    String(templateContext.submitted_at || new Date().toISOString()),
-    String(templateContext.response_id || '')
-  );
+  const fullHtml = wrapInHtmlEmail(htmlBody);
 
-  // Send email via Resend
+  // Send email via Resend (both HTML and plain text for deliverability)
   const emailPayload = {
     from: fromEmail,
     to: toEmails,
@@ -123,6 +107,7 @@ export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
     bcc: bccEmails.length > 0 ? bccEmails : undefined,
     subject,
     html: fullHtml,
+    text: body, // Plain text fallback improves deliverability
   };
 
   console.log('Sending email to:', toEmails, 'from:', fromEmail);
