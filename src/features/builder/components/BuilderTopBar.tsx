@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Eye, Share2, BarChart3, MoreVertical, Settings } from 'lucide-react';
+import { Eye, Share2, BarChart3, MoreVertical, Settings, Plug } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+
 import { Separator } from '@/components/ui/separator';
 import {
   DropdownMenu,
@@ -77,18 +77,6 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-50 text-green-700 border-green-300';
-      case 'draft':
-        return 'bg-blue-50 text-blue-700 border-blue-300';
-      case 'archived':
-        return 'bg-orange-50 text-orange-700 border-orange-300';
-      default:
-        return 'bg-gray-50 text-gray-700 border-gray-300';
-    }
-  };
 
   // Mobile Actions (dropdown menu)
   const mobileActions = form && (
@@ -111,7 +99,7 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
             Analytics
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate(ROUTES.getIntegrationsRoute(form.id))}>
-            <Share2 className="h-4 w-4 mr-2" />
+            <Plug className="h-4 w-4 mr-2" />
             Connect
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => navigate(ROUTES.getFormSettingsRoute(form.id))}>
@@ -174,7 +162,7 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
         size="sm"
         onClick={() => navigate(ROUTES.getIntegrationsRoute(form.id))}
       >
-        <Share2 className="h-4 w-4 mr-2" />
+        <Plug className="h-4 w-4 mr-2" />
         Connect
       </Button>
       <Button variant="outline" size="sm" onClick={handlePreview}>
@@ -204,19 +192,11 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
     </>
   );
 
-  // Status badge for center content
-  const statusBadge = form && (
-    <Badge className={`${getStatusColor(form.status)} capitalize rounded-full px-3 py-1 text-xs font-medium border`}>
-      {form.status}
-    </Badge>
-  );
-
   return (
     <AppHeader
       title={form?.title || 'Untitled Form'}
       backTo={ROUTES.FORMS_HOME}
       saveStatus={isSaving ? 'saving' : 'saved'}
-      centerContent={!isMobile ? statusBadge : undefined}
       actions={isMobile ? mobileActions : desktopActions}
     />
   );
