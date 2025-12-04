@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns';
-import { formatAnswerValue } from '@/features/analytics/utils/formatAnswerValue';
+import { formatAnswerValue } from '@/shared/utils/formatAnswerValue';
 
 export interface TemplateVariable {
   key: string;
@@ -58,7 +58,7 @@ export function buildTemplateContext(
   safeQuestions.forEach((question, index) => {
     const answer = safeAnswers.find(a => a.question_id === question.id);
     const formattedValue = answer 
-      ? formatAnswerValue(answer.answer_value, question.type, question.settings, form?.language)
+      ? formatAnswerValue(answer.answer_value, question.type, question.settings)
       : '(not answered)';
 
     // Add question-specific variables in new format: q1_text, q1_answer, etc.
@@ -165,17 +165,6 @@ export function getAvailableVariables(
   );
 
   return variables;
-}
-
-/**
- * Slugify text for variable names
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/^_+|_+$/g, '')
-    .substring(0, 50);
 }
 
 /**
