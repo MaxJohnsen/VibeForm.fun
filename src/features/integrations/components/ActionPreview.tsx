@@ -69,16 +69,48 @@ export const ActionPreview = ({ type, config, processedContent }: ActionPreviewP
   );
 };
 
-// Helper to convert newlines to HTML line breaks
-function convertToHtml(text: string): string {
-  // Always convert newlines to <br> tags, regardless of existing HTML
-  return text.replace(/\n/g, '<br>');
+// Generate email HTML matching the handler's template for accurate preview
+function generateEmailHtml(bodyContent: string): string {
+  // Convert newlines to <br> if no block-level HTML present
+  const htmlBody = /<(p|div|table|ul|ol|h[1-6])\b/i.test(bodyContent)
+    ? bodyContent.replace(/\n/g, '<br>')
+    : bodyContent.replace(/\n/g, '<br>');
+    
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { margin:0; padding:0; background:#f5f5f5; font-family:sans-serif; }
+    h1 { font-size:24px; font-weight:600; margin:0 0 16px 0; color:#111; }
+    h2 { font-size:20px; font-weight:600; margin:0 0 12px 0; color:#111; }
+    p { margin:0 0 12px 0; }
+  </style>
+</head>
+<body>
+  <table width="100%" cellspacing="0" cellpadding="0" style="background:#f5f5f5;">
+    <tr>
+      <td align="center" style="padding:24px 16px;">
+        <table width="100%" style="max-width:600px; background:#fff; border:1px solid #e5e5e5; border-radius:4px;" cellspacing="0" cellpadding="0">
+          <tr>
+            <td style="padding:24px; font-size:14px; line-height:1.6; color:#333;">
+              ${htmlBody}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
 }
 
 const EmailPreview = ({ to, cc, bcc, subject, body, fromName, fromEmail, useCustomApiKey }: any) => {
   const fromDisplay = useCustomApiKey && fromEmail
     ? `${fromName || 'Forms'} <${fromEmail}>`
     : 'Fairform <action@fairform.io>';
+  
+  const emailHtml = generateEmailHtml(body || '(no content)');
   
   return (
     <div className="space-y-3 text-xs">
@@ -90,11 +122,12 @@ const EmailPreview = ({ to, cc, bcc, subject, body, fromName, fromEmail, useCust
         <div className="font-semibold">Subject: {subject || '(not set)'}</div>
       </div>
       <div className="border-t border-border/50 pt-3">
-        <div 
-          className="prose prose-sm dark:prose-invert max-w-none text-foreground/90 leading-relaxed"
-          dangerouslySetInnerHTML={{ 
-            __html: convertToHtml(body || '(no content)') 
-          }}
+        <iframe
+          srcDoc={emailHtml}
+          className="w-full rounded border-0"
+          style={{ minHeight: '300px', background: '#f5f5f5' }}
+          title="Email preview"
+          sandbox="allow-same-origin"
         />
       </div>
     </div>

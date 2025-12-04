@@ -35,7 +35,7 @@ const getDefaultConfig = (type: IntegrationType): Record<string, any> => {
         cc: '',
         bcc: '',
         subject: 'New response: {{form_title}}',
-        bodyTemplate: `Hi team,
+        bodyTemplate: `<h1>{{form_title}}</h1>
 
 We received a new form response!
 
@@ -43,9 +43,8 @@ We received a new form response!
 
 —
 
-Submitted at: {{submitted_at}}
-
-Response ID: {{response_id}}`,
+<p>Submitted at: {{submitted_at}}</p>
+<p>Response ID: {{response_id}}</p>`,
       };
     case 'slack':
       return {
