@@ -18,7 +18,7 @@ function prepareHtmlBody(body: string): string {
   return escaped.replace(/\n/g, '<br>');
 }
 
-// Wrap content in a minimal HTML email container (body only, no header/footer)
+// Wrap content in a minimal HTML email container - simplified for better deliverability
 function wrapInHtmlEmail(bodyContent: string): string {
   return `<!DOCTYPE html>
 <html>
@@ -26,13 +26,13 @@ function wrapInHtmlEmail(bodyContent: string): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; background-color: #f5f5f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-  <table width="100%" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
+<body style="margin:0; padding:0; background:#f5f5f5; font-family:sans-serif;">
+  <table width="100%" cellspacing="0" cellpadding="0" style="background:#f5f5f5;">
     <tr>
-      <td align="center" style="padding: 40px 20px;">
-        <table width="100%" style="max-width: 600px; background: #ffffff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" cellspacing="0" cellpadding="0">
+      <td align="center" style="padding:32px 16px;">
+        <table width="100%" style="max-width:600px; background:#fff; border:1px solid #e5e5e5; border-radius:4px;" cellspacing="0" cellpadding="0">
           <tr>
-            <td style="padding: 32px; font-size: 14px; line-height: 1.6; color: #333333;">
+            <td style="padding:24px; font-size:14px; line-height:1.6; color:#333;">
               ${bodyContent}
             </td>
           </tr>
@@ -99,7 +99,10 @@ export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
   const htmlBody = prepareHtmlBody(body);
   const fullHtml = wrapInHtmlEmail(htmlBody);
 
-  // Send email via Resend (both HTML and plain text for deliverability)
+  // Generate unique ID for this email
+  const entityRefId = String(templateContext.response_id || crypto.randomUUID());
+
+  // Send email via Resend with headers for better deliverability
   const emailPayload = {
     from: fromEmail,
     to: toEmails,
@@ -108,9 +111,15 @@ export const emailHandler: IntegrationHandler = async (ctx): Promise<HandlerResu
     subject,
     html: fullHtml,
     text: body, // Plain text fallback improves deliverability
+    reply_to: toEmails[0], // Reply goes to first recipient
+    headers: {
+      'List-Unsubscribe': `<mailto:unsubscribe@fairform.io?subject=Unsubscribe%20${integration.id}>`,
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      'X-Entity-Ref-ID': entityRefId,
+    },
   };
 
-  console.log('Sending email to:', toEmails, 'from:', fromEmail);
+  console.log('Sending email to:', toEmails, 'from:', fromEmail, 'entity-ref:', entityRefId);
 
   const emailResponse = await fetch('https://api.resend.com/emails', {
     method: 'POST',
