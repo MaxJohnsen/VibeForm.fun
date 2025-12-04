@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useIntegrations } from '../hooks/useIntegrations';
 import { ActionRow } from '../components/ActionRow';
 import { ActionConfigForm } from '../components/ActionConfigForm';
-import { SearchBar, SlidePanel, BuilderLayout, PageHeader, SidebarPalette, PaletteItem } from '@/shared/ui';
+import { IntegrationTypePalette } from '../components/IntegrationTypePalette';
+import { SearchBar, SlidePanel, BuilderLayout, PageHeader } from '@/shared/ui';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -111,23 +112,9 @@ export const ActionsPage = () => {
     ? getIntegration(activeAction.type) 
     : null;
 
-  // Convert integrations to palette items
-  const paletteItems: PaletteItem[] = getAllIntegrations().map((integration) => ({
-    id: integration.type,
-    icon: integration.icon,
-    label: integration.label,
-    description: integration.description,
-    colorClass: integration.color,
-  }));
-
   const sidebarContent = (
-    <SidebarPalette
-      title="Integrations"
-      subtitle="Click to create a new action"
-      items={paletteItems}
-      onSelect={handleSelectType}
-      searchable
-      searchPlaceholder="Search integrations..."
+    <IntegrationTypePalette
+      onSelectType={(type) => handleSelectType(type)}
       className="border-none"
     />
   );
