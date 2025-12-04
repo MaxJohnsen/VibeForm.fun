@@ -35,7 +35,7 @@ export const ActionPreview = ({ type, config, processedContent }: ActionPreviewP
         </Badge>
       </div>
 
-      <ScrollArea className="max-h-[60vh] lg:max-h-[calc(100vh-240px)] rounded-lg border border-border/50 bg-muted/30 backdrop-blur-sm transition-all duration-200">
+      <ScrollArea className="max-h-[70vh] lg:max-h-[calc(100vh-200px)] rounded-lg border border-border/50 bg-muted/30 backdrop-blur-sm transition-all duration-200">
         <div className="p-4">
           {type === 'email' && (
             <EmailPreview
@@ -125,7 +125,7 @@ const EmailPreview = ({ to, cc, bcc, subject, body, fromName, fromEmail, useCust
         <iframe
           srcDoc={emailHtml}
           className="w-full rounded border-0"
-          style={{ minHeight: '300px', background: '#f5f5f5' }}
+          style={{ minHeight: '450px', background: '#f5f5f5' }}
           title="Email preview"
           sandbox="allow-same-origin"
         />
