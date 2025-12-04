@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formsApi } from '@/features/forms/api/formsApi';
 import { useLottery } from '../hooks/useLottery';
@@ -12,6 +10,7 @@ import { DrawHistory } from '../components/DrawHistory';
 import { ConfettiCelebration } from '../components/ConfettiCelebration';
 import { Winner, lotteryApi } from '../api/lotteryApi';
 import { ROUTES } from '@/shared/constants/routes';
+import { PageHeader, ContentPageLayout } from '@/shared/ui';
 
 type DisplayState = 'idle' | 'loading' | 'animating' | 'revealed';
 
@@ -95,68 +94,51 @@ export const LotteryPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex flex-col">
+    <ContentPageLayout
+      maxWidth="6xl"
+      className="bg-gradient-to-br from-background via-background to-primary/5"
+      header={
+        <PageHeader
+          title={form.title}
+          subtitle="🎲 The Lottery"
+          backTo={ROUTES.getResponsesDashboardRoute(formId!)}
+        />
+      }
+    >
       <ConfettiCelebration trigger={showConfetti} />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Controls + History (1/3) */}
+        <div className="lg:col-span-1 space-y-6">
+          <DrawControls
+            formId={formId!}
+            hasNameQuestion={hasNameQuestion}
+            onDraw={handleDraw}
+            isDrawing={isDrawing || displayState === 'loading' || displayState === 'animating'}
+          />
 
-      {/* Header */}
-      <div className="border-b border-border/50 glass-panel sticky top-0 z-10 backdrop-blur-xl bg-background/50">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 md:py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 md:gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate(ROUTES.getResponsesDashboardRoute(formId!))}
-                className="hover:bg-background/50"
-              >
-                <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
-              </Button>
-              <div>
-                <h1 className="text-base md:text-xl font-bold text-foreground">{form.title}</h1>
-                <p className="text-xs md:text-sm text-muted-foreground hidden sm:block">🎲 The Lottery</p>
-              </div>
-            </div>
-          </div>
+          {/* Draw History */}
+          {isLoadingHistory ? (
+            <Skeleton className="h-32 w-full rounded-2xl" />
+          ) : drawHistory.length > 0 ? (
+            <DrawHistory
+              draws={drawHistory}
+              onDelete={deleteDraw}
+              isDeletingDraw={isDeletingDraw}
+            />
+          ) : null}
+        </div>
+
+        {/* Right Column: Winner Display (2/3) */}
+        <div className="lg:col-span-2 flex flex-col min-h-[600px]">
+          <WinnerDisplayCard
+            state={displayState}
+            candidates={candidates}
+            winners={currentWinners}
+            onAnimationComplete={handleAnimationComplete}
+          />
         </div>
       </div>
-
-      {/* Main Content Grid */}
-      <div className="flex-1 px-4 sm:px-6 py-6 min-h-0">
-        <div className="max-w-6xl mx-auto h-full">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-            {/* Left Column: Controls + History (1/3) */}
-            <div className="lg:col-span-1 space-y-6">
-              <DrawControls
-                formId={formId!}
-                hasNameQuestion={hasNameQuestion}
-                onDraw={handleDraw}
-                isDrawing={isDrawing || displayState === 'loading' || displayState === 'animating'}
-              />
-
-              {/* Draw History */}
-              {isLoadingHistory ? (
-                <Skeleton className="h-32 w-full rounded-2xl" />
-              ) : drawHistory.length > 0 ? (
-                <DrawHistory
-                  draws={drawHistory}
-                  onDelete={deleteDraw}
-                  isDeletingDraw={isDeletingDraw}
-                />
-              ) : null}
-            </div>
-
-            {/* Right Column: Winner Display (2/3) */}
-            <div className="lg:col-span-2 flex flex-col min-h-[600px]">
-              <WinnerDisplayCard
-                state={displayState}
-                candidates={candidates}
-                winners={currentWinners}
-                onAnimationComplete={handleAnimationComplete}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    </ContentPageLayout>
   );
 };

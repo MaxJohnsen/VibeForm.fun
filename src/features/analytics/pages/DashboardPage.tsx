@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, Users, Clock } from 'lucide-react';
+import { CheckCircle2, Users, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formsApi } from '@/features/forms/api/formsApi';
@@ -12,7 +12,7 @@ import { QuestionPerformance } from '../components/QuestionPerformance';
 import { ExportButton } from '../components/ExportButton';
 import { ROUTES } from '@/shared/constants/routes';
 import { formatDuration } from '@/shared/utils/timeFormatter';
-
+import { PageHeader, ContentPageLayout } from '@/shared/ui';
 
 export const DashboardPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -45,28 +45,15 @@ export const DashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Top Bar */}
-      <div className="border-b border-border/50 glass-panel sticky top-0 z-10 backdrop-blur-xl bg-background/50">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-3 md:py-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 md:gap-4 min-w-0">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="shrink-0 -ml-2 md:ml-0"
-                onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-base md:text-xl font-semibold truncate">{form?.title || 'Form'}</h1>
-                <p className="text-xs md:text-sm text-muted-foreground truncate hidden sm:block">
-                  Real-time response tracking and statistics
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
+    <ContentPageLayout
+      maxWidth="7xl"
+      header={
+        <PageHeader
+          title={form?.title || 'Form'}
+          subtitle="Real-time response tracking and statistics"
+          backTo={ROUTES.getBuilderRoute(formId!)}
+          actions={
+            <>
               <Button
                 variant="outline"
                 size="sm"
@@ -76,13 +63,12 @@ export const DashboardPage = () => {
                 🎲 The Lottery
               </Button>
               <ExportButton formId={formId!} formTitle={form?.title || 'Form'} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 md:py-8 space-y-4 md:space-y-8">
+            </>
+          }
+        />
+      }
+    >
+      <div className="space-y-4 md:space-y-8">
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
           <StatisticsCard
@@ -118,6 +104,6 @@ export const DashboardPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </ContentPageLayout>
   );
 };

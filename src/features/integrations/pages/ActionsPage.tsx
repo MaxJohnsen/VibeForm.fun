@@ -1,13 +1,12 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
-import { ArrowLeft, Loader2, Plus, Zap } from 'lucide-react';
+import { Loader2, Plus, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIntegrations } from '../hooks/useIntegrations';
 import { ActionRow } from '../components/ActionRow';
 import { ActionConfigForm } from '../components/ActionConfigForm';
-import { SearchBar } from '@/shared/ui/SearchBar';
+import { SearchBar, SlidePanel, BuilderLayout, PageHeader, SidebarPalette, PaletteItem } from '@/shared/ui';
 import { EmptyState } from '@/shared/ui/EmptyState';
-import { SlidePanel } from '@/shared/ui/SlidePanel';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Integration, IntegrationType, saveIntegrationSecret } from '../api/integrationsApi';
@@ -20,14 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { IntegrationTypePalette } from '../components/IntegrationTypePalette';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 
@@ -66,8 +57,8 @@ export const ActionsPage = () => {
     return matchesSearch && matchesType;
   });
 
-  const handleSelectType = (type: IntegrationType) => {
-    setActiveAction({ mode: 'create', type });
+  const handleSelectType = (type: string) => {
+    setActiveAction({ mode: 'create', type: type as IntegrationType });
     setIsTypeSheetOpen(false);
   };
 
@@ -120,130 +111,114 @@ export const ActionsPage = () => {
     ? getIntegration(activeAction.type) 
     : null;
 
+  // Convert integrations to palette items
+  const paletteItems: PaletteItem[] = getAllIntegrations().map((integration) => ({
+    id: integration.type,
+    icon: integration.icon,
+    label: integration.label,
+    description: integration.description,
+    colorClass: integration.color,
+  }));
+
+  const sidebarContent = (
+    <SidebarPalette
+      title="Integrations"
+      subtitle="Click to create a new action"
+      items={paletteItems}
+      onSelect={handleSelectType}
+      searchable
+      searchPlaceholder="Search integrations..."
+      className="border-none"
+    />
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      {/* Header */}
-      <div className="sticky top-0 z-10 border-b border-border/50 bg-background/95 backdrop-blur-sm">
-        <div className="px-4 sm:px-6 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate(ROUTES.getBuilderRoute(formId!))}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-lg sm:text-xl font-semibold truncate">
-                {form?.title}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Actions • Automate workflows when responses are submitted
-              </p>
+    <>
+      <BuilderLayout
+        header={
+          <PageHeader
+            title={form?.title || ''}
+            subtitle="Actions • Automate workflows when responses are submitted"
+            backTo={ROUTES.getBuilderRoute(formId!)}
+            actions={
+              isMobile ? (
+                <Button size="sm" className="gap-2" onClick={() => setIsTypeSheetOpen(true)}>
+                  <Plus className="h-4 w-4" />
+                  Add
+                </Button>
+              ) : undefined
+            }
+          />
+        }
+        sidebar={sidebarContent}
+        sidebarTitle="Add Integration"
+        mobileSheetOpen={isTypeSheetOpen}
+        onMobileSheetOpenChange={setIsTypeSheetOpen}
+        hideMobileTrigger
+      >
+        <div className="p-4 sm:p-6 space-y-4 overflow-y-auto h-full">
+          {/* Search and Filter Bar (only when actions exist) */}
+          {integrations.length > 0 && (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1">
+                <SearchBar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder="Search actions..."
+                />
+              </div>
+              <Select
+                value={selectedType || 'all'}
+                onValueChange={(value) => setSelectedType(value === 'all' ? undefined : value as IntegrationType)}
+              >
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="All types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All types</SelectItem>
+                  {getAllIntegrations().map((integration) => (
+                    <SelectItem key={integration.type} value={integration.type}>
+                      {integration.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            {/* Mobile: Show Add button */}
-            {isMobile && (
-              <Sheet open={isTypeSheetOpen} onOpenChange={setIsTypeSheetOpen}>
-                <SheetTrigger asChild>
-                  <Button size="sm" className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Add
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="h-[80vh]">
-                  <SheetHeader>
-                    <SheetTitle>Add Integration</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-4">
-                    <IntegrationTypePalette
-                      onSelectType={handleSelectType}
-                      className="border-none"
-                    />
-                  </div>
-                </SheetContent>
-              </Sheet>
-            )}
-          </div>
+          )}
+
+          {/* Actions List or Empty State */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : filteredActions.length === 0 && integrations.length === 0 ? (
+            <EmptyState
+              icon={Zap}
+              title="No actions yet"
+              description={isMobile ? "Tap 'Add' to create your first action" : "Select an integration from the left to create your first action"}
+            />
+          ) : filteredActions.length === 0 ? (
+            <EmptyState
+              icon={Zap}
+              title="No matching actions"
+              description="Try adjusting your search or filter"
+            />
+          ) : (
+            <div className="space-y-3">
+              {filteredActions.map((action) => (
+                <ActionRow
+                  key={action.id}
+                  action={action}
+                  onEdit={() => handleEditAction(action)}
+                  onUpdate={(id, updates) => updateIntegration({ id, updates })}
+                  onDelete={deleteIntegration}
+                  isUpdating={isUpdating}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* Main Content - Split Layout */}
-      <div className="flex">
-        {/* Left Sidebar - Integration Types (Desktop only) */}
-        {!isMobile && (
-          <div className="w-64 border-r border-border/50 bg-background/50 backdrop-blur-sm">
-            <IntegrationTypePalette onSelectType={handleSelectType} />
-          </div>
-        )}
-
-        {/* Main Area - Actions List */}
-        <div className="flex-1">
-          <div className="p-4 sm:p-6 space-y-4">
-            {/* Search and Filter Bar (only when actions exist) */}
-            {integrations.length > 0 && (
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex-1">
-                  <SearchBar
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                    placeholder="Search actions..."
-                  />
-                </div>
-                <Select
-                  value={selectedType || 'all'}
-                  onValueChange={(value) => setSelectedType(value === 'all' ? undefined : value as IntegrationType)}
-                >
-                  <SelectTrigger className="w-full sm:w-[180px]">
-                    <SelectValue placeholder="All types" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All types</SelectItem>
-                    {getAllIntegrations().map((integration) => (
-                      <SelectItem key={integration.type} value={integration.type}>
-                        {integration.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {/* Actions List or Empty State */}
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : filteredActions.length === 0 && integrations.length === 0 ? (
-              <EmptyState
-                icon={Zap}
-                title="No actions yet"
-                description="Select an integration from the left to create your first action"
-              />
-            ) : filteredActions.length === 0 ? (
-              <EmptyState
-                icon={Zap}
-                title="No matching actions"
-                description="Try adjusting your search or filter"
-              />
-            ) : (
-              <div className="space-y-3">
-                {filteredActions.map((action) => (
-                  <ActionRow
-                    key={action.id}
-                    action={action}
-                    onEdit={() => handleEditAction(action)}
-                    onUpdate={(id, updates) => updateIntegration({ id, updates })}
-                    onDelete={deleteIntegration}
-                    isUpdating={isUpdating}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      </BuilderLayout>
 
       {/* Action Configuration SlidePanel */}
       <SlidePanel
@@ -267,6 +242,6 @@ export const ActionsPage = () => {
           />
         )}
       </SlidePanel>
-    </div>
+    </>
   );
 };
