@@ -1,81 +1,47 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { buildTemplateContext, processTemplate } from '@/shared/utils/templateEngine';
+
+interface TemplateContext {
+  [key: string]: string | number | undefined;
+}
+
+interface TemplatePreviewData {
+  form: any;
+  questions: any[];
+  sampleAnswers: any[];
+  sampleResponse: any;
+  context: TemplateContext;
+  processTemplate: (template: string) => string;
+}
 
 export const useTemplatePreview = (formId: string) => {
-  return useQuery({
+  return useQuery<TemplatePreviewData>({
     queryKey: ['template-preview', formId],
     queryFn: async () => {
-      // Fetch form
-      const { data: form, error: formError } = await supabase
-        .from('forms')
-        .select('*')
-        .eq('id', formId)
-        .single();
+      const { data, error } = await supabase.functions.invoke('preview-template', {
+        body: { formId }
+      });
 
-      if (formError) throw formError;
+      if (error) throw error;
 
-      // Fetch questions
-      const { data: questions, error: questionsError } = await supabase
-        .from('questions')
-        .select('*')
-        .eq('form_id', formId)
-        .order('position');
-
-      if (questionsError) throw questionsError;
-
-      // Generate sample response
-      const sampleAnswers = questions.map((q) => ({
-        id: `sample-${q.id}`,
-        question_id: q.id,
-        response_id: 'sample-response',
-        answer_value: generateSampleAnswer(q.type, q.settings),
-        answered_at: new Date().toISOString(),
-      }));
-
-      const sampleResponse = {
-        id: 'sample-response-id',
-        form_id: formId,
-        completed_at: new Date().toISOString(),
-        status: 'completed',
-      };
-
-      // Build template context
-      const context = buildTemplateContext(form, sampleResponse, questions, sampleAnswers);
-
+      // Return data with a sync processTemplate function using the backend-generated context
+      // This avoids extra API calls on every keystroke while still using backend as source of truth
       return {
-        form,
-        questions,
-        sampleAnswers,
-        sampleResponse,
-        context,
-        processTemplate: (template: string) => processTemplate(template, context),
+        form: data.form,
+        questions: data.questions,
+        sampleAnswers: data.sampleAnswers,
+        sampleResponse: data.sampleResponse,
+        context: data.context,
+        processTemplate: (template: string) => {
+          // Simple regex replace using backend-generated context
+          return template.replace(/\{\{([^}]+)\}\}/g, (match, varName) => {
+            const trimmed = varName.trim();
+            return data.context[trimmed] !== undefined 
+              ? String(data.context[trimmed]) 
+              : match;
+          });
+        }
       };
     },
   });
 };
-
-function generateSampleAnswer(type: string, settings?: any): any {
-  switch (type) {
-    case 'short_text':
-      return 'John Doe';
-    case 'long_text':
-      return 'This is a sample longer text response that the user might provide.';
-    case 'email':
-      return 'user@example.com';
-    case 'phone':
-      return '+1 (555) 123-4567';
-    case 'respondent_name':
-      return 'Jane Smith';
-    case 'yes_no':
-      return true;
-    case 'rating':
-      return settings?.max ? Math.floor(settings.max * 0.8) : 4;
-    case 'multiple_choice':
-      return settings?.choices?.[0] || 'Option A';
-    case 'date':
-      return new Date().toISOString().split('T')[0];
-    default:
-      return 'Sample answer';
-  }
-}

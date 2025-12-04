@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.test-integration]
 verify_jwt = false
+
+[functions.save-integration-secret]
+verify_jwt = true
+
+[functions.preview-template]
+verify_jwt = true
