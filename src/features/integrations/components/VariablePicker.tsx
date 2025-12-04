@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { TemplateVariable } from '@/shared/utils/templateEngine';
+import { TemplateVariable } from '../hooks/useTemplatePreview';
 
 interface VariablePickerProps {
   variables: TemplateVariable[];
