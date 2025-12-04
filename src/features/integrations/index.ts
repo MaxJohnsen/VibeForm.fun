@@ -4,7 +4,7 @@ export { ActionsPage } from './pages/ActionsPage';
 // Components
 export { ActionConfigForm } from './components/ActionConfigForm';
 export { ActionPreview } from './components/ActionPreview';
-export { ActionRow } from './components/ActionRow';
+export { ActionCard } from './components/ActionCard';
 export { IntegrationTypePalette } from './components/IntegrationTypePalette';
 
 // Hooks

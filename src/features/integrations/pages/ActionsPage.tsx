@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Loader2, Plus, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useIntegrations } from '../hooks/useIntegrations';
-import { ActionRow } from '../components/ActionRow';
+import { ActionCard } from '../components/ActionCard';
 import { ActionConfigForm } from '../components/ActionConfigForm';
 import { IntegrationTypePalette } from '../components/IntegrationTypePalette';
 import { SearchBar, SlidePanel, AppShell, AppHeader } from '@/shared/ui';
@@ -191,9 +191,9 @@ export const ActionsPage = () => {
               description="Try adjusting your search or filter"
             />
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {filteredActions.map((action) => (
-                <ActionRow
+                <ActionCard
                   key={action.id}
                   action={action}
                   onEdit={() => handleEditAction(action)}
