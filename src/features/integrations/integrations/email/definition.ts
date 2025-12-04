@@ -1,5 +1,5 @@
 import { Mail } from 'lucide-react';
-import { IntegrationDefinition, ValidationContext } from '../../types/integrationDefinition';
+import { IntegrationDefinition, ValidationContext, PreviewBuildContext } from '../../types/integrationDefinition';
 import { EmailConfig } from './EmailConfig';
 import { EmailPreview } from './EmailPreview';
 
@@ -45,4 +45,17 @@ We received a new form response!
       : true;
     return hasRecipient && hasSubject && hasCustomKeyIfNeeded;
   },
+  
+  buildProcessedContent: (config, ctx: PreviewBuildContext) => ({
+    subject: config.subject ? ctx.processTemplate(config.subject) : undefined,
+    body: config.bodyTemplate 
+      ? ctx.processTemplate(config.bodyTemplate)
+      : String(ctx.context.all_answers),
+    to: config.to || config.recipient,
+    cc: config.cc,
+    bcc: config.bcc,
+    fromName: config.fromName,
+    fromEmail: config.fromEmail,
+    useCustomApiKey: config.useCustomApiKey,
+  }),
 };

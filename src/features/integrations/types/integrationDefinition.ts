@@ -51,6 +51,18 @@ export interface IntegrationPreviewProps {
 }
 
 /**
+ * Context for building processed preview content
+ */
+export interface PreviewBuildContext {
+  formId: string;
+  form: { title: string; slug?: string };
+  processTemplate: (template: string) => string;
+  context: Record<string, any>;
+  questions: Array<{ id: string; label: string; type: string }>;
+  sampleAnswers: Array<{ question_id: string; answer_value: any }>;
+}
+
+/**
  * Context for validation
  */
 export interface ValidationContext {
@@ -78,4 +90,5 @@ export interface IntegrationDefinition {
   // Logic
   getDefaultConfig: () => Record<string, any>;
   validateConfig: (config: Record<string, any>, context: ValidationContext) => boolean;
+  buildProcessedContent: (config: Record<string, any>, context: PreviewBuildContext) => IntegrationPreviewProps['processedContent'];
 }

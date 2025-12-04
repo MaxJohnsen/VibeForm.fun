@@ -1,5 +1,5 @@
 import { MessageSquare } from 'lucide-react';
-import { IntegrationDefinition, ValidationContext } from '../../types/integrationDefinition';
+import { IntegrationDefinition, ValidationContext, PreviewBuildContext } from '../../types/integrationDefinition';
 import { SlackConfig } from './SlackConfig';
 import { SlackPreview } from './SlackPreview';
 
@@ -32,4 +32,10 @@ _Submitted at {{submitted_at}}_`,
   validateConfig: (_config: Record<string, any>, context: ValidationContext): boolean => {
     return context.hasExistingSecret || !!context.pendingSecret;
   },
+  
+  buildProcessedContent: (config, ctx: PreviewBuildContext) => ({
+    body: config.message
+      ? ctx.processTemplate(config.message)
+      : `New response for ${ctx.form.title}\n\n${String(ctx.context.all_answers)}`,
+  }),
 };

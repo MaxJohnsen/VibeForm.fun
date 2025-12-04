@@ -28,4 +28,5 @@ export type {
   IntegrationPreviewProps,
   SecretFieldConfig,
   ValidationContext,
+  PreviewBuildContext,
 } from './types/integrationDefinition';
