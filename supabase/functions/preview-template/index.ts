@@ -194,7 +194,7 @@ function getAvailableVariables(questions: any[]): TemplateVariable[] {
   // Special variables
   variables.push(
     { key: 'all_answers', label: 'All Answers (Plain Text)', example: 'Question 1: Answer 1\nQuestion 2: Answer 2', category: 'special' },
-    { key: 'all_answers_markdown', label: 'All Answers (Markdown)', example: '*Question 1*\nAnswer 1\n\n*Question 2*\nAnswer 2', category: 'special' },
+    { key: 'all_answers_markdown', label: 'All Answers (Markdown)', example: '*Question 1* → Answer 1\n*Question 2* → Answer 2', category: 'special' },
     { key: 'all_answers_html', label: 'All Answers (HTML)', example: '<p><strong>Q1:</strong> A1</p>', category: 'special' },
     { key: 'all_answers_json', label: 'All Answers (JSON)', example: '[{"question":"Q1","answer":"A1"}]', category: 'special' }
   );

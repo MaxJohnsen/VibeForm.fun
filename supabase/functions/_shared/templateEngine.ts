@@ -69,16 +69,18 @@ export function buildTemplateContext(
     allAnswersHtml += `<p><strong>${question.label}:</strong> ${formattedValue}</p>`;
     
     // Build all_answers markdown (good visual hierarchy for Slack/Discord)
-    allAnswersMarkdown += `*${question.label}*\n`;
+    // Long text with multi-line answers: question on separate line with quote block
+    // Everything else: compact format with question and answer on same line
     if (question.type === 'long_text' && formattedValue.includes('\n')) {
-      // Quote block for multi-line answers
+      allAnswersMarkdown += `*${question.label}*\n`;
       const quotedValue = formattedValue
         .split('\n')
         .map((line: string) => `> ${line}`)
         .join('\n');
       allAnswersMarkdown += `${quotedValue}\n\n`;
     } else {
-      allAnswersMarkdown += `${formattedValue}\n\n`;
+      // Compact: *Question* → Answer
+      allAnswersMarkdown += `*${question.label}* → ${formattedValue}\n`;
     }
   });
 
