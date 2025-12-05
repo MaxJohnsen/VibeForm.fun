@@ -157,4 +157,42 @@ All colors MUST be HSL.
   .prose-intro li {
     @apply mb-1;
   }
+
+  /* Slack mrkdwn rendered content */
+  .slack-content {
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: hsl(var(--foreground));
+  }
+
+  .slack-content strong {
+    font-weight: 700;
+  }
+
+  .slack-content em {
+    font-style: italic;
+  }
+
+  .slack-content del {
+    text-decoration: line-through;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .slack-content code {
+    background: hsl(var(--muted));
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-size: 0.85em;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+    color: hsl(var(--destructive));
+  }
+
+  .slack-content a {
+    color: hsl(var(--primary));
+    text-decoration: none;
+  }
+
+  .slack-content a:hover {
+    text-decoration: underline;
+  }
 }
