@@ -30,6 +30,8 @@ export interface IntegrationConfigProps {
   customApiKey?: string;
   onCustomApiKeyChange?: (value: string) => void;
   apiKeySaved?: boolean;
+  // Disable all form inputs during save
+  disabled?: boolean;
 }
 
 /**

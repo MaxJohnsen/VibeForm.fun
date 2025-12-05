@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
 import { IntegrationConfigProps } from '../../types/integrationDefinition';
 
-export const WebhookConfig = ({ config, onChange }: IntegrationConfigProps) => {
+export const WebhookConfig = ({ config, onChange, disabled }: IntegrationConfigProps) => {
   const handleHeadersChange = (value: string) => {
     try {
       const headers = value ? JSON.parse(value) : {};
@@ -35,6 +35,7 @@ export const WebhookConfig = ({ config, onChange }: IntegrationConfigProps) => {
           onChange={(e) => onChange({ ...config, url: e.target.value })}
           className="mt-1 font-mono text-sm"
           required
+          disabled={disabled}
         />
       </div>
 
@@ -43,6 +44,7 @@ export const WebhookConfig = ({ config, onChange }: IntegrationConfigProps) => {
         <Select
           value={config.method || 'POST'}
           onValueChange={(value) => onChange({ ...config, method: value })}
+          disabled={disabled}
         >
           <SelectTrigger className="mt-1">
             <SelectValue placeholder="Select method" />
@@ -65,6 +67,7 @@ export const WebhookConfig = ({ config, onChange }: IntegrationConfigProps) => {
           onChange={(e) => handleHeadersChange(e.target.value)}
           className="mt-1 font-mono text-sm"
           rows={4}
+          disabled={disabled}
         />
         <p className="text-xs text-muted-foreground mt-1">JSON format</p>
       </div>

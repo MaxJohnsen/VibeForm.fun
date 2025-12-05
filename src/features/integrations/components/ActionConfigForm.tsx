@@ -133,6 +133,7 @@ export const ActionConfigForm = ({
                 placeholder="e.g., Send response summary to team"
                 className="mt-1.5"
                 required
+                disabled={isSaving}
               />
             </div>
 
@@ -157,6 +158,7 @@ export const ActionConfigForm = ({
                 customApiKey={customApiKey}
                 onCustomApiKeyChange={setCustomApiKey}
                 apiKeySaved={apiKeySaved}
+                disabled={isSaving}
               />
             </div>
           </form>

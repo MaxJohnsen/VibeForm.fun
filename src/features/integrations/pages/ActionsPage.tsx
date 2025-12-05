@@ -37,6 +37,7 @@ export const ActionsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<IntegrationType | undefined>();
   const [isTypeSheetOpen, setIsTypeSheetOpen] = useState(false);
+  const [isSavingAction, setIsSavingAction] = useState(false);
 
   const { data: form } = useQuery({
     queryKey: ['form', formId],
@@ -68,6 +69,7 @@ export const ActionsPage = () => {
   };
 
   const handleSaveAction = async (data: Omit<Integration, 'id' | 'created_at' | 'updated_at'> & { _pendingSecret?: string }) => {
+    setIsSavingAction(true);
     try {
       const { _pendingSecret, ...integrationData } = data;
       let integrationId: string;
@@ -100,6 +102,8 @@ export const ActionsPage = () => {
     } catch (error) {
       console.error('Error saving action:', error);
       toast.error('Failed to save action');
+    } finally {
+      setIsSavingAction(false);
     }
   };
 
@@ -116,6 +120,7 @@ export const ActionsPage = () => {
     <IntegrationTypePalette
       onSelectType={(type) => handleSelectType(type)}
       className="border-none"
+      disabled={isSavingAction}
     />
   );
 
@@ -129,7 +134,7 @@ export const ActionsPage = () => {
             backTo={ROUTES.getBuilderRoute(formId!)}
             actions={
               isMobile ? (
-                <Button size="sm" className="gap-2" onClick={() => setIsTypeSheetOpen(true)}>
+                <Button size="sm" className="gap-2" onClick={() => setIsTypeSheetOpen(true)} disabled={isSavingAction}>
                   <Plus className="h-4 w-4" />
                   Add
                 </Button>
@@ -210,7 +215,10 @@ export const ActionsPage = () => {
       {/* Action Configuration SlidePanel */}
       <SlidePanel
         open={!!activeAction}
-        onOpenChange={(open) => !open && handleClosePanel()}
+        onOpenChange={(open) => {
+          if (isSavingAction) return;
+          if (!open) handleClosePanel();
+        }}
         title={`${activeAction?.mode === 'edit' ? 'Edit' : 'Create'} ${activeIntegrationDef?.label || ''} Action`}
         description={activeIntegrationDef?.description}
         size="md"
@@ -225,7 +233,7 @@ export const ActionsPage = () => {
             action={activeAction.action}
             onSave={handleSaveAction}
             onCancel={handleClosePanel}
-            isSaving={isCreating || isUpdating}
+            isSaving={isSavingAction}
           />
         )}
       </SlidePanel>

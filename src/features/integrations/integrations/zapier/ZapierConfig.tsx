@@ -11,6 +11,7 @@ export const ZapierConfig = ({
   onChange,
   onSecretChange,
   hasExistingSecret = false,
+  disabled,
 }: IntegrationConfigProps) => {
   const [showWebhookInput, setShowWebhookInput] = useState(!hasExistingSecret);
 
@@ -58,6 +59,7 @@ export const ZapierConfig = ({
             size="sm"
             onClick={() => setShowWebhookInput(true)}
             className="text-xs"
+            disabled={disabled}
           >
             Replace webhook
           </Button>
@@ -77,6 +79,7 @@ export const ZapierConfig = ({
             }}
             className="mt-1 font-mono text-sm"
             required
+            disabled={disabled}
           />
           <p className="text-xs text-muted-foreground mt-1">
             🔒 Your webhook URL will be encrypted and stored securely
