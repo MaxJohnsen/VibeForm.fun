@@ -1,4 +1,4 @@
-import { MessageSquare } from 'lucide-react';
+import { SlackIcon } from '@/shared/ui';
 import { IntegrationDefinition, ValidationContext, PreviewBuildContext } from '../../types/integrationDefinition';
 import { SlackConfig } from './SlackConfig';
 import { SlackPreview } from './SlackPreview';
@@ -7,8 +7,8 @@ export const slackDefinition: IntegrationDefinition = {
   type: 'slack',
   label: 'Slack',
   description: 'Post messages to Slack channels in real-time',
-  icon: MessageSquare,
-  color: 'text-purple-500',
+  icon: SlackIcon as any,
+  color: 'text-[#4A154B]',
   secretField: {
     key: 'slack_webhook',
     configPath: 'webhookUrl',

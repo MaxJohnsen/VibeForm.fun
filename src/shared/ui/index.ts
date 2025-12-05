@@ -15,3 +15,6 @@ export { AppHeader, type AppHeaderProps } from './AppHeader';
 export { AppShell, type AppShellProps } from './AppShell';
 export { ContentContainer, type ContentContainerProps } from './ContentContainer';
 export { SidebarPalette, type PaletteItem, type SidebarPaletteProps } from './SidebarPalette';
+
+// Icons
+export { SlackIcon } from './icons';
