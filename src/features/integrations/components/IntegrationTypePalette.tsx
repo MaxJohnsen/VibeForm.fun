@@ -6,9 +6,10 @@ import { cn } from '@/lib/utils';
 interface IntegrationTypePaletteProps {
   onSelectType: (type: IntegrationType) => void;
   className?: string;
+  disabled?: boolean;
 }
 
-export const IntegrationTypePalette = ({ onSelectType, className }: IntegrationTypePaletteProps) => {
+export const IntegrationTypePalette = ({ onSelectType, className, disabled }: IntegrationTypePaletteProps) => {
   // Convert integrations to palette items
   const paletteItems: PaletteItem[] = getAllIntegrations().map((integration) => ({
     id: integration.type,
@@ -27,6 +28,7 @@ export const IntegrationTypePalette = ({ onSelectType, className }: IntegrationT
       searchable
       searchPlaceholder="Search integrations..."
       className={cn("w-64", className)}
+      disabled={disabled}
     />
   );
 };

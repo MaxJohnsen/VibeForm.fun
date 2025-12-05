@@ -17,6 +17,7 @@ export const EmailConfig = ({
   customApiKey,
   onCustomApiKeyChange,
   apiKeySaved,
+  disabled,
 }: IntegrationConfigProps) => {
   const [showCcBcc, setShowCcBcc] = useState(!!(config.cc || config.bcc));
   const [showApiKeyInput, setShowApiKeyInput] = useState(!apiKeySaved);
@@ -27,12 +28,13 @@ export const EmailConfig = ({
       <div className="space-y-3">
         <Label>Email Provider</Label>
         <div className="space-y-2">
-          <label className="flex items-start gap-3 p-3 rounded-lg border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors">
+          <label className={`flex items-start gap-3 p-3 rounded-lg border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
             <input
               type="radio"
               checked={!config.useCustomApiKey}
               onChange={() => onChange({ ...config, useCustomApiKey: false })}
               className="mt-0.5"
+              disabled={disabled}
             />
             <div className="flex-1">
               <div className="font-medium text-sm">Use Fairform Email</div>
@@ -42,7 +44,7 @@ export const EmailConfig = ({
             </div>
           </label>
           
-          <label className="flex items-start gap-3 p-3 rounded-lg border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors">
+          <label className={`flex items-start gap-3 p-3 rounded-lg border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
             <input
               type="radio"
               checked={config.useCustomApiKey}
@@ -51,6 +53,7 @@ export const EmailConfig = ({
                 if (!apiKeySaved) setShowApiKeyInput(true);
               }}
               className="mt-0.5"
+              disabled={disabled}
             />
             <div className="flex-1">
               <div className="font-medium text-sm">Use your own Resend API key</div>
@@ -77,6 +80,7 @@ export const EmailConfig = ({
                 size="sm"
                 onClick={() => setShowApiKeyInput(true)}
                 className="text-xs"
+                disabled={disabled}
               >
                 Change API key
               </Button>
@@ -92,6 +96,7 @@ export const EmailConfig = ({
                 onChange={(e) => onCustomApiKeyChange?.(e.target.value)}
                 className="mt-1.5 font-mono text-sm"
                 required={config.useCustomApiKey}
+                disabled={disabled}
               />
               <p className="text-xs text-muted-foreground mt-1">
                 Get your API key at <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline">resend.com/api-keys</a>
@@ -108,6 +113,7 @@ export const EmailConfig = ({
                 value={config.fromName || ''}
                 onChange={(e) => onChange({ ...config, fromName: e.target.value })}
                 className="mt-1.5"
+                disabled={disabled}
               />
             </div>
             
@@ -121,6 +127,7 @@ export const EmailConfig = ({
                 onChange={(e) => onChange({ ...config, fromEmail: e.target.value })}
                 className="mt-1.5"
                 required={config.useCustomApiKey}
+                disabled={disabled}
               />
             </div>
           </div>
@@ -142,6 +149,7 @@ export const EmailConfig = ({
           onChange={(e) => onChange({ ...config, to: e.target.value, recipient: undefined })}
           className="mt-1.5"
           required
+          disabled={disabled}
         />
         <p className="text-xs text-muted-foreground mt-1">
           Enter multiple email addresses separated by commas
@@ -156,6 +164,7 @@ export const EmailConfig = ({
           size="sm"
           onClick={() => setShowCcBcc(true)}
           className="text-xs"
+          disabled={disabled}
         >
           + Add CC/BCC
         </Button>
@@ -173,6 +182,7 @@ export const EmailConfig = ({
               value={config.cc || ''}
               onChange={(e) => onChange({ ...config, cc: e.target.value })}
               className="mt-1.5"
+              disabled={disabled}
             />
           </div>
 
@@ -185,6 +195,7 @@ export const EmailConfig = ({
               value={config.bcc || ''}
               onChange={(e) => onChange({ ...config, bcc: e.target.value })}
               className="mt-1.5"
+              disabled={disabled}
             />
           </div>
         </div>
@@ -208,6 +219,7 @@ export const EmailConfig = ({
           onChange={(e) => onChange({ ...config, subject: e.target.value })}
           className="font-mono text-sm"
           required
+          disabled={disabled}
         />
         <p className="text-xs text-muted-foreground mt-1">
           Use {`{{variable}}`} syntax to insert dynamic content
@@ -232,6 +244,7 @@ export const EmailConfig = ({
           onChange={(e) => onChange({ ...config, bodyTemplate: e.target.value })}
           className="font-mono text-sm min-h-[200px]"
           rows={10}
+          disabled={disabled}
         />
         <p className="text-xs text-muted-foreground mt-1">
           Default template includes all answers formatted

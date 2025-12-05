@@ -19,6 +19,7 @@ export const SlackConfig = ({
   variables = [],
   onSecretChange,
   hasExistingSecret = false,
+  disabled,
 }: SlackConfigProps) => {
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
   const [showWebhookInput, setShowWebhookInput] = useState(!hasExistingSecret);
@@ -68,6 +69,7 @@ export const SlackConfig = ({
             size="sm"
             onClick={() => setShowWebhookInput(true)}
             className="text-xs"
+            disabled={disabled}
           >
             Replace webhook
           </Button>
@@ -87,6 +89,7 @@ export const SlackConfig = ({
             }}
             className="mt-1 font-mono text-sm"
             required
+            disabled={disabled}
           />
           <p className="text-xs text-muted-foreground mt-1">
             🔒 Your webhook URL will be encrypted and stored securely
@@ -111,6 +114,7 @@ export const SlackConfig = ({
           onChange={(e) => onChange({ ...config, message: e.target.value })}
           className="min-h-[150px] font-mono text-sm"
           rows={8}
+          disabled={disabled}
         />
         <p className="text-xs text-muted-foreground mt-1">
           Default template includes all answers formatted

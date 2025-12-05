@@ -21,6 +21,8 @@ export interface SidebarPaletteProps {
   className?: string;
   /** Custom item renderer for special cases like draggable items */
   renderItem?: (item: PaletteItem, defaultRender: ReactNode) => ReactNode;
+  /** Disable all interactions */
+  disabled?: boolean;
 }
 
 export const SidebarPalette = ({
@@ -32,6 +34,7 @@ export const SidebarPalette = ({
   searchPlaceholder = 'Search...',
   className,
   renderItem,
+  disabled = false,
 }: SidebarPaletteProps) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -44,7 +47,11 @@ export const SidebarPalette = ({
     : items;
 
   return (
-    <div className={cn("border-r border-border/50 glass-panel h-full overflow-y-auto", className)}>
+    <div className={cn(
+      "border-r border-border/50 glass-panel h-full overflow-y-auto transition-opacity",
+      disabled && "opacity-50 pointer-events-none",
+      className
+    )}>
       {/* Header */}
       <div className="p-6 pb-4 sticky top-0 glass-panel border-b border-border/50 z-10">
         <h2 className="font-semibold text-lg mb-1">{title}</h2>
