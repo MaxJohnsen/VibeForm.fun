@@ -49,6 +49,7 @@ export function buildTemplateContext(
   // Build all_answers text
   let allAnswersText = '';
   let allAnswersHtml = '';
+  let allAnswersMarkdown = '';
 
   safeQuestions.forEach((question, index) => {
     const answer = safeAnswers.find(a => a.question_id === question.id);
@@ -61,13 +62,29 @@ export function buildTemplateContext(
     context[`q${qNumber}_text`] = question.label;
     context[`q${qNumber}_answer`] = formattedValue;
 
-    // Build all_answers string
+    // Build all_answers string (plain text)
     allAnswersText += `${question.label}: ${formattedValue}\n`;
+    
+    // Build all_answers HTML
     allAnswersHtml += `<p><strong>${question.label}:</strong> ${formattedValue}</p>`;
+    
+    // Build all_answers markdown (good visual hierarchy for Slack/Discord)
+    allAnswersMarkdown += `*${question.label}*\n`;
+    if (question.type === 'long_text' && formattedValue.includes('\n')) {
+      // Quote block for multi-line answers
+      const quotedValue = formattedValue
+        .split('\n')
+        .map((line: string) => `> ${line}`)
+        .join('\n');
+      allAnswersMarkdown += `${quotedValue}\n\n`;
+    } else {
+      allAnswersMarkdown += `${formattedValue}\n\n`;
+    }
   });
 
   context.all_answers = allAnswersText.trim();
   context.all_answers_html = allAnswersHtml;
+  context.all_answers_markdown = allAnswersMarkdown.trim();
   context.all_answers_json = JSON.stringify(
     safeQuestions.map((q) => ({
       question: q.label,
