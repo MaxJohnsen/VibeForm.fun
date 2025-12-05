@@ -24,7 +24,7 @@ export const slackDefinition: IntegrationDefinition = {
     webhookUrl: '',
     message: `📋 *New Response: {{form_title}}*
 
-{{all_answers}}
+{{all_answers_markdown}}
 
 _Submitted at {{submitted_at}}_`,
   }),
