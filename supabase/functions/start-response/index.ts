@@ -43,6 +43,12 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
     return true; // Graceful degradation - allow if not configured
   }
 
+  // Validate token length (max 2048 per Cloudflare docs)
+  if (!token || token.length > 2048) {
+    console.warn('Invalid Turnstile token format:', { length: token?.length });
+    return false;
+  }
+
   try {
     const formData = new FormData();
     formData.append('secret', secret);
@@ -55,7 +61,19 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
     );
 
     const outcome = await result.json();
-    console.log('Turnstile verification result:', outcome.success ? 'passed' : 'failed');
+    
+    if (outcome.success) {
+      console.log('Turnstile verified:', { 
+        hostname: outcome.hostname,
+        challenge_ts: outcome.challenge_ts 
+      });
+    } else {
+      console.warn('Turnstile verification failed:', { 
+        errorCodes: outcome['error-codes'],
+        hostname: outcome.hostname 
+      });
+    }
+    
     return outcome.success === true;
   } catch (error) {
     console.error('Turnstile verification error:', error);
