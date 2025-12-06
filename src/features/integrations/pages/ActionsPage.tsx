@@ -10,7 +10,7 @@ import { SearchBar, SlidePanel, AppShell, AppHeader } from '@/shared/ui';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Integration, IntegrationType, saveIntegrationSecret } from '../api/integrationsApi';
+import { Integration, IntegrationType, saveIntegrationSecret, testIntegration } from '../api/integrationsApi';
 import { ROUTES } from '@/shared/constants/routes';
 import { getIntegration, getAllIntegrations } from '../integrations';
 import {
@@ -38,6 +38,7 @@ export const ActionsPage = () => {
   const [selectedType, setSelectedType] = useState<IntegrationType | undefined>();
   const [isTypeSheetOpen, setIsTypeSheetOpen] = useState(false);
   const [isSavingAction, setIsSavingAction] = useState(false);
+  const [testingId, setTestingId] = useState<string | null>(null);
 
   const { data: form } = useQuery({
     queryKey: ['form', formId],
@@ -104,6 +105,23 @@ export const ActionsPage = () => {
       toast.error('Failed to save action');
     } finally {
       setIsSavingAction(false);
+    }
+  };
+
+  const handleTestAction = async (integrationId: string) => {
+    setTestingId(integrationId);
+    try {
+      const result = await testIntegration(integrationId);
+      if (result.success) {
+        toast.success(result.message || 'Test successful!');
+      } else {
+        toast.error(result.message || result.error || 'Test failed');
+      }
+    } catch (error: any) {
+      console.error('Error testing integration:', error);
+      toast.error(error.message || 'Failed to test integration');
+    } finally {
+      setTestingId(null);
     }
   };
 
@@ -204,7 +222,9 @@ export const ActionsPage = () => {
                   onEdit={() => handleEditAction(action)}
                   onUpdate={(id, updates) => updateIntegration({ id, updates })}
                   onDelete={deleteIntegration}
+                  onTest={handleTestAction}
                   isUpdating={isUpdating}
+                  isTesting={testingId === action.id}
                 />
               ))}
             </div>

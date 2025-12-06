@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Trash2, History, Settings } from 'lucide-react';
+import { Trash2, History, Settings, Play, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { GlassCard } from '@/shared/ui/GlassCard';
@@ -29,12 +29,23 @@ interface ActionCardProps {
   onEdit: () => void;
   onUpdate: (id: string, updates: Partial<Integration>) => void;
   onDelete: (id: string) => void;
+  onTest: (id: string) => Promise<void>;
   isUpdating: boolean;
+  isTesting?: boolean;
 }
 
-export const ActionCard = ({ action, onEdit, onUpdate, onDelete, isUpdating }: ActionCardProps) => {
+export const ActionCard = ({ 
+  action, 
+  onEdit, 
+  onUpdate, 
+  onDelete, 
+  onTest,
+  isUpdating,
+  isTesting = false,
+}: ActionCardProps) => {
   const [isLogsDialogOpen, setIsLogsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isLocalTesting, setIsLocalTesting] = useState(false);
   
   const integration = getIntegration(action.type);
   const Icon = integration.icon;
@@ -47,6 +58,17 @@ export const ActionCard = ({ action, onEdit, onUpdate, onDelete, isUpdating }: A
   const handleToggle = (checked: boolean) => {
     onUpdate(action.id, { enabled: checked });
   };
+
+  const handleTest = async () => {
+    setIsLocalTesting(true);
+    try {
+      await onTest(action.id);
+    } finally {
+      setIsLocalTesting(false);
+    }
+  };
+
+  const showTestLoading = isLocalTesting || isTesting;
 
   return (
     <>
@@ -112,6 +134,27 @@ export const ActionCard = ({ action, onEdit, onUpdate, onDelete, isUpdating }: A
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Edit</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={handleTest}
+                    disabled={showTestLoading || !action.enabled}
+                  >
+                    {showTestLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Play className="h-4 w-4" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {!action.enabled ? 'Enable to test' : 'Test'}
+                </TooltipContent>
               </Tooltip>
 
               <Tooltip>
