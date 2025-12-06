@@ -38,6 +38,7 @@ export const RespondentPage = () => {
     canGoBack,
     submitAnswer,
     goBack,
+    startNewSession,
   } = useRespondent(formId);
 
   const language = formInfo?.language || 'en';
@@ -129,6 +130,12 @@ export const RespondentPage = () => {
     );
   }
 
+  const handleStartWithTurnstile = useCallback((turnstileToken?: string) => {
+    // Start new session with turnstile token for verification
+    startNewSession(turnstileToken);
+    setShowWelcome(false);
+  }, [startNewSession]);
+
   if (showWelcome && formInfo && !isComplete) {
     return (
       <div className="h-[100dvh] bg-gradient-to-br from-background via-background to-primary/5">
@@ -136,7 +143,7 @@ export const RespondentPage = () => {
           formTitle={formInfo.title}
           introSettings={formInfo.intro_settings}
           totalQuestions={totalQuestions}
-          onStart={() => setShowWelcome(false)}
+          onStart={handleStartWithTurnstile}
           language={language}
         />
       </div>
