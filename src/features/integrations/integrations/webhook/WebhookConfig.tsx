@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -6,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Info, Plus, X } from 'lucide-react';
 import { IntegrationConfigProps } from '../../types/integrationDefinition';
 
-type HeaderEntry = { key: string; value: string };
+type HeaderEntry = { id: string; key: string; value: string };
 
 const HeadersEditor = ({ 
   headers, 
@@ -17,50 +18,68 @@ const HeadersEditor = ({
   onChange: (headers: Record<string, string>) => void;
   disabled?: boolean;
 }) => {
-  // Convert object to array for editing
-  const entries: HeaderEntry[] = Object.entries(headers || {}).map(([key, value]) => ({ key, value }));
-  
-  const updateEntries = (newEntries: HeaderEntry[]) => {
-    const newHeaders: Record<string, string> = {};
-    newEntries.forEach(({ key, value }) => {
-      if (key.trim()) {
-        newHeaders[key.trim()] = value;
+  // Local state to manage UI (including empty rows being edited)
+  const [entries, setEntries] = useState<HeaderEntry[]>(() => {
+    return Object.entries(headers || {}).map(([key, value]) => ({
+      id: crypto.randomUUID(),
+      key,
+      value,
+    }));
+  });
+
+  // Sync valid entries back to parent
+  const syncToParent = useCallback((entriesToSync: HeaderEntry[]) => {
+    const validHeaders: Record<string, string> = {};
+    entriesToSync.forEach(({ key, value }) => {
+      const trimmedKey = key.trim();
+      if (trimmedKey) {
+        validHeaders[trimmedKey] = value;
       }
     });
-    onChange(newHeaders);
-  };
+    onChange(validHeaders);
+  }, [onChange]);
 
   const addHeader = () => {
-    updateEntries([...entries, { key: '', value: '' }]);
+    setEntries(prev => [...prev, { id: crypto.randomUUID(), key: '', value: '' }]);
   };
 
-  const removeHeader = (index: number) => {
-    const newEntries = entries.filter((_, i) => i !== index);
-    updateEntries(newEntries);
+  const removeHeader = (id: string) => {
+    setEntries(prev => {
+      const updated = prev.filter(entry => entry.id !== id);
+      syncToParent(updated);
+      return updated;
+    });
   };
 
-  const updateHeader = (index: number, field: 'key' | 'value', newValue: string) => {
-    const newEntries = entries.map((entry, i) => 
-      i === index ? { ...entry, [field]: newValue } : entry
+  const updateHeader = (id: string, field: 'key' | 'value', newValue: string) => {
+    setEntries(prev => 
+      prev.map(entry => 
+        entry.id === id ? { ...entry, [field]: newValue } : entry
+      )
     );
-    updateEntries(newEntries);
+  };
+
+  const handleBlur = () => {
+    syncToParent(entries);
   };
 
   return (
     <div className="space-y-2">
-      {entries.map((entry, index) => (
-        <div key={index} className="flex gap-2 items-center">
+      {entries.map((entry) => (
+        <div key={entry.id} className="flex gap-2 items-center">
           <Input
             placeholder="Header name"
             value={entry.key}
-            onChange={(e) => updateHeader(index, 'key', e.target.value)}
+            onChange={(e) => updateHeader(entry.id, 'key', e.target.value)}
+            onBlur={handleBlur}
             className="flex-1 font-mono text-sm"
             disabled={disabled}
           />
           <Input
             placeholder="Value"
             value={entry.value}
-            onChange={(e) => updateHeader(index, 'value', e.target.value)}
+            onChange={(e) => updateHeader(entry.id, 'value', e.target.value)}
+            onBlur={handleBlur}
             className="flex-1 font-mono text-sm"
             disabled={disabled}
           />
@@ -68,7 +87,7 @@ const HeadersEditor = ({
             type="button"
             variant="ghost"
             size="icon"
-            onClick={() => removeHeader(index)}
+            onClick={() => removeHeader(entry.id)}
             disabled={disabled}
             className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
           >
