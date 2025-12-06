@@ -36,13 +36,7 @@ function getClientIP(req: Request): string {
 }
 
 // Verify Cloudflare Turnstile token
-async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
-  const secret = Deno.env.get('CLOUDFLARE_TURNSTILE_SECRET');
-  if (!secret) {
-    console.warn('CLOUDFLARE_TURNSTILE_SECRET not configured, skipping verification');
-    return true; // Graceful degradation - allow if not configured
-  }
-
+async function verifyTurnstile(token: string, ip: string, secret: string): Promise<boolean> {
   // Validate token length (max 2048 per Cloudflare docs)
   if (!token || token.length > 2048) {
     console.warn('Invalid Turnstile token format:', { length: token?.length });
@@ -121,9 +115,20 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Verify Turnstile token if provided
-    if (turnstileToken) {
-      const isHuman = await verifyTurnstile(turnstileToken, clientIP);
+    // Check if Turnstile is configured on server
+    const turnstileSecret = Deno.env.get('CLOUDFLARE_TURNSTILE_SECRET');
+
+    if (turnstileSecret) {
+      // Turnstile is configured - token is REQUIRED
+      if (!turnstileToken) {
+        console.warn(`Missing Turnstile token from IP: ${clientIP}`);
+        return new Response(
+          JSON.stringify({ error: 'Verification token required' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const isHuman = await verifyTurnstile(turnstileToken, clientIP, turnstileSecret);
       if (!isHuman) {
         console.warn(`Turnstile verification failed for IP: ${clientIP}`);
         return new Response(
@@ -132,6 +137,9 @@ Deno.serve(async (req) => {
         );
       }
       console.log(`Turnstile verified for IP: ${clientIP}`);
+    } else {
+      // Turnstile not configured - graceful degradation (dev mode)
+      console.log('Turnstile not configured, skipping verification');
     }
 
     // Basic input validation: formId should be a UUID or a slug (alphanumeric with dashes)
