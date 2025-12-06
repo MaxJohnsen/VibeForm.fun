@@ -1,10 +1,43 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.1';
 import { v4 as uuidv4 } from 'https://esm.sh/uuid@9.0.0';
+import { Ratelimit } from 'https://esm.sh/@upstash/ratelimit@2.0.5';
+import { Redis } from 'https://esm.sh/@upstash/redis@1.34.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Initialize rate limiter with Upstash Redis
+const redis = new Redis({
+  url: Deno.env.get('UPSTASH_REDIS_REST_URL')!,
+  token: Deno.env.get('UPSTASH_REDIS_REST_TOKEN')!,
+});
+
+// Sliding window: 10 requests per 60 seconds per IP
+const ratelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, '60 s'),
+  analytics: true,
+  prefix: 'ratelimit:start-response',
+});
+
+// Get client IP from request headers
+function getClientIP(req: Request): string {
+  // Supabase edge functions provide the real IP in x-forwarded-for
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    // x-forwarded-for can contain multiple IPs, take the first one
+    return forwardedFor.split(',')[0].trim();
+  }
+  // Fallback to x-real-ip
+  const realIp = req.headers.get('x-real-ip');
+  if (realIp) {
+    return realIp;
+  }
+  // Last resort fallback
+  return 'unknown';
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,11 +45,47 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Rate limiting check
+    const clientIP = getClientIP(req);
+    const { success, limit, remaining, reset } = await ratelimit.limit(clientIP);
+    
+    if (!success) {
+      console.warn(`Rate limit exceeded for IP: ${clientIP}`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Too many requests. Please try again later.',
+          retryAfter: Math.ceil((reset - Date.now()) / 1000)
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': reset.toString(),
+            'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString(),
+          } 
+        }
+      );
+    }
+
     const { formId } = await req.json();
 
     if (!formId) {
       return new Response(
         JSON.stringify({ error: 'formId is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Basic input validation: formId should be a UUID or a slug (alphanumeric with dashes)
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const slugPattern = /^[a-z0-9][a-z0-9-]{0,98}[a-z0-9]$/i;
+    
+    if (!uuidPattern.test(formId) && !slugPattern.test(formId)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid formId format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -28,7 +97,7 @@ Deno.serve(async (req) => {
     console.log('Starting response for form:', formId);
 
     // Check if formId is a UUID or a slug
-    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(formId);
+    const isUUID = uuidPattern.test(formId);
 
     // Verify form exists and is active - try by UUID first, then by slug
     const { data: form, error: formError } = await supabase
@@ -118,7 +187,14 @@ Deno.serve(async (req) => {
         },
         totalQuestions: questions.length,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          'X-RateLimit-Limit': limit.toString(),
+          'X-RateLimit-Remaining': remaining.toString(),
+        } 
+      }
     );
   } catch (error) {
     console.error('Error in start-response:', error);
