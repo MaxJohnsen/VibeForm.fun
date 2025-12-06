@@ -138,23 +138,21 @@ export const ActionCard = ({
 
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={handleTest}
-                    disabled={showTestLoading || !action.enabled}
-                  >
-                    {showTestLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Play className="h-4 w-4" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {!action.enabled ? 'Enable to test' : 'Test'}
-                </TooltipContent>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={handleTest}
+                      disabled={showTestLoading}
+                    >
+                      {showTestLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Play className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Test</TooltipContent>
               </Tooltip>
 
               <Tooltip>
