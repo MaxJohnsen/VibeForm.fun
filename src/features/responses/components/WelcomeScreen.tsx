@@ -13,6 +13,7 @@ interface WelcomeScreenProps {
   totalQuestions: number;
   onStart: (turnstileToken?: string) => void;
   language?: string;
+  isReturningUser?: boolean;
 }
 
 export const WelcomeScreen = ({
@@ -21,22 +22,30 @@ export const WelcomeScreen = ({
   totalQuestions,
   onStart,
   language = 'en',
+  isReturningUser = false,
 }: WelcomeScreenProps) => {
   const t = useTranslation(language as SupportedLanguage);
   const displayTitle = introSettings?.title || formTitle;
   const displayDescription = introSettings?.description;
-  const buttonText = introSettings?.buttonText || 'Start';
   const showQuestionCount = introSettings?.showQuestionCount ?? true;
   const showEstimatedTime = introSettings?.showEstimatedTime ?? true;
 
-  const turnstileEnabled = isTurnstileConfigured();
+  // Only require Turnstile for NEW users (not returning users with active sessions)
+  const requiresTurnstile = isTurnstileConfigured() && !isReturningUser;
+
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileError, setTurnstileError] = useState(false);
-  const [isTokenLoading, setIsTokenLoading] = useState(turnstileEnabled);
+  const [isTokenLoading, setIsTokenLoading] = useState(requiresTurnstile);
   const turnstileRef = useRef<TurnstileInstance>(null);
 
+  // Button text: "Continue" for returning users, custom or "Start" for new users
+  const buttonText = isReturningUser 
+    ? 'Continue'
+    : (introSettings?.buttonText || 'Start');
+
   const handleStart = () => {
-    if (!turnstileEnabled) {
+    if (!requiresTurnstile) {
+      // Returning user or Turnstile not configured - proceed immediately
       onStart(undefined);
       return;
     }
@@ -69,7 +78,7 @@ export const WelcomeScreen = ({
     turnstileRef.current?.reset();
   };
 
-  const isButtonDisabled = turnstileEnabled 
+  const isButtonDisabled = requiresTurnstile 
     ? (isTokenLoading && !turnstileError)
     : false;
 
@@ -100,8 +109,8 @@ export const WelcomeScreen = ({
           </div>
         )}
 
-        {/* Turnstile widget - only rendered if configured */}
-        {turnstileEnabled && (
+        {/* Turnstile widget - only rendered for new users when configured */}
+        {requiresTurnstile && (
           <div className="flex justify-center">
             <Turnstile
               ref={turnstileRef}
@@ -124,12 +133,12 @@ export const WelcomeScreen = ({
           disabled={isButtonDisabled}
           className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 min-h-[48px] active:scale-95 hover-elevate transition-all"
         >
-          {turnstileEnabled && isTokenLoading ? (
+          {requiresTurnstile && isTokenLoading ? (
             <>
               <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
               <span>Verifying...</span>
             </>
-          ) : turnstileEnabled && turnstileError ? (
+          ) : requiresTurnstile && turnstileError ? (
             <span>Retry verification</span>
           ) : (
             <>

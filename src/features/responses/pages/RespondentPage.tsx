@@ -13,13 +13,14 @@ import { debounce } from '@/shared/utils/debounce';
 export const RespondentPage = () => {
   const { formId } = useParams<{ formId: string }>();
   const navigate = useNavigate();
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [canProceed, setCanProceed] = useState(false);
   const [currentAnswer, setCurrentAnswer] = useState<any>(null);
   const isSubmittingRef = useRef(false);
 
   // ALL hooks must be called unconditionally at the top
   const {
+    sessionState,
     currentQuestion,
     formInfo,
     totalQuestions,
@@ -35,6 +36,11 @@ export const RespondentPage = () => {
   const language = formInfo?.language || 'en';
   const isLastQuestion = currentQuestion?.position === totalQuestions - 1;
   const isFirstQuestion = currentQuestion?.position === 0;
+
+  // Derived: show welcome unless dismissed or complete/loading
+  const showWelcome = !welcomeDismissed && sessionState !== 'complete' && sessionState !== 'loading';
+  // Returning user = has active session (already verified by Turnstile before)
+  const isReturningUser = sessionState === 'active';
 
   const handleValidationChange = useCallback((isValid: boolean) => {
     setCanProceed(isValid);
@@ -69,7 +75,8 @@ export const RespondentPage = () => {
 
   const handleBack = useCallback(() => {
     if (isFirstQuestion) {
-      setShowWelcome(true);
+      // Going back to welcome screen
+      setWelcomeDismissed(false);
       setCurrentAnswer(null);
       setCanProceed(false);
     } else {
@@ -85,10 +92,16 @@ export const RespondentPage = () => {
     }
   }, [navigate]);
 
-  const handleStartWithTurnstile = useCallback((turnstileToken?: string) => {
-    startNewSession(turnstileToken);
-    setShowWelcome(false);
-  }, [startNewSession]);
+  const handleStart = useCallback((turnstileToken?: string) => {
+    if (isReturningUser) {
+      // Returning user - just dismiss welcome, continue existing session
+      setWelcomeDismissed(true);
+    } else {
+      // New user - create session with turnstile token
+      startNewSession(turnstileToken);
+      setWelcomeDismissed(true);
+    }
+  }, [isReturningUser, startNewSession]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -130,15 +143,16 @@ export const RespondentPage = () => {
     );
   }
 
-  if (showWelcome && formInfo && !isComplete) {
+  if (showWelcome && formInfo) {
     return (
       <div className="h-[100dvh] bg-gradient-to-br from-background via-background to-primary/5">
         <WelcomeScreen
           formTitle={formInfo.title}
           introSettings={formInfo.intro_settings}
           totalQuestions={totalQuestions}
-          onStart={handleStartWithTurnstile}
+          onStart={handleStart}
           language={language}
+          isReturningUser={isReturningUser}
         />
       </div>
     );
