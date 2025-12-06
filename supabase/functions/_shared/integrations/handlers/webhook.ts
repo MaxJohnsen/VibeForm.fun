@@ -29,6 +29,14 @@ export const webhookHandler: IntegrationHandler = async (ctx): Promise<HandlerRe
     }
   }
 
+  // Normalize skipped answers to null for clean API consumption
+  const normalizeAnswer = (value: unknown): unknown => {
+    if (value && typeof value === 'object' && (value as Record<string, unknown>)._skipped === true) {
+      return null;
+    }
+    return value;
+  };
+
   // Build payload with snake_case keys (consistent with actual output)
   const payload = {
     form_id: form.id,
@@ -42,7 +50,7 @@ export const webhookHandler: IntegrationHandler = async (ctx): Promise<HandlerRe
         question_id: a.question_id,
         question_label: question?.label || 'Unknown',
         question_type: question?.type || 'unknown',
-        answer: a.answer_value,
+        answer: normalizeAnswer(a.answer_value),
       };
     }),
     _meta: {
