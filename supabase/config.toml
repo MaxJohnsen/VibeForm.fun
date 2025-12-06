@@ -1,5 +1,8 @@
 project_id = "yhyveqffsitdgwyflvgp"
 
+[functions.get-form-info]
+verify_jwt = false
+
 [functions.start-response]
 verify_jwt = false
 

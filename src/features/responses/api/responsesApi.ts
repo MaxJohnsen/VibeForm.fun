@@ -1,14 +1,21 @@
 import { supabase } from '@/integrations/supabase/client';
 
+export interface FormInfo {
+  title: string;
+  intro_settings?: Record<string, any>;
+  end_settings?: Record<string, any>;
+  language?: string;
+}
+
+export interface GetFormInfoData {
+  form: FormInfo;
+  totalQuestions: number;
+}
+
 export interface StartResponseData {
   sessionToken: string;
   responseId: string;
-  form: {
-    title: string;
-    intro_settings?: Record<string, any>;
-    end_settings?: Record<string, any>;
-    language?: string;
-  };
+  form: FormInfo;
   question: any;
   totalQuestions: number;
   isComplete?: boolean;
@@ -28,6 +35,15 @@ export interface NavigateBackData {
 }
 
 export const responsesApi = {
+  async getFormInfo(formId: string): Promise<GetFormInfoData> {
+    const { data, error } = await supabase.functions.invoke('get-form-info', {
+      body: { formId },
+    });
+
+    if (error) throw error;
+    return data;
+  },
+
   async startResponse(formId: string, turnstileToken?: string): Promise<StartResponseData> {
     const { data, error } = await supabase.functions.invoke('start-response', {
       body: { formId, turnstileToken },
