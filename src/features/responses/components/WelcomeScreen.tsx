@@ -33,9 +33,10 @@ export const WelcomeScreen = ({
   // Only require Turnstile for NEW users (not returning users with active sessions)
   const requiresTurnstile = isTurnstileConfigured() && !isReturningUser;
 
+  const [verificationStarted, setVerificationStarted] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileError, setTurnstileError] = useState(false);
-  const [isTokenLoading, setIsTokenLoading] = useState(requiresTurnstile);
+  const [isTokenLoading, setIsTokenLoading] = useState(false);
   const turnstileRef = useRef<TurnstileInstance>(null);
 
   // Button text: "Continue" for returning users, custom or "Start" for new users
@@ -50,7 +51,15 @@ export const WelcomeScreen = ({
       return;
     }
 
+    if (!verificationStarted) {
+      // First click - start verification
+      setVerificationStarted(true);
+      setIsTokenLoading(true);
+      return;
+    }
+
     if (turnstileToken) {
+      // Already verified - proceed
       onStart(turnstileToken);
     } else if (turnstileError) {
       // Reset and retry on error
@@ -64,6 +73,8 @@ export const WelcomeScreen = ({
     setTurnstileToken(token);
     setTurnstileError(false);
     setIsTokenLoading(false);
+    // Auto-proceed after successful verification
+    onStart(token);
   };
 
   const handleTurnstileError = () => {
@@ -78,9 +89,8 @@ export const WelcomeScreen = ({
     turnstileRef.current?.reset();
   };
 
-  const isButtonDisabled = requiresTurnstile 
-    ? (isTokenLoading && !turnstileError)
-    : false;
+  // Only disable when verification is in progress
+  const isButtonDisabled = requiresTurnstile && verificationStarted && isTokenLoading && !turnstileError;
 
   return (
     <div className="h-full flex items-center justify-center p-4 sm:p-6">
@@ -109,8 +119,29 @@ export const WelcomeScreen = ({
           </div>
         )}
 
-        {/* Turnstile widget - only rendered for new users when configured */}
-        {requiresTurnstile && (
+        <Button
+          onClick={handleStart}
+          size="lg"
+          disabled={isButtonDisabled}
+          className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 min-h-[48px] active:scale-95 hover-elevate transition-all"
+        >
+          {requiresTurnstile && verificationStarted && isTokenLoading ? (
+            <>
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+              <span>Verifying...</span>
+            </>
+          ) : requiresTurnstile && turnstileError ? (
+            <span>Retry verification</span>
+          ) : (
+            <>
+              {buttonText}
+              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
+            </>
+          )}
+        </Button>
+
+        {/* Turnstile widget - rendered AFTER button, only when verification started */}
+        {requiresTurnstile && verificationStarted && (
           <div className="flex justify-center">
             <Turnstile
               ref={turnstileRef}
@@ -126,27 +157,6 @@ export const WelcomeScreen = ({
             />
           </div>
         )}
-
-        <Button
-          onClick={handleStart}
-          size="lg"
-          disabled={isButtonDisabled}
-          className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 min-h-[48px] active:scale-95 hover-elevate transition-all"
-        >
-          {requiresTurnstile && isTokenLoading ? (
-            <>
-              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-              <span>Verifying...</span>
-            </>
-          ) : requiresTurnstile && turnstileError ? (
-            <span>Retry verification</span>
-          ) : (
-            <>
-              {buttonText}
-              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
-            </>
-          )}
-        </Button>
       </div>
     </div>
   );
