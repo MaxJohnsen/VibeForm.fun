@@ -9,6 +9,8 @@ import { WelcomeScreen } from '../components/WelcomeScreen';
 import { LoadingBar } from '../components/LoadingBar';
 import { Loader2 } from 'lucide-react';
 import { debounce } from '@/shared/utils/debounce';
+import { useTranslation } from '../hooks/useTranslation';
+import { SupportedLanguage } from '@/shared/constants/translations';
 
 export const RespondentPage = () => {
   const { formId } = useParams<{ formId: string }>();
@@ -35,6 +37,7 @@ export const RespondentPage = () => {
   } = useRespondent(formId || '');
 
   const language = formInfo?.language || 'en';
+  const t = useTranslation(language as SupportedLanguage);
   const isLastQuestion = currentQuestion?.position === totalQuestions - 1;
   const isFirstQuestion = currentQuestion?.position === 0;
 
@@ -218,7 +221,7 @@ export const RespondentPage = () => {
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="flex items-center justify-center space-x-3">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="text-xl text-foreground">Starting form...</span>
+            <span className="text-xl text-foreground">{t.loading.starting}</span>
           </div>
         </div>
       )}
@@ -226,7 +229,7 @@ export const RespondentPage = () => {
       {!isComplete && !currentQuestion && !isStarting && (
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="text-center py-8">
-            <p className="text-xl text-muted-foreground">No questions available</p>
+            <p className="text-xl text-muted-foreground">{t.loading.noQuestions}</p>
           </div>
         </div>
       )}

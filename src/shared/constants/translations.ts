@@ -7,6 +7,10 @@ export interface TranslationStrings {
     takesAbout: string;
     minutes: string;
     questions: string;
+    start: string;
+    continue: string;
+    verifying: string;
+    retryVerification: string;
   };
   navigation: {
     previous: string;
@@ -23,6 +27,7 @@ export interface TranslationStrings {
   loading: {
     starting: string;
     submitting: string;
+    noQuestions: string;
   };
   questions: {
     optional: string;
@@ -68,6 +73,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Takes about',
       minutes: 'minutes',
       questions: 'questions',
+      start: 'Start',
+      continue: 'Continue',
+      verifying: 'Verifying...',
+      retryVerification: 'Retry verification',
     },
     navigation: {
       previous: 'Previous',
@@ -84,6 +93,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Starting form...',
       submitting: 'Submitting...',
+      noQuestions: 'No questions available',
     },
     questions: {
       optional: 'Optional',
@@ -106,6 +116,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Toma aproximadamente',
       minutes: 'minutos',
       questions: 'preguntas',
+      start: 'Comenzar',
+      continue: 'Continuar',
+      verifying: 'Verificando...',
+      retryVerification: 'Reintentar verificación',
     },
     navigation: {
       previous: 'Anterior',
@@ -122,6 +136,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Iniciando formulario...',
       submitting: 'Enviando...',
+      noQuestions: 'No hay preguntas disponibles',
     },
     questions: {
       optional: 'Opcional',
@@ -144,6 +159,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Prend environ',
       minutes: 'minutes',
       questions: 'questions',
+      start: 'Commencer',
+      continue: 'Continuer',
+      verifying: 'Vérification...',
+      retryVerification: 'Réessayer la vérification',
     },
     navigation: {
       previous: 'Précédent',
@@ -160,6 +179,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Démarrage du formulaire...',
       submitting: 'Soumission...',
+      noQuestions: 'Aucune question disponible',
     },
     questions: {
       optional: 'Optionnel',
@@ -182,6 +202,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Dauert etwa',
       minutes: 'Minuten',
       questions: 'Fragen',
+      start: 'Starten',
+      continue: 'Fortfahren',
+      verifying: 'Verifizierung...',
+      retryVerification: 'Verifizierung wiederholen',
     },
     navigation: {
       previous: 'Zurück',
@@ -198,6 +222,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Formular wird gestartet...',
       submitting: 'Wird gesendet...',
+      noQuestions: 'Keine Fragen verfügbar',
     },
     questions: {
       optional: 'Optional',
@@ -220,6 +245,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Leva cerca de',
       minutes: 'minutos',
       questions: 'perguntas',
+      start: 'Iniciar',
+      continue: 'Continuar',
+      verifying: 'Verificando...',
+      retryVerification: 'Tentar novamente',
     },
     navigation: {
       previous: 'Anterior',
@@ -236,6 +265,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Iniciando formulário...',
       submitting: 'Enviando...',
+      noQuestions: 'Nenhuma pergunta disponível',
     },
     questions: {
       optional: 'Opcional',
@@ -258,6 +288,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Duurt ongeveer',
       minutes: 'minuten',
       questions: 'vragen',
+      start: 'Starten',
+      continue: 'Doorgaan',
+      verifying: 'Verifiëren...',
+      retryVerification: 'Verificatie opnieuw proberen',
     },
     navigation: {
       previous: 'Vorige',
@@ -274,6 +308,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Formulier starten...',
       submitting: 'Verzenden...',
+      noQuestions: 'Geen vragen beschikbaar',
     },
     questions: {
       optional: 'Optioneel',
@@ -296,6 +331,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Richiede circa',
       minutes: 'minuti',
       questions: 'domande',
+      start: 'Inizia',
+      continue: 'Continua',
+      verifying: 'Verifica in corso...',
+      retryVerification: 'Riprova verifica',
     },
     navigation: {
       previous: 'Precedente',
@@ -312,6 +351,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Avvio del modulo...',
       submitting: 'Invio in corso...',
+      noQuestions: 'Nessuna domanda disponibile',
     },
     questions: {
       optional: 'Facoltativo',
@@ -334,6 +374,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Tar cirka',
       minutes: 'minuter',
       questions: 'frågor',
+      start: 'Starta',
+      continue: 'Fortsätt',
+      verifying: 'Verifierar...',
+      retryVerification: 'Försök igen',
     },
     navigation: {
       previous: 'Föregående',
@@ -350,6 +394,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Startar formulär...',
       submitting: 'Skickar...',
+      noQuestions: 'Inga frågor tillgängliga',
     },
     questions: {
       optional: 'Valfritt',
@@ -372,6 +417,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Tar omtrent',
       minutes: 'minutter',
       questions: 'spørsmål',
+      start: 'Start',
+      continue: 'Fortsett',
+      verifying: 'Verifiserer...',
+      retryVerification: 'Prøv igjen',
     },
     navigation: {
       previous: 'Forrige',
@@ -388,6 +437,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Starter skjema...',
       submitting: 'Sender...',
+      noQuestions: 'Ingen spørsmål tilgjengelig',
     },
     questions: {
       optional: 'Valgfritt',
@@ -410,6 +460,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Tager cirka',
       minutes: 'minutter',
       questions: 'spørgsmål',
+      start: 'Start',
+      continue: 'Fortsæt',
+      verifying: 'Bekræfter...',
+      retryVerification: 'Prøv igen',
     },
     navigation: {
       previous: 'Forrige',
@@ -426,6 +480,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Starter formular...',
       submitting: 'Indsender...',
+      noQuestions: 'Ingen spørgsmål tilgængelige',
     },
     questions: {
       optional: 'Valgfri',
@@ -448,6 +503,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Kestää noin',
       minutes: 'minuuttia',
       questions: 'kysymystä',
+      start: 'Aloita',
+      continue: 'Jatka',
+      verifying: 'Vahvistetaan...',
+      retryVerification: 'Yritä uudelleen',
     },
     navigation: {
       previous: 'Edellinen',
@@ -464,6 +523,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Aloitetaan lomaketta...',
       submitting: 'Lähetetään...',
+      noQuestions: 'Ei kysymyksiä saatavilla',
     },
     questions: {
       optional: 'Valinnainen',
@@ -486,6 +546,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Zajmuje około',
       minutes: 'minut',
       questions: 'pytań',
+      start: 'Rozpocznij',
+      continue: 'Kontynuuj',
+      verifying: 'Weryfikacja...',
+      retryVerification: 'Spróbuj ponownie',
     },
     navigation: {
       previous: 'Poprzedni',
@@ -502,6 +566,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Rozpoczynanie formularza...',
       submitting: 'Wysyłanie...',
+      noQuestions: 'Brak dostępnych pytań',
     },
     questions: {
       optional: 'Opcjonalne',
@@ -524,6 +589,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Займет примерно',
       minutes: 'минут',
       questions: 'вопросов',
+      start: 'Начать',
+      continue: 'Продолжить',
+      verifying: 'Проверка...',
+      retryVerification: 'Повторить проверку',
     },
     navigation: {
       previous: 'Назад',
@@ -540,6 +609,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Загрузка формы...',
       submitting: 'Отправка...',
+      noQuestions: 'Нет доступных вопросов',
     },
     questions: {
       optional: 'Необязательно',
@@ -562,6 +632,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: '約',
       minutes: '分かかります',
       questions: '件の質問',
+      start: '開始',
+      continue: '続ける',
+      verifying: '確認中...',
+      retryVerification: '再確認',
     },
     navigation: {
       previous: '前へ',
@@ -578,6 +652,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'フォームを開始中...',
       submitting: '送信中...',
+      noQuestions: '質問がありません',
     },
     questions: {
       optional: '任意',
@@ -600,6 +675,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: '大约需要',
       minutes: '分钟',
       questions: '个问题',
+      start: '开始',
+      continue: '继续',
+      verifying: '验证中...',
+      retryVerification: '重试验证',
     },
     navigation: {
       previous: '上一步',
@@ -616,6 +695,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: '正在启动表单...',
       submitting: '正在提交...',
+      noQuestions: '没有可用的问题',
     },
     questions: {
       optional: '可选',
@@ -638,6 +718,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'يستغرق حوالي',
       minutes: 'دقائق',
       questions: 'أسئلة',
+      start: 'ابدأ',
+      continue: 'متابعة',
+      verifying: 'جارٍ التحقق...',
+      retryVerification: 'إعادة المحاولة',
     },
     navigation: {
       previous: 'السابق',
@@ -654,6 +738,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'بدء النموذج...',
       submitting: 'جارٍ الإرسال...',
+      noQuestions: 'لا توجد أسئلة متاحة',
     },
     questions: {
       optional: 'اختياري',
@@ -676,6 +761,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: 'Yaklaşık',
       minutes: 'dakika sürer',
       questions: 'soru',
+      start: 'Başla',
+      continue: 'Devam et',
+      verifying: 'Doğrulanıyor...',
+      retryVerification: 'Tekrar dene',
     },
     navigation: {
       previous: 'Önceki',
@@ -692,6 +781,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: 'Form başlatılıyor...',
       submitting: 'Gönderiliyor...',
+      noQuestions: 'Soru mevcut değil',
     },
     questions: {
       optional: 'İsteğe bağlı',
@@ -714,6 +804,10 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
       takesAbout: '약',
       minutes: '분 소요',
       questions: '개의 질문',
+      start: '시작',
+      continue: '계속',
+      verifying: '확인 중...',
+      retryVerification: '다시 시도',
     },
     navigation: {
       previous: '이전',
@@ -730,6 +824,7 @@ export const translations: Record<SupportedLanguage, TranslationStrings> = {
     loading: {
       starting: '양식 시작 중...',
       submitting: '제출 중...',
+      noQuestions: '사용 가능한 질문이 없습니다',
     },
     questions: {
       optional: '선택사항',

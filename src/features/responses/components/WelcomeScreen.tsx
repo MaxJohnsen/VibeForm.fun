@@ -39,10 +39,10 @@ export const WelcomeScreen = ({
   const [isTokenLoading, setIsTokenLoading] = useState(false);
   const turnstileRef = useRef<TurnstileInstance>(null);
 
-  // Button text: "Continue" for returning users, custom or "Start" for new users
+  // Button text: translated "Continue" for returning users, custom or translated "Start" for new users
   const buttonText = isReturningUser 
-    ? 'Continue'
-    : (introSettings?.buttonText || 'Start');
+    ? t.welcome.continue
+    : (introSettings?.buttonText || t.welcome.start);
 
   const handleStart = () => {
     if (!requiresTurnstile) {
@@ -125,13 +125,13 @@ export const WelcomeScreen = ({
           disabled={isButtonDisabled}
           className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 min-h-[48px] active:scale-95 hover-elevate transition-all"
         >
-          {requiresTurnstile && verificationStarted && isTokenLoading ? (
+        {requiresTurnstile && verificationStarted && isTokenLoading ? (
             <>
               <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
-              <span>Verifying...</span>
+              <span>{t.welcome.verifying}</span>
             </>
           ) : requiresTurnstile && turnstileError ? (
-            <span>Retry verification</span>
+            <span>{t.welcome.retryVerification}</span>
           ) : (
             <>
               {buttonText}
