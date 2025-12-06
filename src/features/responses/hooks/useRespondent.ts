@@ -50,6 +50,12 @@ export const useRespondent = (formId: string) => {
   // Initialize or resume session
   useEffect(() => {
     const initSession = async () => {
+      // If no formId, can't do anything
+      if (!formId) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         // Check for existing session token in localStorage
         const existingToken = localStorage.getItem(`response_session_${formId}`);
@@ -69,20 +75,18 @@ export const useRespondent = (formId: string) => {
               setCanGoBack(false);
             } else {
               setCurrentQuestion(data.question);
-              // Enable back button if we have a current question (means we've answered at least one)
               setCanGoBack(!!data.question);
             }
             
             console.log('Session resumed successfully');
           } catch (resumeError) {
-            // If resume fails, start a new session
-            console.log('Failed to resume session, starting new one:', resumeError);
+            // If resume fails, clear token and wait for user to start fresh via WelcomeScreen
+            console.log('Failed to resume session:', resumeError);
             localStorage.removeItem(`response_session_${formId}`);
-            await startNewSession();
+            // Don't auto-start - let WelcomeScreen handle Turnstile verification first
           }
-        } else {
-          await startNewSession();
         }
+        // If no existing session, wait for user to start via WelcomeScreen with Turnstile
       } catch (error) {
         console.error('Failed to initialize session:', error);
         toast({
