@@ -52,6 +52,8 @@ export interface HandlerContext {
   answers: Answer[];
   templateContext: TemplateContext;
   supabase: SupabaseClient;
+  /** Indicates this is a test execution - handlers can adjust behavior (e.g., add prefix) */
+  isTest?: boolean;
 }
 
 export interface HandlerResult {

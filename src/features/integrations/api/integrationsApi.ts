@@ -106,13 +106,23 @@ export const deleteIntegration = async (id: string) => {
   if (error) throw error;
 };
 
-export const testIntegration = async (integrationId: string) => {
-  const { data, error } = await supabase.functions.invoke('test-integration', {
+export interface TestIntegrationResult {
+  success: boolean;
+  message: string;
+  integration?: {
+    type: string;
+    name: string;
+  };
+  error?: string;
+}
+
+export const testIntegration = async (integrationId: string): Promise<TestIntegrationResult> => {
+  const { data, error } = await supabase.functions.invoke('run-integration-test', {
     body: { integrationId },
   });
 
   if (error) throw error;
-  return data;
+  return data as TestIntegrationResult;
 };
 
 export const saveIntegrationSecret = async (
