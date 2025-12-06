@@ -72,11 +72,12 @@ export const webhookHandler: IntegrationHandler = async (ctx): Promise<HandlerRe
     throw new Error(`Webhook error (${webhookResponse.status}): ${errorText}`);
   }
 
+  const responseText = await webhookResponse.text();
   let responseData;
   try {
-    responseData = await webhookResponse.json();
+    responseData = JSON.parse(responseText);
   } catch {
-    responseData = await webhookResponse.text();
+    responseData = responseText;
   }
 
   console.log('Webhook sent successfully, status:', webhookResponse.status);
