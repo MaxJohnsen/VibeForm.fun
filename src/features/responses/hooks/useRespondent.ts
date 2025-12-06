@@ -50,7 +50,6 @@ export const useRespondent = (formId: string) => {
   // Initialize or resume session
   useEffect(() => {
     const initSession = async () => {
-      // If no formId, can't do anything
       if (!formId) {
         setIsLoading(false);
         return;
@@ -79,14 +78,19 @@ export const useRespondent = (formId: string) => {
             }
             
             console.log('Session resumed successfully');
+            return; // Successfully resumed, we're done
           } catch (resumeError) {
-            // If resume fails, clear token and wait for user to start fresh via WelcomeScreen
+            // Resume failed, clear stale token
             console.log('Failed to resume session:', resumeError);
             localStorage.removeItem(`response_session_${formId}`);
-            // Don't auto-start - let WelcomeScreen handle Turnstile verification first
           }
         }
-        // If no existing session, wait for user to start via WelcomeScreen with Turnstile
+
+        // No existing session or resume failed - fetch form info for WelcomeScreen
+        const formData = await responsesApi.getFormInfo(formId);
+        setFormInfo(formData.form);
+        setTotalQuestions(formData.totalQuestions);
+        console.log('Form info loaded for WelcomeScreen');
       } catch (error) {
         console.error('Failed to initialize session:', error);
         toast({

@@ -2,11 +2,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.1';
 import { v4 as uuidv4 } from 'https://esm.sh/uuid@9.0.0';
 import { Ratelimit } from 'https://esm.sh/@upstash/ratelimit@2.0.5';
 import { Redis } from 'https://esm.sh/@upstash/redis@1.34.3';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
+import { isValidFormId, isUUID } from '../_shared/formUtils.ts';
 
 // Initialize rate limiter with Upstash Redis
 const redis = new Redis({
@@ -77,7 +74,7 @@ async function verifyTurnstile(token: string, ip: string, secret: string): Promi
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsOptions();
   }
 
   try {
@@ -142,11 +139,7 @@ Deno.serve(async (req) => {
       console.log('Turnstile not configured, skipping verification');
     }
 
-    // Basic input validation: formId should be a UUID or a slug (alphanumeric with dashes)
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    const slugPattern = /^[a-z0-9][a-z0-9-]{0,98}[a-z0-9]$/i;
-    
-    if (!uuidPattern.test(formId) && !slugPattern.test(formId)) {
+    if (!isValidFormId(formId)) {
       return new Response(
         JSON.stringify({ error: 'Invalid formId format' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -159,14 +152,11 @@ Deno.serve(async (req) => {
 
     console.log('Starting response for form:', formId);
 
-    // Check if formId is a UUID or a slug
-    const isUUID = uuidPattern.test(formId);
-
     // Verify form exists and is active - try by UUID first, then by slug
     const { data: form, error: formError } = await supabase
       .from('forms')
       .select('id, title, description, status, intro_settings, end_settings, language')
-      .or(isUUID ? `id.eq.${formId}` : `slug.eq.${formId}`)
+      .or(isUUID(formId) ? `id.eq.${formId}` : `slug.eq.${formId}`)
       .single();
 
     if (formError || !form) {
