@@ -18,16 +18,7 @@ export const RespondentPage = () => {
   const [currentAnswer, setCurrentAnswer] = useState<any>(null);
   const isSubmittingRef = useRef(false);
 
-  if (!formId) {
-    return (
-      <div className="h-[100dvh] flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="max-w-md w-full p-8 text-center">
-          <p className="text-destructive text-xl">Invalid form link</p>
-        </div>
-      </div>
-    );
-  }
-
+  // ALL hooks must be called unconditionally at the top
   const {
     currentQuestion,
     formInfo,
@@ -39,7 +30,7 @@ export const RespondentPage = () => {
     submitAnswer,
     goBack,
     startNewSession,
-  } = useRespondent(formId);
+  } = useRespondent(formId || '');
 
   const language = formInfo?.language || 'en';
   const isLastQuestion = currentQuestion?.position === totalQuestions - 1;
@@ -51,7 +42,6 @@ export const RespondentPage = () => {
 
   const handleQuestionSubmit = useCallback((value: any) => {
     setCurrentAnswer(value);
-    // Don't set canProceed here - let onValidationChange handle it
   }, []);
 
   const handleNext = useCallback(() => {
@@ -61,20 +51,17 @@ export const RespondentPage = () => {
     const hasValidAnswer = currentAnswer !== null && 
       (typeof currentAnswer !== 'string' || currentAnswer.trim().length > 0);
     
-    // Allow proceeding if we have a valid answer OR if the question is optional
     if (hasValidAnswer || !isRequired) {
       isSubmittingRef.current = true;
       submitAnswer(hasValidAnswer ? currentAnswer : null);
       setCurrentAnswer(null);
       setCanProceed(false);
-      // Reset after a short delay to prevent rapid re-submission
       setTimeout(() => {
         isSubmittingRef.current = false;
       }, 500);
     }
   }, [currentAnswer, currentQuestion, submitAnswer]);
 
-  // Debounced version for keyboard input
   const debouncedHandleNext = useCallback(
     debounce(handleNext, 300),
     [handleNext]
@@ -82,12 +69,10 @@ export const RespondentPage = () => {
 
   const handleBack = useCallback(() => {
     if (isFirstQuestion) {
-      // Return to welcome screen on first question
       setShowWelcome(true);
       setCurrentAnswer(null);
       setCanProceed(false);
     } else {
-      // Navigate to previous question
       setCurrentAnswer(null);
       setCanProceed(false);
       goBack();
@@ -100,13 +85,17 @@ export const RespondentPage = () => {
     }
   }, [navigate]);
 
+  const handleStartWithTurnstile = useCallback((turnstileToken?: string) => {
+    startNewSession(turnstileToken);
+    setShowWelcome(false);
+  }, [startNewSession]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept Enter key inside textareas (for multiline input)
       const target = e.target as HTMLElement;
       if (target.tagName === 'TEXTAREA') {
-        return; // Allow normal textarea behavior (new line on Enter)
+        return;
       }
       
       if (e.key === 'Enter' && canProceed && !isSubmitting && !showWelcome && !isSubmittingRef.current) {
@@ -119,6 +108,17 @@ export const RespondentPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [canProceed, isSubmitting, showWelcome, debouncedHandleNext]);
 
+  // Early returns AFTER all hooks
+  if (!formId) {
+    return (
+      <div className="h-[100dvh] flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
+        <div className="max-w-md w-full p-8 text-center">
+          <p className="text-destructive text-xl">Invalid form link</p>
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="h-[100dvh] flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
@@ -129,12 +129,6 @@ export const RespondentPage = () => {
       </div>
     );
   }
-
-  const handleStartWithTurnstile = useCallback((turnstileToken?: string) => {
-    // Start new session with turnstile token for verification
-    startNewSession(turnstileToken);
-    setShowWelcome(false);
-  }, [startNewSession]);
 
   if (showWelcome && formInfo && !isComplete) {
     return (
