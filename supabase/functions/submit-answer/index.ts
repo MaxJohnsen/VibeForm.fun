@@ -1,4 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { Ratelimit } from 'https://esm.sh/@upstash/ratelimit@2.0.5';
+import { Redis } from 'https://esm.sh/@upstash/redis@1.34.3';
 
 // EdgeRuntime global for background task management
 declare const EdgeRuntime: {
@@ -9,6 +11,20 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Initialize rate limiter with Upstash Redis
+const redis = new Redis({
+  url: Deno.env.get('UPSTASH_REDIS_REST_URL')!,
+  token: Deno.env.get('UPSTASH_REDIS_REST_TOKEN')!,
+});
+
+// Sliding window: 60 requests per 60 seconds per session token
+const ratelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(60, '60 s'),
+  analytics: true,
+  prefix: 'ratelimit:submit-answer',
+});
 
 interface LogicCondition {
   field: string;
@@ -47,6 +63,47 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'sessionToken and questionId are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate input formats
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    
+    if (!uuidPattern.test(sessionToken)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid session token format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    if (!uuidPattern.test(questionId)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid question ID format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Rate limiting by session token (prevents rapid-fire submissions)
+    const { success, limit, remaining, reset } = await ratelimit.limit(sessionToken);
+    
+    if (!success) {
+      console.warn(`Rate limit exceeded for session: ${sessionToken.substring(0, 8)}...`);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Too many requests. Please slow down.',
+          retryAfter: Math.ceil((reset - Date.now()) / 1000)
+        }),
+        { 
+          status: 429, 
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'X-RateLimit-Limit': limit.toString(),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': reset.toString(),
+            'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString(),
+          } 
+        }
       );
     }
 
@@ -252,7 +309,15 @@ Deno.serve(async (req) => {
         nextQuestion,
         totalQuestions,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json', 
+          'Cache-Control': 'no-store',
+          'X-RateLimit-Limit': limit.toString(),
+          'X-RateLimit-Remaining': remaining.toString(),
+        } 
+      }
     );
   } catch (error) {
     console.error('Error in submit-answer:', error);
