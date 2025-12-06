@@ -38,7 +38,7 @@ export const webhookDefinition: IntegrationDefinition = {
   getDefaultConfig: () => ({
     url: '',
     method: 'POST',
-    headers: '{"Content-Type": "application/json"}',
+    headers: { 'Content-Type': 'application/json' },
   }),
   
   validateConfig: (config: Record<string, any>): boolean => {
