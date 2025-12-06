@@ -16,6 +16,7 @@ export const RespondentPage = () => {
   const [welcomeDismissed, setWelcomeDismissed] = useState(false);
   const [canProceed, setCanProceed] = useState(false);
   const [currentAnswer, setCurrentAnswer] = useState<any>(null);
+  const [isStarting, setIsStarting] = useState(false);
   const isSubmittingRef = useRef(false);
 
   // ALL hooks must be called unconditionally at the top
@@ -92,14 +93,21 @@ export const RespondentPage = () => {
     }
   }, [navigate]);
 
-  const handleStart = useCallback((turnstileToken?: string) => {
+  const handleStart = useCallback(async (turnstileToken?: string) => {
     if (isReturningUser) {
       // Returning user - just dismiss welcome, continue existing session
       setWelcomeDismissed(true);
     } else {
       // New user - create session with turnstile token
-      startNewSession(turnstileToken);
-      setWelcomeDismissed(true);
+      setIsStarting(true);
+      try {
+        await startNewSession(turnstileToken);
+        setWelcomeDismissed(true);
+      } catch (error) {
+        console.error('Failed to start session:', error);
+      } finally {
+        setIsStarting(false);
+      }
     }
   }, [isReturningUser, startNewSession]);
 
@@ -206,7 +214,16 @@ export const RespondentPage = () => {
         </div>
       )}
 
-      {!isComplete && !currentQuestion && (
+      {isStarting && (
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="flex items-center justify-center space-x-3">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="text-xl text-foreground">Starting form...</span>
+          </div>
+        </div>
+      )}
+
+      {!isComplete && !currentQuestion && !isStarting && (
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="text-center py-8">
             <p className="text-xl text-muted-foreground">No questions available</p>
