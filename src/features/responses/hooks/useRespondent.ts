@@ -2,16 +2,21 @@ import { useState, useEffect, useCallback } from 'react';
 import { responsesApi } from '../api/responsesApi';
 import { useToast } from '@/hooks/use-toast';
 
+export type SessionState = 'loading' | 'new' | 'active' | 'complete';
+
 export const useRespondent = (formId: string) => {
+  const [sessionState, setSessionState] = useState<SessionState>('loading');
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<any>(null);
   const [formInfo, setFormInfo] = useState<any>(null);
   const [totalQuestions, setTotalQuestions] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
   const { toast } = useToast();
+
+  // Derived state for backwards compatibility
+  const isLoading = sessionState === 'loading';
+  const isComplete = sessionState === 'complete';
 
   // Refetch form info to get latest language settings
   const refetchFormInfo = useCallback(async () => {
@@ -28,14 +33,14 @@ export const useRespondent = (formId: string) => {
 
   // Poll for form info updates every 3 seconds when viewing the form
   useEffect(() => {
-    if (!sessionToken || isComplete) return;
+    if (!sessionToken || sessionState === 'complete') return;
 
     const intervalId = setInterval(() => {
       refetchFormInfo();
     }, 3000);
 
     return () => clearInterval(intervalId);
-  }, [sessionToken, isComplete, refetchFormInfo]);
+  }, [sessionToken, sessionState, refetchFormInfo]);
 
   // Also refetch when window regains focus
   useEffect(() => {
@@ -51,7 +56,7 @@ export const useRespondent = (formId: string) => {
   useEffect(() => {
     const initSession = async () => {
       if (!formId) {
-        setIsLoading(false);
+        setSessionState('new');
         return;
       }
 
@@ -69,12 +74,13 @@ export const useRespondent = (formId: string) => {
             setTotalQuestions(data.totalQuestions);
             
             if (data.isComplete) {
-              setIsComplete(true);
+              setSessionState('complete');
               setCurrentQuestion(null);
               setCanGoBack(false);
             } else {
               setCurrentQuestion(data.question);
               setCanGoBack(!!data.question);
+              setSessionState('active');
             }
             
             console.log('Session resumed successfully');
@@ -90,16 +96,16 @@ export const useRespondent = (formId: string) => {
         const formData = await responsesApi.getFormInfo(formId);
         setFormInfo(formData.form);
         setTotalQuestions(formData.totalQuestions);
+        setSessionState('new');
         console.log('Form info loaded for WelcomeScreen');
       } catch (error) {
         console.error('Failed to initialize session:', error);
+        setSessionState('new');
         toast({
           title: 'Error',
           description: 'Failed to load form. Please try again.',
           variant: 'destructive',
         });
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -113,6 +119,7 @@ export const useRespondent = (formId: string) => {
     setCurrentQuestion(data.question);
     setTotalQuestions(data.totalQuestions);
     setCanGoBack(false);
+    setSessionState('active');
     
     localStorage.setItem(`response_session_${formId}`, data.sessionToken);
   };
@@ -129,7 +136,7 @@ export const useRespondent = (formId: string) => {
       );
 
       if (data.isComplete) {
-        setIsComplete(true);
+        setSessionState('complete');
         localStorage.removeItem(`response_session_${formId}`);
       } else if (data.nextQuestion) {
         setCurrentQuestion(data.nextQuestion);
@@ -180,6 +187,7 @@ export const useRespondent = (formId: string) => {
   };
 
   return {
+    sessionState,
     sessionToken,
     currentQuestion,
     formInfo,
