@@ -45,20 +45,27 @@ export const webhookHandler: IntegrationHandler = async (ctx): Promise<HandlerRe
         answer: a.answer_value,
       };
     }),
-    // Include template context for additional variables
-    metadata: {
+    _meta: {
+      is_test: ctx.isTest || false,
       submitted_at: templateContext.submitted_at,
       response_number: templateContext.response_number,
     },
   };
 
   console.log(`Sending ${method} request to:`, webhookUrl);
+  console.log('Webhook payload:', JSON.stringify(payload, null, 2));
 
-  const webhookResponse = await fetch(webhookUrl, {
+  // Build fetch options - don't include body for GET requests
+  const fetchOptions: RequestInit = {
     method,
     headers,
-    body: JSON.stringify(payload),
-  });
+  };
+
+  if (method !== 'GET') {
+    fetchOptions.body = JSON.stringify(payload);
+  }
+
+  const webhookResponse = await fetch(webhookUrl, fetchOptions);
 
   if (!webhookResponse.ok) {
     const errorText = await webhookResponse.text();
@@ -72,7 +79,7 @@ export const webhookHandler: IntegrationHandler = async (ctx): Promise<HandlerRe
     responseData = await webhookResponse.text();
   }
 
-  console.log('Webhook sent successfully');
+  console.log('Webhook sent successfully, status:', webhookResponse.status);
 
   return {
     success: true,
