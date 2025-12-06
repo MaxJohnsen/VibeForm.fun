@@ -5,7 +5,7 @@ import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
 import { IntroSettings } from '@/features/builder/types/screenSettings';
 import { useTranslation } from '../hooks/useTranslation';
 import { SupportedLanguage } from '@/shared/constants/translations';
-import { TURNSTILE_SITE_KEY } from '@/shared/constants/turnstile';
+import { TURNSTILE_SITE_KEY, isTurnstileConfigured } from '@/shared/constants/turnstile';
 
 interface WelcomeScreenProps {
   formTitle: string;
@@ -29,12 +29,18 @@ export const WelcomeScreen = ({
   const showQuestionCount = introSettings?.showQuestionCount ?? true;
   const showEstimatedTime = introSettings?.showEstimatedTime ?? true;
 
+  const turnstileEnabled = isTurnstileConfigured();
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileError, setTurnstileError] = useState(false);
-  const [isTokenLoading, setIsTokenLoading] = useState(true);
+  const [isTokenLoading, setIsTokenLoading] = useState(turnstileEnabled);
   const turnstileRef = useRef<TurnstileInstance>(null);
 
   const handleStart = () => {
+    if (!turnstileEnabled) {
+      onStart(undefined);
+      return;
+    }
+
     if (turnstileToken) {
       onStart(turnstileToken);
     } else if (turnstileError) {
@@ -63,7 +69,9 @@ export const WelcomeScreen = ({
     turnstileRef.current?.reset();
   };
 
-  const isButtonDisabled = isTokenLoading && !turnstileError;
+  const isButtonDisabled = turnstileEnabled 
+    ? (isTokenLoading && !turnstileError)
+    : false;
 
   return (
     <div className="h-full flex items-center justify-center p-4 sm:p-6">
@@ -92,21 +100,23 @@ export const WelcomeScreen = ({
           </div>
         )}
 
-        {/* Turnstile widget - interaction-only means invisible unless challenge needed */}
-        <div className="flex justify-center">
-          <Turnstile
-            ref={turnstileRef}
-            siteKey={TURNSTILE_SITE_KEY}
-            options={{
-              appearance: 'interaction-only',
-              size: 'flexible',
-              theme: 'auto',
-            }}
-            onSuccess={handleTurnstileSuccess}
-            onError={handleTurnstileError}
-            onExpire={handleTurnstileExpire}
-          />
-        </div>
+        {/* Turnstile widget - only rendered if configured */}
+        {turnstileEnabled && (
+          <div className="flex justify-center">
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={TURNSTILE_SITE_KEY}
+              options={{
+                appearance: 'interaction-only',
+                size: 'flexible',
+                theme: 'auto',
+              }}
+              onSuccess={handleTurnstileSuccess}
+              onError={handleTurnstileError}
+              onExpire={handleTurnstileExpire}
+            />
+          </div>
+        )}
 
         <Button
           onClick={handleStart}
@@ -114,12 +124,12 @@ export const WelcomeScreen = ({
           disabled={isButtonDisabled}
           className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 min-h-[48px] active:scale-95 hover-elevate transition-all"
         >
-          {isTokenLoading ? (
+          {turnstileEnabled && isTokenLoading ? (
             <>
               <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
               <span>Verifying...</span>
             </>
-          ) : turnstileError ? (
+          ) : turnstileEnabled && turnstileError ? (
             <span>Retry verification</span>
           ) : (
             <>

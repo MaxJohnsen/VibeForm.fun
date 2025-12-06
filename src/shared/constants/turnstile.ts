@@ -1,8 +1,10 @@
-// Public Cloudflare Turnstile site key - safe to embed in client code
-// Create your widget at: https://dash.cloudflare.com/?to=/:account/turnstile
-// For testing, use Cloudflare's test keys:
-// - Always pass (visible): 1x00000000000000000000AA
-// - Always fail (visible): 2x00000000000000000000AB
-// - Force interactive: 3x00000000000000000000FF
+// Public Cloudflare Turnstile site key
+// Set VITE_TURNSTILE_SITE_KEY in .env for production
+// Test keys: https://developers.cloudflare.com/turnstile/troubleshooting/testing/
 
-export const TURNSTILE_SITE_KEY = '1x00000000000000000000AA'; // Replace with your production site key
+export const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || '';
+
+// Check if Turnstile is configured
+export const isTurnstileConfigured = (): boolean => {
+  return Boolean(TURNSTILE_SITE_KEY && TURNSTILE_SITE_KEY.length > 0);
+};
