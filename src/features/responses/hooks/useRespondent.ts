@@ -98,8 +98,8 @@ export const useRespondent = (formId: string) => {
     initSession();
   }, [formId]);
 
-  const startNewSession = async () => {
-    const data = await responsesApi.startResponse(formId);
+  const startNewSession = async (turnstileToken?: string) => {
+    const data = await responsesApi.startResponse(formId, turnstileToken);
     setSessionToken(data.sessionToken);
     setFormInfo(data.form);
     setCurrentQuestion(data.question);
@@ -182,5 +182,6 @@ export const useRespondent = (formId: string) => {
     canGoBack,
     submitAnswer,
     goBack,
+    startNewSession,
   };
 };

@@ -24,19 +24,43 @@ const ratelimit = new Ratelimit({
 
 // Get client IP from request headers
 function getClientIP(req: Request): string {
-  // Supabase edge functions provide the real IP in x-forwarded-for
   const forwardedFor = req.headers.get('x-forwarded-for');
   if (forwardedFor) {
-    // x-forwarded-for can contain multiple IPs, take the first one
     return forwardedFor.split(',')[0].trim();
   }
-  // Fallback to x-real-ip
   const realIp = req.headers.get('x-real-ip');
   if (realIp) {
     return realIp;
   }
-  // Last resort fallback
   return 'unknown';
+}
+
+// Verify Cloudflare Turnstile token
+async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+  const secret = Deno.env.get('CLOUDFLARE_TURNSTILE_SECRET');
+  if (!secret) {
+    console.warn('CLOUDFLARE_TURNSTILE_SECRET not configured, skipping verification');
+    return true; // Graceful degradation - allow if not configured
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('secret', secret);
+    formData.append('response', token);
+    formData.append('remoteip', ip);
+
+    const result = await fetch(
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+      { method: 'POST', body: formData }
+    );
+
+    const outcome = await result.json();
+    console.log('Turnstile verification result:', outcome.success ? 'passed' : 'failed');
+    return outcome.success === true;
+  } catch (error) {
+    console.error('Turnstile verification error:', error);
+    return false;
+  }
 }
 
 Deno.serve(async (req) => {
@@ -70,13 +94,26 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { formId } = await req.json();
+    const { formId, turnstileToken } = await req.json();
 
     if (!formId) {
       return new Response(
         JSON.stringify({ error: 'formId is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Verify Turnstile token if provided
+    if (turnstileToken) {
+      const isHuman = await verifyTurnstile(turnstileToken, clientIP);
+      if (!isHuman) {
+        console.warn(`Turnstile verification failed for IP: ${clientIP}`);
+        return new Response(
+          JSON.stringify({ error: 'Verification failed. Please refresh and try again.' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      console.log(`Turnstile verified for IP: ${clientIP}`);
     }
 
     // Basic input validation: formId should be a UUID or a slug (alphanumeric with dashes)
@@ -175,12 +212,12 @@ Deno.serve(async (req) => {
       JSON.stringify({
         sessionToken,
         responseId: response.id,
-    form: {
-      title: form.title,
-      intro_settings: form.intro_settings || {},
-      end_settings: form.end_settings || {},
-      language: form.language || 'en',
-    },
+        form: {
+          title: form.title,
+          intro_settings: form.intro_settings || {},
+          end_settings: form.end_settings || {},
+          language: form.language || 'en',
+        },
         question: {
           ...firstQuestion,
           currentAnswer: existingAnswer?.answer_value || null,

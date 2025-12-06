@@ -28,9 +28,9 @@ export interface NavigateBackData {
 }
 
 export const responsesApi = {
-  async startResponse(formId: string): Promise<StartResponseData> {
+  async startResponse(formId: string, turnstileToken?: string): Promise<StartResponseData> {
     const { data, error } = await supabase.functions.invoke('start-response', {
-      body: { formId },
+      body: { formId, turnstileToken },
     });
 
     if (error) throw error;
