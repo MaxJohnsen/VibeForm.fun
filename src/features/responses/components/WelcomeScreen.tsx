@@ -149,7 +149,7 @@ export const WelcomeScreen = ({
               ref={turnstileRef}
               siteKey={TURNSTILE_SITE_KEY}
               options={{
-                appearance: "managed",
+                appearance: "interaction-only",
                 size: "flexible",
                 theme: "light",
               }}
