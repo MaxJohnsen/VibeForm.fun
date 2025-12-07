@@ -1,11 +1,11 @@
-import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Loader2 } from 'lucide-react';
-import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
-import { IntroSettings } from '@/features/builder/types/screenSettings';
-import { useTranslation } from '../hooks/useTranslation';
-import { SupportedLanguage } from '@/shared/constants/translations';
-import { TURNSTILE_SITE_KEY, isTurnstileConfigured } from '@/shared/constants/turnstile';
+import { useState, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { Turnstile, TurnstileInstance } from "@marsidev/react-turnstile";
+import { IntroSettings } from "@/features/builder/types/screenSettings";
+import { useTranslation } from "../hooks/useTranslation";
+import { SupportedLanguage } from "@/shared/constants/translations";
+import { TURNSTILE_SITE_KEY, isTurnstileConfigured } from "@/shared/constants/turnstile";
 
 interface WelcomeScreenProps {
   formTitle: string;
@@ -21,7 +21,7 @@ export const WelcomeScreen = ({
   introSettings,
   totalQuestions,
   onStart,
-  language = 'en',
+  language = "en",
   isReturningUser = false,
 }: WelcomeScreenProps) => {
   const t = useTranslation(language as SupportedLanguage);
@@ -40,9 +40,7 @@ export const WelcomeScreen = ({
   const turnstileRef = useRef<TurnstileInstance>(null);
 
   // Button text: translated "Continue" for returning users, custom or translated "Start" for new users
-  const buttonText = isReturningUser 
-    ? t.welcome.continue
-    : (introSettings?.buttonText || t.welcome.start);
+  const buttonText = isReturningUser ? t.welcome.continue : introSettings?.buttonText || t.welcome.start;
 
   const handleStart = () => {
     if (!requiresTurnstile) {
@@ -96,11 +94,9 @@ export const WelcomeScreen = ({
     <div className="h-full flex items-center justify-center p-4 sm:p-6">
       <div className="max-w-2xl w-full space-y-6 sm:space-y-8 text-center animate-fade-in">
         <div className="space-y-3 sm:space-y-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">
-            {displayTitle}
-          </h1>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground">{displayTitle}</h1>
           {displayDescription && (
-            <div 
+            <div
               className="text-lg sm:text-xl prose-intro max-w-xl mx-auto px-4"
               dangerouslySetInnerHTML={{ __html: displayDescription }}
             />
@@ -111,11 +107,17 @@ export const WelcomeScreen = ({
           <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
             {showEstimatedTime && (
               <>
-                <span>{t.welcome.takesAbout} {Math.ceil(totalQuestions * 0.25)} {t.welcome.minutes}</span>
+                <span>
+                  {t.welcome.takesAbout} {Math.ceil(totalQuestions * 0.25)} {t.welcome.minutes}
+                </span>
                 {showQuestionCount && <span>•</span>}
               </>
             )}
-            {showQuestionCount && <span>{totalQuestions} {t.welcome.questions}</span>}
+            {showQuestionCount && (
+              <span>
+                {totalQuestions} {t.welcome.questions}
+              </span>
+            )}
           </div>
         )}
 
@@ -125,7 +127,7 @@ export const WelcomeScreen = ({
           disabled={isButtonDisabled}
           className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 min-h-[48px] active:scale-95 hover-elevate transition-all"
         >
-        {requiresTurnstile && verificationStarted && isTokenLoading ? (
+          {requiresTurnstile && verificationStarted && isTokenLoading ? (
             <>
               <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
               <span>{t.welcome.verifying}</span>
@@ -147,9 +149,9 @@ export const WelcomeScreen = ({
               ref={turnstileRef}
               siteKey={TURNSTILE_SITE_KEY}
               options={{
-                appearance: 'interaction-only',
-                size: 'flexible',
-                theme: 'auto',
+                appearance: "managed",
+                size: "flexible",
+                theme: "light",
               }}
               onSuccess={handleTurnstileSuccess}
               onError={handleTurnstileError}
