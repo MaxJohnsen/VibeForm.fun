@@ -4,7 +4,7 @@ import { ArrowRight, Loader2 } from "lucide-react";
 import { Turnstile, TurnstileInstance } from "@marsidev/react-turnstile";
 import { IntroSettings } from "@/features/builder/types/screenSettings";
 import { useTranslation } from "../hooks/useTranslation";
-import { SupportedLanguage } from "@/shared/constants/translations";
+import { SupportedLanguage, translations } from "@/shared/constants/translations";
 import { TURNSTILE_SITE_KEY, isTurnstileConfigured } from "@/shared/constants/turnstile";
 
 interface WelcomeScreenProps {
@@ -14,6 +14,7 @@ interface WelcomeScreenProps {
   onStart: (turnstileToken?: string) => void;
   language?: string;
   isReturningUser?: boolean;
+  isStarting?: boolean;
 }
 
 export const WelcomeScreen = ({
@@ -23,6 +24,7 @@ export const WelcomeScreen = ({
   onStart,
   language = "en",
   isReturningUser = false,
+  isStarting = false,
 }: WelcomeScreenProps) => {
   const t = useTranslation(language as SupportedLanguage);
   const displayTitle = introSettings?.title || formTitle;
@@ -87,8 +89,8 @@ export const WelcomeScreen = ({
     turnstileRef.current?.reset();
   };
 
-  // Only disable when verification is in progress
-  const isButtonDisabled = requiresTurnstile && verificationStarted && isTokenLoading && !turnstileError;
+  // Disable when: parent is starting session OR verification is in progress
+  const isButtonDisabled = isStarting || (requiresTurnstile && verificationStarted && isTokenLoading && !turnstileError);
 
   return (
     <div className="h-full flex items-center justify-center p-4 sm:p-6">
@@ -127,7 +129,12 @@ export const WelcomeScreen = ({
           disabled={isButtonDisabled}
           className="px-8 py-4 sm:px-12 sm:py-6 text-base sm:text-lg gap-2 min-h-[48px] active:scale-95 hover-elevate transition-all"
         >
-          {requiresTurnstile && verificationStarted && isTokenLoading ? (
+        {isStarting ? (
+            <>
+              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+              <span>{t.loading.starting}</span>
+            </>
+          ) : requiresTurnstile && verificationStarted && isTokenLoading ? (
             <>
               <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
               <span>{t.welcome.verifying}</span>
