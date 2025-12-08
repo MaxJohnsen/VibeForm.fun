@@ -1,23 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.81.1';
 import { v4 as uuidv4 } from 'https://esm.sh/uuid@9.0.0';
-import { Ratelimit } from 'https://esm.sh/@upstash/ratelimit@2.0.5';
-import { Redis } from 'https://esm.sh/@upstash/redis@1.34.3';
 import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
 import { isValidFormId, isUUID } from '../_shared/formUtils.ts';
-
-// Initialize rate limiter with Upstash Redis
-const redis = new Redis({
-  url: Deno.env.get('UPSTASH_REDIS_REST_URL')!,
-  token: Deno.env.get('UPSTASH_REDIS_REST_TOKEN')!,
-});
-
-// Sliding window: 10 requests per 60 seconds per IP
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(10, '60 s'),
-  analytics: true,
-  prefix: 'ratelimit:start-response',
-});
+import { checkRateLimit, getEnvInt } from '../_shared/ratelimit.ts';
 
 // Get client IP from request headers
 function getClientIP(req: Request): string {
@@ -78,9 +63,14 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Rate limiting check
+    // Rate limiting check (configurable via RATE_LIMIT_START_RESPONSE, default: 10)
     const clientIP = getClientIP(req);
-    const { success, limit, remaining, reset } = await ratelimit.limit(clientIP);
+    const rateLimitConfig = {
+      maxRequests: getEnvInt('RATE_LIMIT_START_RESPONSE', 10),
+      prefix: 'ratelimit:start-response',
+    };
+    
+    const { success, limit, remaining, reset } = await checkRateLimit(clientIP, rateLimitConfig);
     
     if (!success) {
       console.warn(`Rate limit exceeded for IP: ${clientIP}`);
@@ -224,6 +214,17 @@ Deno.serve(async (req) => {
       .eq('question_id', firstQuestion.id)
       .maybeSingle();
 
+    const responseHeaders: Record<string, string> = {
+      ...corsHeaders,
+      'Content-Type': 'application/json',
+    };
+    
+    // Only include rate limit headers if rate limiting is enabled
+    if (limit > 0) {
+      responseHeaders['X-RateLimit-Limit'] = limit.toString();
+      responseHeaders['X-RateLimit-Remaining'] = remaining.toString();
+    }
+
     return new Response(
       JSON.stringify({
         sessionToken,
@@ -240,14 +241,7 @@ Deno.serve(async (req) => {
         },
         totalQuestions: questions.length,
       }),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json',
-          'X-RateLimit-Limit': limit.toString(),
-          'X-RateLimit-Remaining': remaining.toString(),
-        } 
-      }
+      { headers: responseHeaders }
     );
   } catch (error) {
     console.error('Error in start-response:', error);
