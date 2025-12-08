@@ -15,6 +15,7 @@ interface WelcomeScreenProps {
   language?: string;
   isReturningUser?: boolean;
   isStarting?: boolean;
+  turnstileEnabled?: boolean;
 }
 
 export const WelcomeScreen = ({
@@ -25,6 +26,7 @@ export const WelcomeScreen = ({
   language = "en",
   isReturningUser = false,
   isStarting = false,
+  turnstileEnabled = false,
 }: WelcomeScreenProps) => {
   const t = useTranslation(language as SupportedLanguage);
   const displayTitle = introSettings?.title || formTitle;
@@ -32,8 +34,8 @@ export const WelcomeScreen = ({
   const showQuestionCount = introSettings?.showQuestionCount ?? true;
   const showEstimatedTime = introSettings?.showEstimatedTime ?? true;
 
-  // Only require Turnstile for NEW users (not returning users with active sessions)
-  const requiresTurnstile = isTurnstileConfigured() && !isReturningUser;
+  // Only require Turnstile if: frontend has site key, backend has secret, and not a returning user
+  const requiresTurnstile = isTurnstileConfigured() && turnstileEnabled && !isReturningUser;
 
   const [verificationStarted, setVerificationStarted] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);

@@ -62,7 +62,10 @@ Deno.serve(async (req) => {
       console.error('Failed to count questions:', countError);
     }
 
-    console.log('Form info retrieved:', { formId: form.id, totalQuestions: count });
+    // Check if Turnstile is configured on the backend
+    const turnstileEnabled = Boolean(Deno.env.get('CLOUDFLARE_TURNSTILE_SECRET'));
+
+    console.log('Form info retrieved:', { formId: form.id, totalQuestions: count, turnstileEnabled });
 
     return new Response(
       JSON.stringify({
@@ -73,6 +76,7 @@ Deno.serve(async (req) => {
           language: form.language || 'en',
         },
         totalQuestions: count || 0,
+        turnstileEnabled,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
