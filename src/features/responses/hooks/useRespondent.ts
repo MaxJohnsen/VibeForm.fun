@@ -12,6 +12,7 @@ export const useRespondent = (formId: string) => {
   const [totalQuestions, setTotalQuestions] = useState<number>(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [canGoBack, setCanGoBack] = useState(false);
+  const [turnstileEnabled, setTurnstileEnabled] = useState<boolean>(false);
   const { toast } = useToast();
 
   // Derived state for backwards compatibility
@@ -96,6 +97,7 @@ export const useRespondent = (formId: string) => {
         const formData = await responsesApi.getFormInfo(formId);
         setFormInfo(formData.form);
         setTotalQuestions(formData.totalQuestions);
+        setTurnstileEnabled(formData.turnstileEnabled ?? false);
         setSessionState('new');
         console.log('Form info loaded for WelcomeScreen');
       } catch (error) {
@@ -196,6 +198,7 @@ export const useRespondent = (formId: string) => {
     isSubmitting,
     isComplete,
     canGoBack,
+    turnstileEnabled,
     submitAnswer,
     goBack,
     startNewSession,

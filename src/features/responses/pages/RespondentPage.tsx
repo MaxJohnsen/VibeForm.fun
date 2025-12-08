@@ -31,6 +31,7 @@ export const RespondentPage = () => {
     isSubmitting,
     isComplete,
     canGoBack,
+    turnstileEnabled,
     submitAnswer,
     goBack,
     startNewSession,
@@ -165,6 +166,7 @@ export const RespondentPage = () => {
           language={language}
           isReturningUser={isReturningUser}
           isStarting={isStarting}
+          turnstileEnabled={turnstileEnabled}
         />
       </div>
     );

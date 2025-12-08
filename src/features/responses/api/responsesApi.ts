@@ -10,6 +10,7 @@ export interface FormInfo {
 export interface GetFormInfoData {
   form: FormInfo;
   totalQuestions: number;
+  turnstileEnabled?: boolean;
 }
 
 export interface StartResponseData {
