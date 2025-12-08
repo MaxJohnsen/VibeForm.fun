@@ -1,6 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { Ratelimit } from 'https://esm.sh/@upstash/ratelimit@2.0.5';
-import { Redis } from 'https://esm.sh/@upstash/redis@1.34.3';
+import { checkRateLimit, getEnvInt } from '../_shared/ratelimit.ts';
 
 // EdgeRuntime global for background task management
 declare const EdgeRuntime: {
@@ -11,20 +10,6 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-// Initialize rate limiter with Upstash Redis
-const redis = new Redis({
-  url: Deno.env.get('UPSTASH_REDIS_REST_URL')!,
-  token: Deno.env.get('UPSTASH_REDIS_REST_TOKEN')!,
-});
-
-// Sliding window: 60 requests per 60 seconds per session token
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(60, '60 s'),
-  analytics: true,
-  prefix: 'ratelimit:submit-answer',
-});
 
 interface LogicCondition {
   field: string;
@@ -83,8 +68,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Rate limiting by session token (prevents rapid-fire submissions)
-    const { success, limit, remaining, reset } = await ratelimit.limit(sessionToken);
+    // Rate limiting by session token (configurable via RATE_LIMIT_SUBMIT_ANSWER, default: 60)
+    const rateLimitConfig = {
+      maxRequests: getEnvInt('RATE_LIMIT_SUBMIT_ANSWER', 60),
+      prefix: 'ratelimit:submit-answer',
+    };
+    
+    const { success, limit, remaining, reset } = await checkRateLimit(sessionToken, rateLimitConfig);
     
     if (!success) {
       console.warn(`Rate limit exceeded for session: ${sessionToken.substring(0, 8)}...`);
@@ -302,6 +292,18 @@ Deno.serve(async (req) => {
       );
     }
 
+    const responseHeaders: Record<string, string> = {
+      ...corsHeaders,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+    };
+    
+    // Only include rate limit headers if rate limiting is enabled
+    if (limit > 0) {
+      responseHeaders['X-RateLimit-Limit'] = limit.toString();
+      responseHeaders['X-RateLimit-Remaining'] = remaining.toString();
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -309,15 +311,7 @@ Deno.serve(async (req) => {
         nextQuestion,
         totalQuestions,
       }),
-      { 
-        headers: { 
-          ...corsHeaders, 
-          'Content-Type': 'application/json', 
-          'Cache-Control': 'no-store',
-          'X-RateLimit-Limit': limit.toString(),
-          'X-RateLimit-Remaining': remaining.toString(),
-        } 
-      }
+      { headers: responseHeaders }
     );
   } catch (error) {
     console.error('Error in submit-answer:', error);
