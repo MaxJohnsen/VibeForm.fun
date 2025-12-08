@@ -164,6 +164,7 @@ export const RespondentPage = () => {
           onStart={handleStart}
           language={language}
           isReturningUser={isReturningUser}
+          isStarting={isStarting}
         />
       </div>
     );
