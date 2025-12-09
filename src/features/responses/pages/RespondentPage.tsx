@@ -115,6 +115,16 @@ export const RespondentPage = () => {
     }
   }, [isReturningUser, startNewSession]);
 
+  // Set page title to form name
+  useEffect(() => {
+    if (formInfo?.title) {
+      document.title = formInfo.title;
+    }
+    return () => {
+      document.title = 'Formflow';
+    };
+  }, [formInfo?.title]);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
