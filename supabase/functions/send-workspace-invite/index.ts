@@ -110,7 +110,7 @@ serve(async (req) => {
           <h2 style="margin-top: 0; color: #1e293b;">You're invited!</h2>
           <p style="color: #475569; line-height: 1.6;">${user.email} invited you to join <strong style="color: #1e293b;">${workspace.name}</strong> as a <strong style="color: #1e293b;">${role}</strong>.</p>
           <p style="color: #475569; line-height: 1.6;">Fairform helps teams create conversational forms and collect responses.</p>
-          <a href="${appUrl}/signup" style="display: inline-block; background: #8b5cf6; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 500; margin-top: 10px;">Accept Invitation</a>
+          <a href="${appUrl}/signup?email=${encodeURIComponent(email)}" style="display: inline-block; background: #8b5cf6; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 500; margin-top: 10px;">Accept Invitation</a>
         </div>
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #94a3b8; font-size: 13px;">
           <p>If you weren't expecting this invitation, you can safely ignore this email.</p>
@@ -125,7 +125,7 @@ ${user.email} invited you to join ${workspace.name} as a ${role}.
 
 Fairform helps teams create conversational forms and collect responses.
 
-Accept your invitation: ${appUrl}/signup
+Accept your invitation: ${appUrl}/signup?email=${encodeURIComponent(email)}
 
 If you weren't expecting this invitation, you can safely ignore this email.
 
