@@ -29,7 +29,7 @@ export const WorkspaceSwitcher = ({ collapsed = false }: WorkspaceSwitcherProps)
           <Button
             variant="ghost"
             className={cn(
-              'justify-start gap-2 hover:bg-accent/50 transition-all',
+              'justify-start gap-2 transition-all',
               collapsed ? 'w-10 h-10 p-0' : 'w-full px-3'
             )}
           >
