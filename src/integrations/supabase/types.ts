@@ -100,6 +100,7 @@ export type Database = {
       forms: {
         Row: {
           created_at: string | null
+          created_by: string
           description: string | null
           end_settings: Json | null
           id: string
@@ -109,10 +110,11 @@ export type Database = {
           status: string | null
           title: string
           updated_at: string | null
-          user_id: string
+          workspace_id: string | null
         }
         Insert: {
           created_at?: string | null
+          created_by: string
           description?: string | null
           end_settings?: Json | null
           id?: string
@@ -122,10 +124,11 @@ export type Database = {
           status?: string | null
           title: string
           updated_at?: string | null
-          user_id: string
+          workspace_id?: string | null
         }
         Update: {
           created_at?: string | null
+          created_by?: string
           description?: string | null
           end_settings?: Json | null
           id?: string
@@ -135,9 +138,17 @@ export type Database = {
           status?: string | null
           title?: string
           updated_at?: string | null
-          user_id?: string
+          workspace_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "forms_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       integration_logs: {
         Row: {
@@ -224,27 +235,27 @@ export type Database = {
       }
       lottery_draws: {
         Row: {
+          created_by: string
           drawn_at: string
           form_id: string
           id: string
           settings: Json | null
-          user_id: string
           winners: Json
         }
         Insert: {
+          created_by: string
           drawn_at?: string
           form_id: string
           id?: string
           settings?: Json | null
-          user_id: string
           winners: Json
         }
         Update: {
+          created_by?: string
           drawn_at?: string
           form_id?: string
           id?: string
           settings?: Json | null
-          user_id?: string
           winners?: Json
         }
         Relationships: [
@@ -348,12 +359,115 @@ export type Database = {
           },
         ]
       }
+      workspace_invites: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          role: Database["public"]["Enums"]["workspace_role"]
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          invited_by: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_invites_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_members: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["workspace_role"]
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          user_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["workspace_role"]
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_members_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspaces: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      count_workspace_admins: {
+        Args: { _workspace_id: string }
+        Returns: number
+      }
+      get_workspace_role: {
+        Args: { _user_id: string; _workspace_id: string }
+        Returns: Database["public"]["Enums"]["workspace_role"]
+      }
+      is_workspace_admin: {
+        Args: { _user_id: string; _workspace_id: string }
+        Returns: boolean
+      }
+      is_workspace_member: {
+        Args: { _user_id: string; _workspace_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       integration_trigger:
@@ -361,6 +475,7 @@ export type Database = {
         | "form_started"
         | "question_answered"
       integration_type: "email" | "slack" | "webhook" | "zapier"
+      workspace_role: "admin" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -494,6 +609,7 @@ export const Constants = {
         "question_answered",
       ],
       integration_type: ["email", "slack", "webhook", "zapier"],
+      workspace_role: ["admin", "member"],
     },
   },
 } as const
