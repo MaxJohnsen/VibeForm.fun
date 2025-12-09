@@ -21,27 +21,54 @@ Deno.serve(async (req) => {
       return jsonError('Authorization header required', 401);
     }
 
-    // Create Supabase client with user's auth
+    // Create user client for auth verification
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_ANON_KEY')!,
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    // Fetch form (RLS will ensure user owns it)
-    const { data: form, error: formError } = await supabase
+    // Verify user is authenticated
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+      return jsonError('Unauthorized', 401);
+    }
+
+    // Create admin client for lookups
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    );
+
+    // Fetch form with workspace info
+    const { data: form, error: formError } = await supabaseAdmin
       .from('forms')
-      .select('*')
+      .select('*, workspace_id, created_by')
       .eq('id', formId)
       .single();
 
-    if (formError) {
+    if (formError || !form) {
       console.error('Error fetching form:', formError);
-      return jsonError('Form not found or access denied', 404);
+      return jsonError('Form not found', 404);
+    }
+
+    // Verify workspace membership or ownership
+    if (form.workspace_id) {
+      const { data: isMember, error: memberError } = await supabaseAdmin.rpc(
+        'is_workspace_member',
+        { _workspace_id: form.workspace_id, _user_id: user.id }
+      );
+
+      if (memberError || !isMember) {
+        console.error(`Workspace membership check failed for user ${user.id}`);
+        return jsonError('Access denied', 403);
+      }
+    } else if (form.created_by !== user.id) {
+      return jsonError('Access denied', 403);
     }
 
     // Fetch questions
-    const { data: questions, error: questionsError } = await supabase
+    const { data: questions, error: questionsError } = await supabaseAdmin
       .from('questions')
       .select('*')
       .eq('form_id', formId)
