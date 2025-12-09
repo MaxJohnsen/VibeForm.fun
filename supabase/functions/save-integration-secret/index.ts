@@ -64,36 +64,49 @@ serve(async (req) => {
 
     console.log(`[${user.id}] ${mode.toUpperCase()} secret for integration ${integrationId}, type: ${keyType}`);
 
-    // === DEFENSE LAYER 1: MANUAL OWNERSHIP CHECK ===
-    // This check uses the user's JWT, so RLS on form_integrations also applies
-    const { data: integration, error: integrationError } = await supabase
+    // === CREATE SERVICE ROLE CLIENT FOR LOOKUPS ===
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // === FETCH INTEGRATION WITH FORM AND WORKSPACE ===
+    const { data: integration, error: integrationError } = await supabaseAdmin
       .from('form_integrations')
-      .select('id, form_id, forms!inner(user_id)')
+      .select('id, form_id, forms!inner(created_by, workspace_id)')
       .eq('id', integrationId)
       .single();
 
-    if (integrationError) {
+    if (integrationError || !integration) {
       console.error('Integration lookup error:', integrationError);
       throw new Error('Integration not found or access denied');
     }
 
-    // Explicit ownership check (belt AND suspenders)
-    const formUserId = (integration.forms as any).user_id;
-    if (formUserId !== user.id) {
-      console.error(`Ownership mismatch: form owner ${formUserId} !== user ${user.id}`);
-      throw new Error('Unauthorized: You do not own this integration');
+    // Type assertion for the joined forms data
+    const formData = (integration as any).forms as { created_by: string; workspace_id: string | null };
+
+    // === VERIFY WORKSPACE MEMBERSHIP ===
+    if (formData.workspace_id) {
+      const { data: isMember, error: memberError } = await supabaseAdmin.rpc(
+        'is_workspace_member',
+        { _workspace_id: formData.workspace_id, _user_id: user.id }
+      );
+
+      if (memberError || !isMember) {
+        console.error(`Workspace membership check failed for user ${user.id} in workspace ${formData.workspace_id}`);
+        throw new Error('Unauthorized: You are not a member of this workspace');
+      }
+    } else {
+      // Legacy form without workspace - check direct ownership
+      if (formData.created_by !== user.id) {
+        console.error(`Ownership mismatch: form owner ${formData.created_by} !== user ${user.id}`);
+        throw new Error('Unauthorized: You do not own this integration');
+      }
     }
 
     // === ENCRYPT THE SECRET ===
     console.log('Encrypting secret...');
     const encryptedValue = await encryptSecret(value);
-
-    // === CREATE SERVICE ROLE CLIENT FOR RELIABLE WRITES ===
-    // Security is enforced by the manual ownership check above
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
 
     if (mode === 'update') {
       // Delete existing secret first

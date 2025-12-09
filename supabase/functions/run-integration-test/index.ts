@@ -46,12 +46,12 @@ Deno.serve(async (req) => {
     // 3. Create service client for DB operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // 4. Fetch integration WITH ownership verification via join
+    // 4. Fetch integration WITH form and workspace info
     const { data: integrationData, error: integrationError } = await supabase
       .from('form_integrations')
       .select(`
         *,
-        forms!inner(id, title, slug, user_id)
+        forms!inner(id, title, slug, created_by, workspace_id)
       `)
       .eq('id', integrationId)
       .single();
@@ -61,14 +61,37 @@ Deno.serve(async (req) => {
       return jsonError('Integration not found', 404);
     }
 
-    // CRITICAL: Verify ownership - the user must own the form
-    const formData = integrationData.forms as { id: string; title: string; slug: string | null; user_id: string };
-    if (formData.user_id !== user.id) {
-      console.error('Ownership check failed:', { formUserId: formData.user_id, userId: user.id });
+    // CRITICAL: Verify workspace membership or ownership
+    const formData = integrationData.forms as { 
+      id: string; 
+      title: string; 
+      slug: string | null; 
+      created_by: string;
+      workspace_id: string | null;
+    };
+
+    if (formData.workspace_id) {
+      // Check workspace membership
+      const { data: isMember, error: memberError } = await supabase.rpc(
+        'is_workspace_member',
+        { _workspace_id: formData.workspace_id, _user_id: user.id }
+      );
+
+      if (memberError || !isMember) {
+        console.error('Workspace membership check failed:', { 
+          workspaceId: formData.workspace_id, 
+          userId: user.id,
+          error: memberError 
+        });
+        return jsonError('Access denied', 403);
+      }
+    } else if (formData.created_by !== user.id) {
+      // Legacy form without workspace - check direct ownership
+      console.error('Ownership check failed:', { formCreatedBy: formData.created_by, userId: user.id });
       return jsonError('Access denied', 403);
     }
 
-    console.log('Ownership verified for form:', formData.title);
+    console.log('Access verified for form:', formData.title);
 
     // 5. Validate handler exists
     if (!hasHandler(integrationData.type)) {
