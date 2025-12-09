@@ -1,43 +1,18 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
+import { uuidPattern } from '../_shared/formUtils.ts';
 import { checkRateLimit, getEnvInt } from '../_shared/ratelimit.ts';
+import { jsonResponse, jsonError, rateLimitResponse } from '../_shared/responses.ts';
+import { createServiceClient } from '../_shared/supabaseClient.ts';
+import { evaluateRule, QuestionLogic } from '../_shared/logic.ts';
 
 // EdgeRuntime global for background task management
 declare const EdgeRuntime: {
   waitUntil(promise: Promise<any>): void;
 };
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-interface LogicCondition {
-  field: string;
-  operator: string;
-  value: any;
-}
-
-interface LogicAction {
-  type: 'jump' | 'end';
-  target_question_id?: string;
-}
-
-interface LogicRule {
-  id: string;
-  conditions: LogicCondition[];
-  conditionOperator: 'AND' | 'OR';
-  action: LogicAction;
-}
-
-interface QuestionLogic {
-  rules: LogicRule[];
-  default_action: 'next' | 'end';
-  default_target?: string;
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsOptions();
   }
 
   try {
@@ -45,30 +20,19 @@ Deno.serve(async (req) => {
 
     // Allow null values for optional questions
     if (!sessionToken || !questionId) {
-      return new Response(
-        JSON.stringify({ error: 'sessionToken and questionId are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('sessionToken and questionId are required');
     }
 
     // Validate input formats
-    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    
     if (!uuidPattern.test(sessionToken)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid session token format' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Invalid session token format');
     }
     
     if (!uuidPattern.test(questionId)) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid question ID format' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Invalid question ID format');
     }
 
-    // Rate limiting by session token (configurable via RATE_LIMIT_SUBMIT_ANSWER, default: 60)
+    // Rate limiting by session token
     const rateLimitConfig = {
       maxRequests: getEnvInt('RATE_LIMIT_SUBMIT_ANSWER', 60),
       prefix: 'ratelimit:submit-answer',
@@ -78,30 +42,12 @@ Deno.serve(async (req) => {
     
     if (!success) {
       console.warn(`Rate limit exceeded for session: ${sessionToken.substring(0, 8)}...`);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Too many requests. Please slow down.',
-          retryAfter: Math.ceil((reset - Date.now()) / 1000)
-        }),
-        { 
-          status: 429, 
-          headers: { 
-            ...corsHeaders, 
-            'Content-Type': 'application/json',
-            'X-RateLimit-Limit': limit.toString(),
-            'X-RateLimit-Remaining': '0',
-            'X-RateLimit-Reset': reset.toString(),
-            'Retry-After': Math.ceil((reset - Date.now()) / 1000).toString(),
-          } 
-        }
-      );
+      return rateLimitResponse(reset, limit, 'Too many requests. Please slow down.');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createServiceClient();
 
-    // OPTIMIZATION: Parallelize initial queries - response + current question
+    // Parallelize initial queries
     const [responseResult, questionResult] = await Promise.all([
       supabase.from('responses').select('*').eq('session_token', sessionToken).single(),
       supabase.from('questions').select('*').eq('id', questionId).single()
@@ -109,25 +55,18 @@ Deno.serve(async (req) => {
 
     if (responseResult.error || !responseResult.data) {
       console.error('Response not found:', responseResult.error);
-      return new Response(
-        JSON.stringify({ error: 'Invalid session' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Invalid session', 404);
     }
 
     if (questionResult.error || !questionResult.data) {
       console.error('Question not found:', questionResult.error);
-      return new Response(
-        JSON.stringify({ error: 'Question not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Question not found', 404);
     }
 
     const response = responseResult.data;
     const currentQuestion = questionResult.data;
 
     // Save or update answer using UPSERT
-    // Convert null OR empty/whitespace strings to a skipped marker to satisfy NOT NULL constraint
     const isEmptyOrWhitespace = typeof answerValue === 'string' && answerValue.trim() === '';
     const valueToStore = (answerValue === null || isEmptyOrWhitespace) 
       ? { _skipped: true } 
@@ -148,10 +87,7 @@ Deno.serve(async (req) => {
 
     if (answerError) {
       console.error('Failed to save answer:', answerError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to save answer' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Failed to save answer', 500);
     }
 
     // Evaluate logic to determine next question
@@ -159,35 +95,30 @@ Deno.serve(async (req) => {
     let nextQuestionId: string | null = null;
     let isComplete = false;
 
-    // Evaluate logic if defined
-    if (logic) {
-      // Evaluate rules if they exist
-      if (logic.rules && logic.rules.length > 0) {
-        for (const rule of logic.rules) {
-          if (evaluateRule(rule, answerValue)) {
-            if (rule.action.type === 'end') {
-              isComplete = true;
-              break;
-            } else if (rule.action.type === 'jump' && rule.action.target_question_id) {
-              nextQuestionId = rule.action.target_question_id;
-              break;
-            }
+    if (logic?.rules && logic.rules.length > 0) {
+      for (const rule of logic.rules) {
+        if (evaluateRule(rule, answerValue)) {
+          if (rule.action.type === 'end') {
+            isComplete = true;
+            break;
+          } else if (rule.action.type === 'jump' && rule.action.target_question_id) {
+            nextQuestionId = rule.action.target_question_id;
+            break;
           }
-        }
-      }
-
-      // If no rule matched, apply default action
-      if (!isComplete && !nextQuestionId) {
-        if (logic.default_action === 'end') {
-          isComplete = true;
-        } else if (logic.default_target) {
-          nextQuestionId = logic.default_target;
         }
       }
     }
 
-    // OPTIMIZATION: Only fetch questions if we need sequential flow
-    // (no logic determined next question yet)
+    // If no rule matched, apply default action
+    if (!isComplete && !nextQuestionId && logic) {
+      if (logic.default_action === 'end') {
+        isComplete = true;
+      } else if (logic.default_target) {
+        nextQuestionId = logic.default_target;
+      }
+    }
+
+    // Fetch questions if we need sequential flow
     if (!isComplete && !nextQuestionId) {
       const { data: allQuestions, error: allQuestionsError } = await supabase
         .from('questions')
@@ -197,13 +128,9 @@ Deno.serve(async (req) => {
 
       if (allQuestionsError) {
         console.error('Failed to fetch questions:', allQuestionsError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to evaluate logic' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return jsonError('Failed to evaluate logic', 500);
       }
       
-      // Find next question in sequence
       const currentIndex = allQuestions.findIndex(q => q.id === questionId);
       if (currentIndex >= 0 && currentIndex < allQuestions.length - 1) {
         nextQuestionId = allQuestions[currentIndex + 1].id;
@@ -212,8 +139,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // OPTIMIZATION: Parallelize final operations
-    const updateData: any = {
+    // Parallelize final operations
+    const updateData: Record<string, any> = {
       current_question_id: nextQuestionId,
     };
 
@@ -222,43 +149,31 @@ Deno.serve(async (req) => {
       updateData.completed_at = new Date().toISOString();
     }
 
-    // Build parallel operations array - each query returns a promise when called
-    const parallelOps: Promise<any>[] = [];
-    
-    // Always update response
-    parallelOps.push(
-      (async () => supabase.from('responses').update(updateData).eq('id', response.id))()
-    );
+    const parallelOps: Promise<any>[] = [
+      (async () => supabase.from('responses').update(updateData).eq('id', response.id))(),
+      (async () => supabase.from('questions').select('id', { count: 'exact', head: true }).eq('form_id', response.form_id))(),
+    ];
 
-    // Only fetch next question and answer if not complete
     if (!isComplete && nextQuestionId) {
       parallelOps.push(
-        (async () => supabase.from('questions').select('*').eq('id', nextQuestionId).single())()
-      );
-      parallelOps.push(
+        (async () => supabase.from('questions').select('*').eq('id', nextQuestionId).single())(),
         (async () => supabase.from('answers').select('answer_value').eq('response_id', response.id).eq('question_id', nextQuestionId).maybeSingle())()
       );
     }
 
-    // Also get total question count
-    parallelOps.push(
-      (async () => supabase.from('questions').select('id', { count: 'exact', head: true }).eq('form_id', response.form_id))()
-    );
-
     const results = await Promise.all(parallelOps);
     
     const updateResult = results[0];
-    const nextQuestionResult = !isComplete && nextQuestionId ? results[1] : null;
-    const existingAnswerResult = !isComplete && nextQuestionId ? results[2] : null;
-    const countResult = results[results.length - 1];
+    const countResult = results[1];
+    const nextQuestionResult = !isComplete && nextQuestionId ? results[2] : null;
+    const existingAnswerResult = !isComplete && nextQuestionId ? results[3] : null;
 
     if (updateResult.error) {
       console.error('Failed to update response:', updateResult.error);
     }
 
     let nextQuestion = null;
-    if (!isComplete && nextQuestionId && nextQuestionResult && !nextQuestionResult.error && nextQuestionResult.data) {
-      // Convert skipped marker back to null
+    if (!isComplete && nextQuestionId && nextQuestionResult?.data) {
       const existingAnswer = existingAnswerResult?.data?.answer_value;
       const normalizedAnswer = existingAnswer?._skipped === true ? null : (existingAnswer || null);
       
@@ -273,15 +188,12 @@ Deno.serve(async (req) => {
     console.log('Answer submitted:', { questionId, nextQuestionId, isComplete });
 
     // Trigger integrations in background if form is complete
-    // EdgeRuntime.waitUntil ensures the background task completes even after response is sent
     if (isComplete) {
       const internalSecret = Deno.env.get('INTERNAL_FUNCTIONS_SECRET');
       EdgeRuntime.waitUntil(
         supabase.functions.invoke('process-integrations', {
-          body: { formId: responseResult.data.form_id, responseId: responseResult.data.id },
-          headers: {
-            'x-internal-token': internalSecret || '',
-          },
+          body: { formId: response.form_id, responseId: response.id },
+          headers: { 'x-internal-token': internalSecret || '' },
         }).then(({ data, error }) => {
           if (error) {
             console.error('Error processing integrations:', error);
@@ -292,76 +204,22 @@ Deno.serve(async (req) => {
       );
     }
 
-    const responseHeaders: Record<string, string> = {
-      ...corsHeaders,
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-store',
-    };
-    
-    // Only include rate limit headers if rate limiting is enabled
+    const extraHeaders: Record<string, string> = { 'Cache-Control': 'no-store' };
     if (limit > 0) {
-      responseHeaders['X-RateLimit-Limit'] = limit.toString();
-      responseHeaders['X-RateLimit-Remaining'] = remaining.toString();
+      extraHeaders['X-RateLimit-Limit'] = limit.toString();
+      extraHeaders['X-RateLimit-Remaining'] = remaining.toString();
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        isComplete,
-        nextQuestion,
-        totalQuestions,
-      }),
-      { headers: responseHeaders }
-    );
+    return jsonResponse({
+      success: true,
+      isComplete,
+      nextQuestion,
+      totalQuestions,
+    }, 200, extraHeaders);
+
   } catch (error) {
     console.error('Error in submit-answer:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonError(errorMessage, 500);
   }
 });
-
-function evaluateRule(rule: LogicRule, answerValue: any): boolean {
-  const results = rule.conditions.map(condition => evaluateCondition(condition, answerValue));
-  
-  if (rule.conditionOperator === 'AND') {
-    return results.every(r => r);
-  } else {
-    return results.some(r => r);
-  }
-}
-
-function evaluateCondition(condition: LogicCondition, answerValue: any): boolean {
-  const { operator, value } = condition;
-
-  switch (operator) {
-    case 'equals':
-      return answerValue === value;
-    case 'not_equals':
-      return answerValue !== value;
-    case 'contains':
-      return String(answerValue).includes(String(value));
-    case 'not_contains':
-      return !String(answerValue).includes(String(value));
-    case 'greater_than':
-      return Number(answerValue) > Number(value);
-    case 'less_than':
-      return Number(answerValue) < Number(value);
-    case 'greater_than_or_equal':
-      return Number(answerValue) >= Number(value);
-    case 'less_than_or_equal':
-      return Number(answerValue) <= Number(value);
-    case 'is_empty':
-      return !answerValue || answerValue === '' || (Array.isArray(answerValue) && answerValue.length === 0);
-    case 'is_not_empty':
-      return !!answerValue && answerValue !== '' && (!Array.isArray(answerValue) || answerValue.length > 0);
-    case 'before':
-      return new Date(answerValue) < new Date(value);
-    case 'after':
-      return new Date(answerValue) > new Date(value);
-    default:
-      return false;
-  }
-}
