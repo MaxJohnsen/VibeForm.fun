@@ -5,7 +5,7 @@ import { corsHeaders } from "../_shared/cors.ts";
 interface InviteRequest {
   workspaceId: string;
   email: string;
-  role: 'admin' | 'member';
+  role: "admin" | "member";
 }
 
 serve(async (req) => {
@@ -16,70 +16,88 @@ serve(async (req) => {
   try {
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
-      return new Response(JSON.stringify({ error: "Missing authorization header" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Missing authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const supabase = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_ANON_KEY") ?? "", {
+      global: { headers: { Authorization: authHeader } },
+    });
 
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
     if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const { workspaceId, email, role }: InviteRequest = await req.json();
 
-    if (!workspaceId || !email || !role || !['admin', 'member'].includes(role)) {
-      return new Response(JSON.stringify({ error: "Invalid request" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!workspaceId || !email || !role || !["admin", "member"].includes(role)) {
+      return new Response(JSON.stringify({ error: "Invalid request" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    const { data: isAdmin } = await supabaseAdmin.rpc("is_workspace_admin", 
-      { _workspace_id: workspaceId, _user_id: user.id });
+    const { data: isAdmin } = await supabaseAdmin.rpc("is_workspace_admin", {
+      _workspace_id: workspaceId,
+      _user_id: user.id,
+    });
 
     if (!isAdmin) {
-      return new Response(JSON.stringify({ error: "Only admins can invite members" }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Only admins can invite members" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const { data: workspace } = await supabaseAdmin.from("workspaces")
-      .select("name").eq("id", workspaceId).single();
+    const { data: workspace } = await supabaseAdmin.from("workspaces").select("name").eq("id", workspaceId).single();
 
     if (!workspace) {
-      return new Response(JSON.stringify({ error: "Workspace not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Workspace not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Create the invite
-    const { error: inviteError } = await supabaseAdmin.from("workspace_invites")
+    const { error: inviteError } = await supabaseAdmin
+      .from("workspace_invites")
       .insert({ workspace_id: workspaceId, email: email.toLowerCase(), role, invited_by: user.id });
 
     if (inviteError) {
       console.error("Failed to create invite:", inviteError);
-      return new Response(JSON.stringify({ error: inviteError.message.includes('duplicate') 
-        ? "An invite already exists for this email" : "Failed to create invite" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(
+        JSON.stringify({
+          error: inviteError.message.includes("duplicate")
+            ? "An invite already exists for this email"
+            : "Failed to create invite",
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
     // Send email via Resend
-    const apiKey = Deno.env.get('RESEND_API_KEY');
+    const apiKey = Deno.env.get("RESEND_API_KEY");
     const appUrl = "https://yhyveqffsitdgwyflvgp.lovableproject.com";
 
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    const emailResponse = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: "Fairform <onboarding@resend.dev>",
+        from: "Fairform <noreply@fairform.io>",
         to: [email],
         subject: `You've been invited to join ${workspace.name} on Fairform`,
         html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;">
@@ -94,14 +112,18 @@ serve(async (req) => {
     });
 
     if (!emailResponse.ok) {
-      console.error('Email error:', await emailResponse.text());
+      console.error("Email error:", await emailResponse.text());
     }
 
-    return new Response(JSON.stringify({ success: true }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   } catch (error: any) {
     console.error("Error:", error);
-    return new Response(JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
