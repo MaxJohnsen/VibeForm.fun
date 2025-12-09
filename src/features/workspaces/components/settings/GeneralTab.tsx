@@ -30,6 +30,8 @@ export const GeneralTab = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [confirmName, setConfirmName] = useState('');
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
     if (activeWorkspace) {
@@ -221,7 +223,10 @@ export const GeneralTab = () => {
           variant="danger"
         >
           <div className="pt-2">
-            <AlertDialog>
+            <AlertDialog open={deleteDialogOpen} onOpenChange={(open) => {
+              setDeleteDialogOpen(open);
+              if (!open) setConfirmName('');
+            }}>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" disabled={isDeleting}>
                   {isDeleting ? (
@@ -240,15 +245,32 @@ export const GeneralTab = () => {
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete Workspace</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete the workspace "{activeWorkspace.name}" and all its forms, responses, and data. This action cannot be undone.
+                  <AlertDialogDescription asChild>
+                    <div className="space-y-4">
+                      <p>
+                        This will permanently delete the workspace "<span className="font-medium text-foreground">{activeWorkspace.name}</span>" and all its forms, responses, and data. This action cannot be undone.
+                      </p>
+                      <div className="space-y-2">
+                        <p className="text-sm">
+                          To confirm, type <span className="font-mono font-medium text-foreground">{activeWorkspace.name}</span> below:
+                        </p>
+                        <Input
+                          value={confirmName}
+                          onChange={(e) => setConfirmName(e.target.value)}
+                          placeholder="Type workspace name to confirm"
+                          className="input-focus-glow"
+                          autoComplete="off"
+                        />
+                      </div>
+                    </div>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteWorkspace}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={confirmName !== activeWorkspace.name}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Delete Workspace
                   </AlertDialogAction>
