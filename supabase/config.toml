@@ -26,3 +26,12 @@ verify_jwt = true
 
 [functions.run-integration-test]
 verify_jwt = true
+
+[functions.send-workspace-invite]
+verify_jwt = true
+
+[functions.accept-pending-invites]
+verify_jwt = true
+
+[functions.get-workspace-members]
+verify_jwt = true
