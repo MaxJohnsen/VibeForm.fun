@@ -45,6 +45,9 @@ export const InviteCard = ({
             </h3>
             <p className="text-sm text-muted-foreground">
               Invited as <span className="capitalize font-medium text-foreground/80">{invite.role}</span>
+              {invite.invited_by_email && (
+                <span className="text-muted-foreground"> by {invite.invited_by_email}</span>
+              )}
             </p>
           </div>
         </div>

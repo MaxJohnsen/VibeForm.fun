@@ -31,6 +31,7 @@ export interface PendingInvite {
   workspace_name: string;
   role: 'admin' | 'member';
   created_at: string;
+  invited_by_email?: string;
 }
 
 export interface WorkspaceWithRole extends Workspace {
@@ -134,7 +135,7 @@ export const workspacesApi = {
 
   async sendInvite(workspaceId: string, email: string, role: 'admin' | 'member'): Promise<void> {
     const { data, error } = await supabase.functions.invoke('send-workspace-invite', {
-      body: { workspaceId, email, role },
+      body: { workspaceId, email, role, appUrl: window.location.origin },
     });
 
     if (error) throw error;
@@ -207,6 +208,7 @@ export const workspacesApi = {
         workspace_id, 
         role, 
         created_at,
+        invited_by,
         workspaces (name)
       `)
       .order('created_at', { ascending: false });
@@ -214,12 +216,17 @@ export const workspacesApi = {
     if (error) throw error;
     if (!invites || invites.length === 0) return [];
 
+    // Get inviter emails via edge function (since we can't access auth.users directly)
+    // For now, we'll skip this as it would require an additional edge function
+    // The invite will show without the inviter email
+
     return invites.map(invite => ({
       id: invite.id,
       workspace_id: invite.workspace_id,
       workspace_name: (invite.workspaces as any)?.name || 'Unknown Workspace',
       role: invite.role,
       created_at: invite.created_at,
+      // invited_by_email would require an additional query to auth.users
     }));
   },
 
