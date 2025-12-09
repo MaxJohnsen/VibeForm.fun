@@ -1,6 +1,6 @@
 // API
 export { workspacesApi } from './api/workspacesApi';
-export type { Workspace, WorkspaceMember, WorkspaceInvite, WorkspaceWithRole, CreateWorkspaceData } from './api/workspacesApi';
+export type { Workspace, WorkspaceMember, WorkspaceInvite, WorkspaceWithRole, CreateWorkspaceData, PendingInvite } from './api/workspacesApi';
 
 // Hooks
 export { useWorkspaces } from './hooks/useWorkspaces';
@@ -15,6 +15,7 @@ export { CreateWorkspaceDialog } from './components/CreateWorkspaceDialog';
 export { InviteMemberForm } from './components/InviteMemberForm';
 export { MemberList } from './components/MemberList';
 export { PendingInvitesList } from './components/PendingInvitesList';
+export { PendingInvitesNotification } from './components/PendingInvitesNotification';
 
 // Pages
 export { OnboardingPage } from './pages/OnboardingPage';

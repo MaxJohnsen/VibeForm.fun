@@ -455,9 +455,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_workspace_invite: {
+        Args: { _invite_id: string }
+        Returns: boolean
+      }
       count_workspace_admins: {
         Args: { _workspace_id: string }
         Returns: number
+      }
+      decline_workspace_invite: {
+        Args: { _invite_id: string }
+        Returns: boolean
       }
       get_workspace_role: {
         Args: { _user_id: string; _workspace_id: string }

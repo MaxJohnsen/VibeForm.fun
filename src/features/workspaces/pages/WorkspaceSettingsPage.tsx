@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Users, Trash2, Loader2 } from 'lucide-react';
+import { ArrowLeft, Building2, Users, Trash2, Loader2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,6 +41,7 @@ export const WorkspaceSettingsPage = () => {
   const [isLoadingMembers, setIsLoadingMembers] = useState(true);
   const [isSendingInvite, setIsSendingInvite] = useState(false);
   const [isUpdatingMember, setIsUpdatingMember] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
 
   // Load workspace name
   useEffect(() => {
@@ -214,6 +215,38 @@ export const WorkspaceSettingsPage = () => {
     }
   };
 
+  const handleLeaveWorkspace = async () => {
+    if (!activeWorkspace) return;
+
+    setIsLeaving(true);
+    try {
+      await workspacesApi.leaveWorkspace(activeWorkspace.id);
+      await refetch();
+      
+      // Switch to another workspace or redirect to onboarding
+      const remaining = workspaces.filter(w => w.id !== activeWorkspace.id);
+      if (remaining.length > 0) {
+        setActiveWorkspace(remaining[0]);
+        navigate(ROUTES.FORMS_HOME);
+      } else {
+        navigate(ROUTES.ONBOARDING);
+      }
+      
+      toast({
+        title: 'Left workspace',
+        description: 'You have left the workspace',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to leave workspace',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLeaving(false);
+    }
+  };
+
   if (!activeWorkspace) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -340,6 +373,55 @@ export const WorkspaceSettingsPage = () => {
               </>
             )}
           </GlassCard>
+
+          {/* Leave Workspace - For non-admin members */}
+          {!isAdmin && (
+            <GlassCard>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                  <LogOut className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <h2 className="font-semibold">Leave Workspace</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Remove yourself from this workspace
+                  </p>
+                </div>
+              </div>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" disabled={isLeaving}>
+                    {isLeaving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Leaving...
+                      </>
+                    ) : (
+                      <>
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Leave Workspace
+                      </>
+                    )}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Leave Workspace</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to leave "{activeWorkspace.name}"? You will lose access to all forms and data in this workspace.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleLeaveWorkspace}>
+                      Leave Workspace
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </GlassCard>
+          )}
 
           {/* Danger Zone */}
           {isAdmin && (

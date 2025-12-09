@@ -16,6 +16,7 @@ import { ActionsPage } from "./features/integrations";
 import { OnboardingPage, WorkspaceProvider, WorkspaceSettingsPage } from "./features/workspaces";
 import { ROUTES } from "./shared/constants/routes";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
+import { AuthRequiredRoute } from "./shared/components/AuthRequiredRoute";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +31,14 @@ const App = () => (
             <Route path={ROUTES.LOGIN} element={<LoginPage />} />
             <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
             <Route path={ROUTES.RESPONDENT} element={<RespondentPage />} />
-            <Route path={ROUTES.ONBOARDING} element={<OnboardingPage />} />
+            <Route 
+              path={ROUTES.ONBOARDING} 
+              element={
+                <AuthRequiredRoute>
+                  <OnboardingPage />
+                </AuthRequiredRoute>
+              } 
+            />
 
             {/* Protected Routes */}
             <Route
