@@ -1,5 +1,9 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
+import { checkRateLimit, getEnvInt } from '../_shared/ratelimit.ts';
+import { jsonResponse, jsonError, rateLimitResponse } from '../_shared/responses.ts';
+import { createServiceClient } from '../_shared/supabaseClient.ts';
+
+const RATE_LIMIT_PREFIX = 'resume-response';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -10,15 +14,21 @@ Deno.serve(async (req) => {
     const { sessionToken } = await req.json();
 
     if (!sessionToken) {
-      return new Response(
-        JSON.stringify({ error: 'sessionToken is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('sessionToken is required', 400);
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Rate limiting by session token (shared with submit-answer)
+    const rateLimitResult = await checkRateLimit(sessionToken, {
+      maxRequests: getEnvInt('RATE_LIMIT_SUBMIT_ANSWER', 30),
+      prefix: RATE_LIMIT_PREFIX,
+    });
+
+    if (!rateLimitResult.success) {
+      console.warn('Rate limit exceeded for session:', sessionToken);
+      return rateLimitResponse(rateLimitResult.reset, rateLimitResult.limit);
+    }
+
+    const supabase = createServiceClient();
 
     // Get response record
     const { data: response, error: responseError } = await supabase
@@ -29,10 +39,7 @@ Deno.serve(async (req) => {
 
     if (responseError || !response) {
       console.log('Session not found:', sessionToken);
-      return new Response(
-        JSON.stringify({ error: 'Invalid or expired session' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Invalid or expired session', 404);
     }
 
     // Get form details
@@ -44,10 +51,7 @@ Deno.serve(async (req) => {
 
     if (formError || !form) {
       console.error('Form not found:', formError);
-      return new Response(
-        JSON.stringify({ error: 'Form not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Form not found', 404);
     }
 
     // Get total questions count
@@ -63,21 +67,18 @@ Deno.serve(async (req) => {
     // If completed, return completion status
     if (response.status === 'completed') {
       console.log('Session already completed:', sessionToken);
-      return new Response(
-        JSON.stringify({
-          sessionToken,
-          responseId: response.id,
-          form: {
-            title: form.title,
-            intro_settings: form.intro_settings || {},
-            end_settings: form.end_settings || {},
-            language: form.language || 'en',
-          },
-          isComplete: true,
-          totalQuestions: totalQuestions || 0,
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({
+        sessionToken,
+        responseId: response.id,
+        form: {
+          title: form.title,
+          intro_settings: form.intro_settings || {},
+          end_settings: form.end_settings || {},
+          language: form.language || 'en',
+        },
+        isComplete: true,
+        totalQuestions: totalQuestions || 0,
+      });
     }
 
     // Get current question
@@ -116,10 +117,7 @@ Deno.serve(async (req) => {
     }
 
     if (!currentQuestion) {
-      return new Response(
-        JSON.stringify({ error: 'No questions found for this form' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('No questions found for this form', 404);
     }
 
     console.log('Session resumed:', { sessionToken, questionId: currentQuestion.id });
@@ -136,31 +134,25 @@ Deno.serve(async (req) => {
     const currentAnswer = existingAnswer?.answer_value;
     const normalizedAnswer = currentAnswer?._skipped === true ? null : (currentAnswer || null);
 
-    return new Response(
-      JSON.stringify({
-        sessionToken,
-        responseId: response.id,
-        form: { 
-          title: form.title, 
-          intro_settings: form.intro_settings || {},
-          end_settings: form.end_settings || {},
-          language: form.language || 'en',
-        },
-        question: {
-          ...currentQuestion,
-          currentAnswer: normalizedAnswer,
-        },
-        totalQuestions: totalQuestions || 0,
-        isComplete: false,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({
+      sessionToken,
+      responseId: response.id,
+      form: { 
+        title: form.title, 
+        intro_settings: form.intro_settings || {},
+        end_settings: form.end_settings || {},
+        language: form.language || 'en',
+      },
+      question: {
+        ...currentQuestion,
+        currentAnswer: normalizedAnswer,
+      },
+      totalQuestions: totalQuestions || 0,
+      isComplete: false,
+    });
   } catch (error) {
     console.error('Error in resume-response:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonError(errorMessage, 500);
   }
 });
