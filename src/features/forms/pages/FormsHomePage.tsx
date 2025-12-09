@@ -70,7 +70,7 @@ export const FormsHomePage = () => {
         {/* Header */}
         <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-end gap-3">
               <h1 className="text-2xl md:text-4xl font-bold">
                 {activeWorkspace?.name || 'Your Projects'}
               </h1>
@@ -80,10 +80,10 @@ export const FormsHomePage = () => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="gap-1.5 text-muted-foreground hover:text-foreground h-8 px-2"
+                      className="gap-1.5 text-muted-foreground hover:bg-muted/60 h-8 px-2 mb-0.5"
                     >
                       <ChevronsUpDown className="h-4 w-4" />
-                      <span className="hidden md:inline text-sm">Change</span>
+                      <span className="hidden md:inline text-sm">Change workspace</span>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-56">
@@ -96,7 +96,7 @@ export const FormsHomePage = () => {
                         onClick={() => setActiveWorkspace(workspace)}
                         className="cursor-pointer"
                       >
-                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-primary/10 text-primary mr-2">
+                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground mr-2">
                           <Building2 className="h-3 w-3" />
                         </div>
                         <span className="truncate flex-1">{workspace.name}</span>
