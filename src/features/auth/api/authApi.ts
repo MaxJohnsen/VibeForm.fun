@@ -2,7 +2,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const authApi = {
   signUp: async (email: string, password: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    // Redirect to login with confirmation flag so user sees success message
+    const redirectUrl = `${window.location.origin}/login?confirmed=true`;
     
     const { data, error } = await supabase.auth.signUp({
       email,
