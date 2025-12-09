@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Mail, Loader2, Plus } from 'lucide-react';
+import { Mail, Loader2, Plus } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { OnboardingCard } from '@/shared/ui';
 import { CreateWorkspaceForm } from '../components/CreateWorkspaceForm';
 import { InviteCard } from '../components/InviteCard';
@@ -22,20 +23,34 @@ export const OnboardingPage = () => {
   const [isLoadingInvites, setIsLoadingInvites] = useState(true);
   const [processingInviteId, setProcessingInviteId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // Load pending invites on mount
+  // Helper to derive workspace name from email
+  const getDefaultWorkspaceName = (email: string | null): string => {
+    if (!email) return '';
+    const username = email.split('@')[0];
+    const firstName = username.split(/[._-]/)[0];
+    const capitalized = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+    return `${capitalized}'s Workspace`;
+  };
+
+  // Load pending invites and user email on mount
   useEffect(() => {
-    const loadInvites = async () => {
+    const loadData = async () => {
       try {
-        const data = await workspacesApi.getMyPendingInvites();
-        setInvites(data);
+        const [invitesData, { data: { user } }] = await Promise.all([
+          workspacesApi.getMyPendingInvites(),
+          supabase.auth.getUser()
+        ]);
+        setInvites(invitesData);
+        setUserEmail(user?.email || null);
       } catch (error) {
-        console.error('Failed to load pending invites:', error);
+        console.error('Failed to load data:', error);
       } finally {
         setIsLoadingInvites(false);
       }
     };
-    loadInvites();
+    loadData();
   }, []);
 
   const handleAcceptInvite = async (inviteId: string) => {
@@ -145,7 +160,6 @@ export const OnboardingPage = () => {
   // Show create workspace form (either no invites or user chose to create)
   return (
     <OnboardingCard
-      icon={Sparkles}
       title={hasInvites ? 'Create New Workspace' : 'Create Your First Workspace'}
       subtitle="Workspaces help you organize your forms and collaborate with your team."
       footer={
@@ -164,11 +178,12 @@ export const OnboardingPage = () => {
         onSubmit={handleCreateWorkspace}
         isLoading={isCreating}
         submitLabel="Get Started"
+        defaultName={getDefaultWorkspaceName(userEmail)}
       />
 
       {!hasInvites && (
         <p className="text-xs text-muted-foreground text-center">
-          You can create more workspaces or invite team members later
+          You can rename this workspace or create more later
         </p>
       )}
     </OnboardingCard>

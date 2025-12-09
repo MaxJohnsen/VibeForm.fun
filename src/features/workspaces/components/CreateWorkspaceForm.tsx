@@ -8,14 +8,16 @@ interface CreateWorkspaceFormProps {
   onSubmit: (name: string) => Promise<void>;
   isLoading?: boolean;
   submitLabel?: string;
+  defaultName?: string;
 }
 
 export const CreateWorkspaceForm = ({ 
   onSubmit, 
   isLoading = false,
-  submitLabel = 'Create Workspace'
+  submitLabel = 'Create Workspace',
+  defaultName = ''
 }: CreateWorkspaceFormProps) => {
-  const [name, setName] = useState('');
+  const [name, setName] = useState(defaultName);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
