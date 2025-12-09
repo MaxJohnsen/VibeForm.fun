@@ -1,14 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { formsApi, CreateFormData, UpdateFormData } from '../api/formsApi';
+import { formsApi, CreateFormData, UpdateFormData, Form } from '../api/formsApi';
 import { useToast } from '@/hooks/use-toast';
+import { useWorkspaceContext } from '@/features/workspaces';
 
 export const useForms = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { activeWorkspace } = useWorkspaceContext();
 
   const formsQuery = useQuery({
-    queryKey: ['forms'],
-    queryFn: formsApi.fetchForms,
+    queryKey: ['forms', activeWorkspace?.id],
+    queryFn: () => formsApi.fetchForms(activeWorkspace?.id),
+    enabled: !!activeWorkspace,
   });
 
   const createFormMutation = useMutation({
@@ -64,11 +67,12 @@ export const useForms = () => {
   });
 
   return {
-    forms: formsQuery.data || [],
+    forms: (formsQuery.data || []) as Form[],
     isLoading: formsQuery.isLoading,
     error: formsQuery.error,
     createForm: createFormMutation.mutateAsync,
     updateForm: updateFormMutation.mutate,
     deleteForm: deleteFormMutation.mutate,
+    activeWorkspaceId: activeWorkspace?.id,
   };
 };

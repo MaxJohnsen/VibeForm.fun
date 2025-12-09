@@ -13,6 +13,7 @@ import { RespondentPage } from "./features/responses";
 import { DashboardPage } from "./features/analytics";
 import { LotteryPage } from "./features/lottery";
 import { ActionsPage } from "./features/integrations";
+import { OnboardingPage, WorkspaceProvider } from "./features/workspaces";
 import { ROUTES } from "./shared/constants/routes";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 
@@ -24,79 +25,82 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path={ROUTES.LOGIN} element={<LoginPage />} />
-          <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
-          <Route path={ROUTES.RESPONDENT} element={<RespondentPage />} />
+        <WorkspaceProvider>
+          <Routes>
+            <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+            <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
+            <Route path={ROUTES.RESPONDENT} element={<RespondentPage />} />
+            <Route path={ROUTES.ONBOARDING} element={<OnboardingPage />} />
 
-          {/* Protected Routes */}
-          <Route
-            path={ROUTES.HOME}
-            element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.FORMS_HOME}
-            element={
-              <ProtectedRoute>
-                <FormsHomePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.CREATE_FORM}
-            element={
-              <ProtectedRoute>
-                <CreateFormPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.BUILDER}
-            element={
-              <ProtectedRoute>
-                <FormBuilderPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.FORM_SETTINGS}
-            element={
-              <ProtectedRoute>
-                <FormSettingsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.INTEGRATIONS}
-            element={
-              <ProtectedRoute>
-                <ActionsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.RESPONSES_DASHBOARD}
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path={ROUTES.LOTTERY}
-            element={
-              <ProtectedRoute>
-                <LotteryPage />
-              </ProtectedRoute>
-            }
-          />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+            {/* Protected Routes */}
+            <Route
+              path={ROUTES.HOME}
+              element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.FORMS_HOME}
+              element={
+                <ProtectedRoute>
+                  <FormsHomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.CREATE_FORM}
+              element={
+                <ProtectedRoute>
+                  <CreateFormPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.BUILDER}
+              element={
+                <ProtectedRoute>
+                  <FormBuilderPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.FORM_SETTINGS}
+              element={
+                <ProtectedRoute>
+                  <FormSettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.INTEGRATIONS}
+              element={
+                <ProtectedRoute>
+                  <ActionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.RESPONSES_DASHBOARD}
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.LOTTERY}
+              element={
+                <ProtectedRoute>
+                  <LotteryPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </WorkspaceProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -7,7 +7,7 @@ import { FormsList } from '../components/FormsList';
 import { useForms } from '../hooks/useForms';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
-import { Form } from '../api/formsApi';
+import { useWorkspaceContext } from '@/features/workspaces';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,7 @@ type SortType = 'updated' | 'created' | 'title';
 export const FormsHomePage = () => {
   const navigate = useNavigate();
   const { forms, isLoading } = useForms();
+  const { activeWorkspace } = useWorkspaceContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [sortType, setSortType] = useState<SortType>('updated');
@@ -68,7 +69,9 @@ export const FormsHomePage = () => {
         <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2">Your Projects</h1>
+              <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2">
+                {activeWorkspace?.name || 'Your Projects'}
+              </h1>
               <p className="text-muted-foreground hidden md:block">
                 Your free & open source form builder
               </p>

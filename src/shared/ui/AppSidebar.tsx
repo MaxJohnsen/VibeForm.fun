@@ -1,8 +1,9 @@
-import { Home, LogOut, User } from 'lucide-react';
+import { Home, LogOut, User, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { useAuth } from '@/features/auth';
+import { WorkspaceSwitcher, useWorkspaceContext } from '@/features/workspaces';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +16,7 @@ export const AppSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user } = useAuth();
+  const { userRole } = useWorkspaceContext();
 
   const handleSignOut = async () => {
     try {
@@ -26,14 +28,10 @@ export const AppSidebar = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border/50 glass-panel flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-6 z-50">
-      {/* Logo - Hidden on mobile */}
-      <div className="hidden md:flex mb-8 flex-col items-center">
-        <div className="relative">
-          <span className="text-2xl font-bold tracking-tighter bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent rotate-[-90deg] origin-center block whitespace-nowrap">
-            FF
-          </span>
-        </div>
+    <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border/50 glass-panel flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-4 z-50">
+      {/* Workspace Switcher - Hidden on mobile */}
+      <div className="hidden md:flex mb-4 px-2 w-full">
+        <WorkspaceSwitcher collapsed />
       </div>
 
       {/* Navigation Items */}
@@ -66,8 +64,22 @@ export const AppSidebar = () => {
           <div className="px-2 py-1.5 text-sm">
             <div className="font-medium">Account</div>
             <div className="text-xs text-muted-foreground truncate">{user?.email}</div>
+            {userRole && (
+              <div className="text-xs text-muted-foreground capitalize mt-0.5">
+                Role: {userRole}
+              </div>
+            )}
           </div>
           <DropdownMenuSeparator />
+          {userRole === 'admin' && (
+            <DropdownMenuItem 
+              onClick={() => navigate(ROUTES.WORKSPACE_SETTINGS)} 
+              className="cursor-pointer"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Workspace Settings
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out

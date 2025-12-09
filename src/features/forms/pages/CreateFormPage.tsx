@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 
 export const CreateFormPage = () => {
   const navigate = useNavigate();
-  const { createForm } = useForms();
+  const { createForm, activeWorkspaceId } = useForms();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [language, setLanguage] = useState<SupportedLanguage>('en');
@@ -20,7 +20,7 @@ export const CreateFormPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim()) return;
+    if (!title.trim() || !activeWorkspaceId) return;
 
     setIsSubmitting(true);
     try {
@@ -28,6 +28,7 @@ export const CreateFormPage = () => {
         title: title.trim(),
         description: description.trim() || undefined,
         language,
+        workspace_id: activeWorkspaceId,
       });
       navigate(ROUTES.getBuilderRoute(form.id));
     } catch (error) {
@@ -93,7 +94,7 @@ export const CreateFormPage = () => {
               </Button>
               <Button
                 type="submit"
-                disabled={!title.trim() || isSubmitting}
+                disabled={!title.trim() || isSubmitting || !activeWorkspaceId}
                 className="flex-1"
               >
                 {isSubmitting ? 'Creating...' : 'Create Form'}
