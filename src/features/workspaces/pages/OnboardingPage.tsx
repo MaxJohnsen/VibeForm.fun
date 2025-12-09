@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Loader2, Plus } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { OnboardingCard } from '@/shared/ui';
 import { CreateWorkspaceForm } from '../components/CreateWorkspaceForm';
@@ -115,7 +115,6 @@ export const OnboardingPage = () => {
   if (hasInvites && !showCreateForm) {
     return (
       <OnboardingCard
-        icon={Mail}
         title="You've Been Invited!"
         subtitle="Accept an invitation to join a workspace, or create your own to get started."
       >
