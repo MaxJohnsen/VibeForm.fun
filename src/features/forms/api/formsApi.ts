@@ -3,7 +3,8 @@ import { IntroSettings, EndSettings } from '@/features/builder/types/screenSetti
 
 export interface Form {
   id: string;
-  user_id: string;
+  created_by: string;
+  workspace_id: string | null;
   title: string;
   description: string | null;
   status: 'draft' | 'active' | 'archived';
@@ -19,6 +20,7 @@ export interface CreateFormData {
   title: string;
   description?: string;
   language?: string;
+  workspace_id: string;
 }
 
 export interface UpdateFormData {
@@ -32,11 +34,17 @@ export interface UpdateFormData {
 }
 
 export const formsApi = {
-  async fetchForms(): Promise<Form[]> {
-    const { data, error } = await supabase
+  async fetchForms(workspaceId?: string): Promise<Form[]> {
+    let query = supabase
       .from('forms')
       .select('*')
       .order('updated_at', { ascending: false });
+
+    if (workspaceId) {
+      query = query.eq('workspace_id', workspaceId);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
     return (data || []) as Form[];
@@ -60,7 +68,8 @@ export const formsApi = {
     const { data, error } = await supabase
       .from('forms')
       .insert({
-        user_id: user.id,
+        created_by: user.id,
+        workspace_id: formData.workspace_id,
         title: formData.title,
         description: formData.description || null,
       })

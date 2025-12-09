@@ -140,13 +140,14 @@ export const lotteryApi = {
     });
 
     // Store the draw
+    const { data: { user } } = await supabase.auth.getUser();
     const { error: insertError } = await supabase
       .from('lottery_draws')
       .insert({
         form_id: formId,
         winners: winners as any,
         settings: { namedOnly, winnerCount } as any,
-        user_id: (await supabase.auth.getUser()).data.user?.id,
+        created_by: user?.id,
       });
 
     if (insertError) throw insertError;
