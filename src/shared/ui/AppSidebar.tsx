@@ -28,10 +28,13 @@ export const AppSidebar = () => {
 
   return (
     <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border/50 glass-panel flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-4 z-50">
-      {/* Logo */}
+      {/* Brand Logo */}
       <div className="hidden md:flex mb-6 w-full justify-center">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-          <span className="text-primary-foreground font-bold text-lg">F</span>
+        <div className="relative">
+          <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
+            FF
+          </span>
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-teal-500/20 to-emerald-500/20 blur-lg -z-10" />
         </div>
       </div>
 
