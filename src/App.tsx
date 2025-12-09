@@ -13,7 +13,7 @@ import { RespondentPage } from "./features/responses";
 import { DashboardPage } from "./features/analytics";
 import { LotteryPage } from "./features/lottery";
 import { ActionsPage } from "./features/integrations";
-import { OnboardingPage, WorkspaceProvider } from "./features/workspaces";
+import { OnboardingPage, WorkspaceProvider, WorkspaceSettingsPage } from "./features/workspaces";
 import { ROUTES } from "./shared/constants/routes";
 import { ProtectedRoute } from "./shared/components/ProtectedRoute";
 
@@ -94,6 +94,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <LotteryPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={ROUTES.WORKSPACE_SETTINGS}
+              element={
+                <ProtectedRoute>
+                  <WorkspaceSettingsPage />
                 </ProtectedRoute>
               }
             />

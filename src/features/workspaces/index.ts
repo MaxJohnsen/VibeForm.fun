@@ -1,6 +1,6 @@
 // API
 export { workspacesApi } from './api/workspacesApi';
-export type { Workspace, WorkspaceMember, WorkspaceWithRole, CreateWorkspaceData } from './api/workspacesApi';
+export type { Workspace, WorkspaceMember, WorkspaceInvite, WorkspaceWithRole, CreateWorkspaceData } from './api/workspacesApi';
 
 // Hooks
 export { useWorkspaces } from './hooks/useWorkspaces';
@@ -12,6 +12,10 @@ export { WorkspaceProvider, useWorkspaceContext } from './context/WorkspaceConte
 export { WorkspaceSwitcher } from './components/WorkspaceSwitcher';
 export { CreateWorkspaceForm } from './components/CreateWorkspaceForm';
 export { CreateWorkspaceDialog } from './components/CreateWorkspaceDialog';
+export { InviteMemberForm } from './components/InviteMemberForm';
+export { MemberList } from './components/MemberList';
+export { PendingInvitesList } from './components/PendingInvitesList';
 
 // Pages
 export { OnboardingPage } from './pages/OnboardingPage';
+export { WorkspaceSettingsPage } from './pages/WorkspaceSettingsPage';
