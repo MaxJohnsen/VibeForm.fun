@@ -68,9 +68,12 @@ export const workspacesApi = {
   },
 
   async createWorkspace(data: CreateWorkspaceData): Promise<Workspace> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
     const { data: workspace, error } = await supabase
       .from('workspaces')
-      .insert({ name: data.name })
+      .insert({ name: data.name, created_by: user.id })
       .select()
       .single();
 
