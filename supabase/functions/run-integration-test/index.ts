@@ -1,26 +1,20 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getHandler, hasHandler } from '../_shared/integrations/registry.ts';
 import { buildTemplateContext } from '../_shared/templateEngine.ts';
+import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
+import { jsonResponse, jsonError } from '../_shared/responses.ts';
 import type { HandlerContext, ResponseWithForm, Form, Question, Answer } from '../_shared/integrations/types.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsOptions();
   }
 
   try {
     // 1. Extract user from JWT
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Missing authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Missing authorization header', 401);
     }
 
     const token = authHeader.replace('Bearer ', '');
@@ -36,10 +30,7 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authError } = await userClient.auth.getUser();
     if (authError || !user) {
       console.error('Auth error:', authError);
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Unauthorized', 401);
     }
 
     console.log('User authenticated:', user.id);
@@ -47,10 +38,7 @@ Deno.serve(async (req) => {
     // 2. Parse request
     const { integrationId } = await req.json();
     if (!integrationId) {
-      return new Response(
-        JSON.stringify({ error: 'Missing integrationId' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Missing integrationId', 400);
     }
 
     console.log('Testing integration:', integrationId);
@@ -70,30 +58,21 @@ Deno.serve(async (req) => {
 
     if (integrationError) {
       console.error('Integration fetch error:', integrationError);
-      return new Response(
-        JSON.stringify({ error: 'Integration not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Integration not found', 404);
     }
 
     // CRITICAL: Verify ownership - the user must own the form
     const formData = integrationData.forms as { id: string; title: string; slug: string | null; user_id: string };
     if (formData.user_id !== user.id) {
       console.error('Ownership check failed:', { formUserId: formData.user_id, userId: user.id });
-      return new Response(
-        JSON.stringify({ error: 'Access denied' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Access denied', 403);
     }
 
     console.log('Ownership verified for form:', formData.title);
 
     // 5. Validate handler exists
     if (!hasHandler(integrationData.type)) {
-      return new Response(
-        JSON.stringify({ error: `Unknown integration type: ${integrationData.type}` }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError(`Unknown integration type: ${integrationData.type}`, 400);
     }
 
     // 6. Build minimal test context
@@ -156,25 +135,22 @@ Deno.serve(async (req) => {
     console.log('Handler result:', result.success ? 'success' : 'failed', result.error || '');
 
     // 9. Return result (no logging to avoid FK constraint violations)
-    return new Response(
-      JSON.stringify({
-        success: result.success,
-        message: result.success ? 'Test successful! Your integration is working.' : (result.error || 'Test failed'),
-        integration: {
-          type: integrationData.type,
-          name: integrationData.name,
-        },
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({
+      success: result.success,
+      message: result.success ? 'Test successful! Your integration is working.' : (result.error || 'Test failed'),
+      integration: {
+        type: integrationData.type,
+        name: integrationData.name,
+      },
+    });
   } catch (error: any) {
     console.error('Error in run-integration-test:', error);
-    return new Response(
-      JSON.stringify({ 
+    return jsonResponse(
+      { 
         success: false,
         error: error.message || 'An unexpected error occurred'
-      }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      },
+      500
     );
   }
 });

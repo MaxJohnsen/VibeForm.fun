@@ -1,16 +1,13 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getHandler, hasHandler } from '../_shared/integrations/registry.ts';
 import { buildTemplateContext } from '../_shared/templateEngine.ts';
+import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
+import { jsonResponse, jsonError } from '../_shared/responses.ts';
 import type { Integration, HandlerContext, ResponseWithForm, Form, Question, Answer } from '../_shared/integrations/types.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsOptions();
   }
 
   try {
@@ -20,10 +17,7 @@ Deno.serve(async (req) => {
     
     if (!internalToken || internalToken !== expectedToken) {
       console.error('Unauthorized: Invalid or missing internal token');
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return jsonError('Unauthorized', 401);
     }
 
     const { formId, responseId } = await req.json();
@@ -42,29 +36,21 @@ Deno.serve(async (req) => {
 
     if (responseCheckError || !responseCheck) {
       console.error('Response not found:', responseCheckError);
-      return new Response(JSON.stringify({ error: 'Response not found' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return jsonError('Response not found', 400);
     }
 
     if (responseCheck.status !== 'completed') {
       console.error('Response not completed:', responseCheck.status);
-      return new Response(JSON.stringify({ error: 'Response not completed' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return jsonError('Response not completed', 400);
     }
 
     // Idempotency check - if already processed, return early
     if (responseCheck.integrations_processed_at) {
       console.log('Integrations already processed at:', responseCheck.integrations_processed_at);
-      return new Response(JSON.stringify({ 
+      return jsonResponse({ 
         success: true, 
         processed: 0,
         message: 'Already processed'
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -78,12 +64,10 @@ Deno.serve(async (req) => {
     if (updateError) {
       console.error('Failed to mark as processed (might be race condition):', updateError);
       // Another process might have started processing - return early
-      return new Response(JSON.stringify({ 
+      return jsonResponse({ 
         success: true, 
         processed: 0,
         message: 'Processing started by another request'
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -98,9 +82,7 @@ Deno.serve(async (req) => {
     if (integrationsError) throw integrationsError;
     if (!integrations || integrations.length === 0) {
       console.log('No enabled integrations found');
-      return new Response(JSON.stringify({ success: true, processed: 0 }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return jsonResponse({ success: true, processed: 0 });
     }
 
     // Fetch complete response data with answers
@@ -148,25 +130,14 @@ Deno.serve(async (req) => {
 
     console.log(`Processed ${results.length} integrations`);
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        processed: results.length,
-        results: results.map((r) => (r.status === 'fulfilled' ? 'success' : 'error')),
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return jsonResponse({
+      success: true,
+      processed: results.length,
+      results: results.map((r) => (r.status === 'fulfilled' ? 'success' : 'error')),
+    });
   } catch (error: any) {
     console.error('Error in process-integrations:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    return jsonError(error.message, 500);
   }
 });
 

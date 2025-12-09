@@ -1,34 +1,24 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { buildTemplateContext, processTemplate } from '../_shared/templateEngine.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
+import { jsonResponse, jsonError } from '../_shared/responses.ts';
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsOptions();
   }
 
   try {
     const { formId, templates } = await req.json();
 
     if (!formId) {
-      return new Response(
-        JSON.stringify({ error: 'formId is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('formId is required', 400);
     }
 
     // Get auth token from request
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Authorization header required' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Authorization header required', 401);
     }
 
     // Create Supabase client with user's auth
@@ -47,10 +37,7 @@ Deno.serve(async (req) => {
 
     if (formError) {
       console.error('Error fetching form:', formError);
-      return new Response(
-        JSON.stringify({ error: 'Form not found or access denied' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Form not found or access denied', 404);
     }
 
     // Fetch questions
@@ -62,10 +49,7 @@ Deno.serve(async (req) => {
 
     if (questionsError) {
       console.error('Error fetching questions:', questionsError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch questions' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Failed to fetch questions', 500);
     }
 
     const safeQuestions = questions || [];
@@ -104,25 +88,19 @@ Deno.serve(async (req) => {
 
     console.log(`Preview template generated for form ${formId} with ${safeQuestions.length} questions`);
 
-    return new Response(
-      JSON.stringify({
-        form,
-        questions: safeQuestions,
-        sampleAnswers,
-        sampleResponse,
-        context,
-        processed,
-        availableVariables,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({
+      form,
+      questions: safeQuestions,
+      sampleAnswers,
+      sampleResponse,
+      context,
+      processed,
+      availableVariables,
+    });
   } catch (error) {
     console.error('Preview template error:', error);
     const message = error instanceof Error ? error.message : 'Internal server error';
-    return new Response(
-      JSON.stringify({ error: message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonError(message, 500);
   }
 });
 

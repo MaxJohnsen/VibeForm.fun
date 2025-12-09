@@ -1,28 +1,34 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
+import { checkRateLimit, getEnvInt } from '../_shared/ratelimit.ts';
+import { jsonResponse, jsonError, rateLimitResponse } from '../_shared/responses.ts';
+import { createServiceClient } from '../_shared/supabaseClient.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const RATE_LIMIT_PREFIX = 'navigate-back';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsOptions();
   }
 
   try {
     const { sessionToken, currentQuestionId } = await req.json();
 
     if (!sessionToken || !currentQuestionId) {
-      return new Response(
-        JSON.stringify({ error: 'sessionToken and currentQuestionId are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('sessionToken and currentQuestionId are required', 400);
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    // Rate limiting by session token (shared with submit-answer)
+    const rateLimitResult = await checkRateLimit(sessionToken, {
+      maxRequests: getEnvInt('RATE_LIMIT_SUBMIT_ANSWER', 30),
+      prefix: RATE_LIMIT_PREFIX,
+    });
+
+    if (!rateLimitResult.success) {
+      console.warn('Rate limit exceeded for session:', sessionToken);
+      return rateLimitResponse(rateLimitResult.reset, rateLimitResult.limit);
+    }
+
+    const supabase = createServiceClient();
 
     // Get response record
     const { data: response, error: responseError } = await supabase
@@ -33,10 +39,7 @@ Deno.serve(async (req) => {
 
     if (responseError || !response) {
       console.error('Response not found:', responseError);
-      return new Response(
-        JSON.stringify({ error: 'Invalid session' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Invalid session', 404);
     }
 
     // Delete answer for the current question
@@ -48,10 +51,7 @@ Deno.serve(async (req) => {
 
     if (deleteError) {
       console.error('Failed to delete answer:', deleteError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to navigate back' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Failed to navigate back', 500);
     }
 
     // Get the most recently answered question (by timestamp)
@@ -65,10 +65,7 @@ Deno.serve(async (req) => {
 
     if (lastAnswerError) {
       console.error('Failed to fetch last answer:', lastAnswerError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to determine previous question' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Failed to determine previous question', 500);
     }
 
     // Determine which question to navigate to
@@ -89,20 +86,13 @@ Deno.serve(async (req) => {
 
       if (firstQuestionError || !firstQuestion) {
         console.error('Failed to fetch first question:', firstQuestionError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to fetch first question' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        return jsonError('Failed to fetch first question', 500);
       }
 
       targetQuestionId = firstQuestion.id;
     }
 
     // OPTIMIZATION: Parallelize final operations
-    // 1. Update response record
-    // 2. Fetch target question
-    // 3. Fetch existing answer for target question
-    // 4. Get total question count
     const [updateResult, targetQuestionResult, existingAnswerResult, countResult] = await Promise.all([
       (async () => supabase.from('responses').update({
         current_question_id: targetQuestionId,
@@ -120,10 +110,7 @@ Deno.serve(async (req) => {
 
     if (targetQuestionResult.error || !targetQuestionResult.data) {
       console.error('Failed to fetch target question:', targetQuestionResult.error);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch target question' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return jsonError('Failed to fetch target question', 500);
     }
 
     console.log('Navigated back to question:', targetQuestionId, '(deleted answer for question:', currentQuestionId, ')');
@@ -132,23 +119,21 @@ Deno.serve(async (req) => {
     const existingAnswer = existingAnswerResult.data?.answer_value;
     const normalizedAnswer = existingAnswer?._skipped === true ? null : (existingAnswer || null);
 
-    return new Response(
-      JSON.stringify({
+    return jsonResponse(
+      {
         success: true,
         question: {
           ...targetQuestionResult.data,
           currentAnswer: normalizedAnswer,
         },
         totalQuestions: countResult.count || 0,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } }
+      },
+      200,
+      { 'Cache-Control': 'no-store' }
     );
   } catch (error) {
     console.error('Error in navigate-back:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return jsonError(errorMessage, 500);
   }
 });
