@@ -13,6 +13,16 @@ export interface WorkspaceMember {
   user_id: string;
   role: 'admin' | 'member';
   created_at: string;
+  email?: string;
+}
+
+export interface WorkspaceInvite {
+  id: string;
+  workspace_id: string;
+  email: string;
+  role: 'admin' | 'member';
+  invited_by: string;
+  created_at: string;
 }
 
 export interface WorkspaceWithRole extends Workspace {
@@ -98,6 +108,66 @@ export const workspacesApi = {
 
     if (error) throw error;
     return data || [];
+  },
+
+  async getWorkspaceInvites(workspaceId: string): Promise<WorkspaceInvite[]> {
+    const { data, error } = await supabase
+      .from('workspace_invites')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async sendInvite(workspaceId: string, email: string, role: 'admin' | 'member'): Promise<void> {
+    const { data, error } = await supabase.functions.invoke('send-workspace-invite', {
+      body: { workspaceId, email, role },
+    });
+
+    if (error) throw error;
+    if (data?.error) throw new Error(data.error);
+  },
+
+  async cancelInvite(inviteId: string): Promise<void> {
+    const { error } = await supabase
+      .from('workspace_invites')
+      .delete()
+      .eq('id', inviteId);
+
+    if (error) throw error;
+  },
+
+  async updateMemberRole(memberId: string, role: 'admin' | 'member'): Promise<void> {
+    const { error } = await supabase
+      .from('workspace_members')
+      .update({ role })
+      .eq('id', memberId);
+
+    if (error) throw error;
+  },
+
+  async removeMember(memberId: string): Promise<void> {
+    const { error } = await supabase
+      .from('workspace_members')
+      .delete()
+      .eq('id', memberId);
+
+    if (error) throw error;
+  },
+
+  async leaveWorkspace(workspaceId: string): Promise<void> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { error } = await supabase
+      .from('workspace_members')
+      .delete()
+      .eq('workspace_id', workspaceId)
+      .eq('user_id', user.id);
+
+    if (error) throw error;
   },
 
   async getUserRole(workspaceId: string): Promise<'admin' | 'member' | null> {
