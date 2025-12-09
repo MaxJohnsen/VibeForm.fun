@@ -7,6 +7,7 @@ export { AppSidebar } from './AppSidebar';
 export { SettingsSection } from './SettingsSection';
 export { SettingsCard } from './SettingsCard';
 export { SettingsRow } from './SettingsRow';
+export { SettingsLayout, type SettingsTab, type SettingsLayoutProps } from './SettingsLayout';
 export { RichTextEditor } from './RichTextEditor';
 export { LanguageSelector } from './LanguageSelector';
 export { PhoneInput } from './PhoneInput';
