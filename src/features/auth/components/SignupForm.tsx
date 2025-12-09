@@ -152,7 +152,7 @@ export const SignupForm = () => {
         <button
           type="button"
           onClick={() => navigate(ROUTES.LOGIN)}
-          className="text-accent font-medium hover:underline"
+          className="text-primary font-medium hover:underline"
         >
           Sign in
         </button>
