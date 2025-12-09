@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { useAuth } from '@/features/auth';
-import { WorkspaceSwitcher, useWorkspaceContext } from '@/features/workspaces';
+import { WorkspaceSwitcher, useWorkspaceContext, PendingInvitesNotification } from '@/features/workspaces';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,6 +50,11 @@ export const AppSidebar = () => {
         </button>
       </div>
 
+      {/* Pending Invites Notification */}
+      <div className="md:mb-2">
+        <PendingInvitesNotification />
+      </div>
+
       {/* Bottom Account Menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -71,15 +76,13 @@ export const AppSidebar = () => {
             )}
           </div>
           <DropdownMenuSeparator />
-          {userRole === 'admin' && (
-            <DropdownMenuItem 
-              onClick={() => navigate(ROUTES.WORKSPACE_SETTINGS)} 
-              className="cursor-pointer"
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Workspace Settings
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem 
+            onClick={() => navigate(ROUTES.WORKSPACE_SETTINGS)} 
+            className="cursor-pointer"
+          >
+            <Settings className="h-4 w-4 mr-2" />
+            Workspace Settings
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out

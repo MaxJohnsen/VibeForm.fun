@@ -25,6 +25,14 @@ export interface WorkspaceInvite {
   created_at: string;
 }
 
+export interface PendingInvite {
+  id: string;
+  workspace_id: string;
+  workspace_name: string;
+  role: 'admin' | 'member';
+  created_at: string;
+}
+
 export interface WorkspaceWithRole extends Workspace {
   role: 'admin' | 'member';
 }
@@ -103,14 +111,14 @@ export const workspacesApi = {
   },
 
   async getWorkspaceMembers(workspaceId: string): Promise<WorkspaceMember[]> {
-    const { data, error } = await supabase
-      .from('workspace_members')
-      .select('*')
-      .eq('workspace_id', workspaceId)
-      .order('created_at', { ascending: true });
+    // Use edge function to get members with emails
+    const { data, error } = await supabase.functions.invoke('get-workspace-members', {
+      body: { workspaceId },
+    });
 
     if (error) throw error;
-    return data || [];
+    if (data?.error) throw new Error(data.error);
+    return data?.members || [];
   },
 
   async getWorkspaceInvites(workspaceId: string): Promise<WorkspaceInvite[]> {
@@ -186,5 +194,50 @@ export const workspacesApi = {
 
     if (error) return null;
     return data?.role as 'admin' | 'member';
+  },
+
+  // Get pending invites for the current user
+  async getMyPendingInvites(): Promise<PendingInvite[]> {
+    // Fetch invites with workspace name using join
+    // RLS policy filters to only show invites addressed to current user's email
+    const { data: invites, error } = await supabase
+      .from('workspace_invites')
+      .select(`
+        id, 
+        workspace_id, 
+        role, 
+        created_at,
+        workspaces (name)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    if (!invites || invites.length === 0) return [];
+
+    return invites.map(invite => ({
+      id: invite.id,
+      workspace_id: invite.workspace_id,
+      workspace_name: (invite.workspaces as any)?.name || 'Unknown Workspace',
+      role: invite.role,
+      created_at: invite.created_at,
+    }));
+  },
+
+  // Accept a workspace invite
+  async acceptInvite(inviteId: string): Promise<void> {
+    const { error } = await supabase.rpc('accept_workspace_invite', {
+      _invite_id: inviteId,
+    });
+
+    if (error) throw error;
+  },
+
+  // Decline a workspace invite
+  async declineInvite(inviteId: string): Promise<void> {
+    const { error } = await supabase.rpc('decline_workspace_invite', {
+      _invite_id: inviteId,
+    });
+
+    if (error) throw error;
   },
 };
