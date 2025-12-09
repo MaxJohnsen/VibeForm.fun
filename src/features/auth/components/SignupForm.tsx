@@ -6,8 +6,13 @@ import { useAuth } from '../hooks/useAuth';
 import { ROUTES } from '@/shared/constants/routes';
 import { toast } from 'sonner';
 
-export const SignupForm = () => {
-  const [email, setEmail] = useState('');
+interface SignupFormProps {
+  defaultEmail?: string;
+  isEmailLocked?: boolean;
+}
+
+export const SignupForm = ({ defaultEmail = '', isEmailLocked = false }: SignupFormProps) => {
+  const [email, setEmail] = useState(defaultEmail);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -83,9 +88,11 @@ export const SignupForm = () => {
         type="email"
         placeholder="Enter your email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e) => !isEmailLocked && setEmail(e.target.value)}
         error={errors.email}
         autoComplete="email"
+        readOnly={isEmailLocked}
+        className={isEmailLocked ? 'opacity-60' : ''}
       />
 
       <TextInput
