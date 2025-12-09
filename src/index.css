@@ -33,9 +33,9 @@ All colors MUST be HSL.
     --muted: 220 15% 94%;
     --muted-foreground: 220 10% 50%;
 
-    /* Accent for links and highlights */
-    --accent: 245 75% 60%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent for hover/focus states - subtle gray for good contrast */
+    --accent: 220 15% 92%;
+    --accent-foreground: 220 15% 20%;
 
     /* Destructive states */
     --destructive: 0 70% 60%;
