@@ -6,6 +6,7 @@ interface InviteRequest {
   workspaceId: string;
   email: string;
   role: "admin" | "member";
+  appUrl: string;
 }
 
 serve(async (req) => {
@@ -37,10 +38,18 @@ serve(async (req) => {
       });
     }
 
-    const { workspaceId, email, role }: InviteRequest = await req.json();
+    const { workspaceId, email, role, appUrl }: InviteRequest = await req.json();
 
     if (!workspaceId || !email || !role || !["admin", "member"].includes(role)) {
       return new Response(JSON.stringify({ error: "Invalid request" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate appUrl is a valid HTTPS URL
+    if (!appUrl || (!appUrl.startsWith('https://') && !appUrl.startsWith('http://localhost'))) {
+      return new Response(JSON.stringify({ error: "Invalid app URL" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -91,7 +100,8 @@ serve(async (req) => {
 
     // Send email via Resend
     const apiKey = Deno.env.get("RESEND_API_KEY");
-    const appUrl = "https://yhyveqffsitdgwyflvgp.lovableproject.com";
+
+    console.log(`Sending invite email to ${email} for workspace ${workspace.name}, appUrl: ${appUrl}`);
 
     const emailResponse = await fetch("https://api.resend.com/emails", {
       method: "POST",
