@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Plus, Filter, ArrowUpDown } from 'lucide-react';
+import { Plus, Filter, ArrowUpDown, ChevronsUpDown, Building2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/shared/ui/SearchBar';
 import { AppSidebar } from '@/shared/ui/AppSidebar';
@@ -7,11 +7,12 @@ import { FormsList } from '../components/FormsList';
 import { useForms } from '../hooks/useForms';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
-import { useWorkspaceContext } from '@/features/workspaces';
+import { useWorkspaceContext, CreateWorkspaceDialog } from '@/features/workspaces';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -21,10 +22,11 @@ type SortType = 'updated' | 'created' | 'title';
 export const FormsHomePage = () => {
   const navigate = useNavigate();
   const { forms, isLoading } = useForms();
-  const { activeWorkspace } = useWorkspaceContext();
+  const { workspaces, activeWorkspace, setActiveWorkspace } = useWorkspaceContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [sortType, setSortType] = useState<SortType>('updated');
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const filteredAndSortedForms = useMemo(() => {
     let filtered = forms;
@@ -68,13 +70,52 @@ export const FormsHomePage = () => {
         {/* Header */}
         <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
           <div className="flex items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl md:text-4xl font-bold">
                 {activeWorkspace?.name || 'Your Projects'}
               </h1>
-              <p className="text-muted-foreground hidden md:block">
-                Your free & open source form builder
-              </p>
+              {workspaces.length > 0 && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="gap-1.5 text-muted-foreground hover:text-foreground h-8 px-2"
+                    >
+                      <ChevronsUpDown className="h-4 w-4" />
+                      <span className="hidden md:inline text-sm">Change</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                      Workspaces
+                    </div>
+                    {workspaces.map((workspace) => (
+                      <DropdownMenuItem
+                        key={workspace.id}
+                        onClick={() => setActiveWorkspace(workspace)}
+                        className="cursor-pointer"
+                      >
+                        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-primary/10 text-primary mr-2">
+                          <Building2 className="h-3 w-3" />
+                        </div>
+                        <span className="truncate flex-1">{workspace.name}</span>
+                        {workspace.id === activeWorkspace?.id && (
+                          <Check className="h-4 w-4 text-primary ml-2" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      onClick={() => setCreateDialogOpen(true)}
+                      className="cursor-pointer"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Workspace
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
             <Button
               size="default"
@@ -159,6 +200,11 @@ export const FormsHomePage = () => {
           onCreateNew={() => navigate(ROUTES.CREATE_FORM)}
         />
       </div>
-    </div >
+
+      <CreateWorkspaceDialog 
+        open={createDialogOpen} 
+        onOpenChange={setCreateDialogOpen} 
+      />
+    </div>
   );
 };
