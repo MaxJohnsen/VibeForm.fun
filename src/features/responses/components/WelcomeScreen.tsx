@@ -7,6 +7,7 @@ import { IntroSettings } from "@/features/builder/types/screenSettings";
 import { useTranslation } from "../hooks/useTranslation";
 import { SupportedLanguage, translations } from "@/shared/constants/translations";
 import { TURNSTILE_SITE_KEY, isTurnstileConfigured } from "@/shared/constants/turnstile";
+import { sanitizeHtml } from "@/shared/utils/sanitize";
 
 interface WelcomeScreenProps {
   formTitle: string;
@@ -103,7 +104,7 @@ export const WelcomeScreen = ({
           {displayDescription && (
             <div
               className="text-lg sm:text-xl prose-intro max-w-xl mx-auto px-4"
-              dangerouslySetInnerHTML={{ __html: displayDescription }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(displayDescription) }}
             />
           )}
         </div>
