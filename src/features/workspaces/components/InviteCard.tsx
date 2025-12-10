@@ -1,7 +1,9 @@
-import { Check, X, Loader2, Building2 } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PendingInvite } from '../api/workspacesApi';
 import { cn } from '@/lib/utils';
+import { Building2 } from 'lucide-react';
+import { GlassCard, InlineLoader } from '@/shared/ui';
 
 interface InviteCardProps {
   invite: PendingInvite;
@@ -19,20 +21,10 @@ export const InviteCard = ({
   className,
 }: InviteCardProps) => {
   return (
-    <div
-      className={cn(
-        'group relative',
-        'bg-background/60 backdrop-blur-sm',
-        'border border-border/60 hover:border-primary/30',
-        'rounded-2xl p-5',
-        'transition-all duration-300',
-        'hover:shadow-lg hover:shadow-primary/5',
-        className
-      )}
+    <GlassCard
+      hover
+      className={cn('p-5', className)}
     >
-      {/* Subtle gradient overlay on hover */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-      
       <div className="relative space-y-4">
         {/* Workspace Info */}
         <div className="flex items-start gap-3">
@@ -62,7 +54,7 @@ export const InviteCard = ({
             onClick={() => onAccept(invite.id)}
           >
             {isProcessing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <InlineLoader size="sm" />
             ) : (
               <>
                 <Check className="h-4 w-4 mr-1.5" />
@@ -82,6 +74,6 @@ export const InviteCard = ({
           </Button>
         </div>
       </div>
-    </div>
+    </GlassCard>
   );
 };

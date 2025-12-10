@@ -1,5 +1,6 @@
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { GlassCard } from '@/shared/ui';
 
 interface StatisticsCardProps {
   icon: LucideIcon;
@@ -22,12 +23,10 @@ export const StatisticsCard = ({
   className,
 }: StatisticsCardProps) => {
   return (
-    <div className={cn(
-      'glass-panel rounded-2xl p-5 md:p-6',
-      'hover:shadow-lg transition-all duration-200',
-      'animate-fade-in',
-      className
-    )}>
+    <GlassCard 
+      className={cn('p-5 md:p-6', className)}
+      hover
+    >
       <div className="flex flex-row items-center md:items-start gap-4 md:gap-0 md:block">
         <div className="flex items-start justify-between md:mb-4 shrink-0">
           <div className="rounded-xl bg-primary/10 p-3 shadow-sm w-fit">
@@ -61,6 +60,6 @@ export const StatisticsCard = ({
           )}
         </div>
       </div>
-    </div>
+    </GlassCard>
   );
 };

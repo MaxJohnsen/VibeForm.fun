@@ -1,6 +1,6 @@
 import { ResponseWithAnswers } from '../api/analyticsApi';
 import { ResponseItem } from './ResponseItem';
-import { EmptyState } from '@/shared/ui/EmptyState';
+import { EmptyState, ContentCard } from '@/shared/ui';
 import { FileQuestion } from 'lucide-react';
 
 interface ResponsesListProps {
@@ -12,19 +12,18 @@ interface ResponsesListProps {
 export const ResponsesList = ({ responses, totalQuestions, questions }: ResponsesListProps) => {
   if (responses.length === 0) {
     return (
-      <div className="glass-panel rounded-xl p-6 md:p-8">
+      <ContentCard padding="lg" rounded="xl">
         <EmptyState
           icon={FileQuestion}
           title="No responses yet"
           description="Share your form to start collecting responses. They'll appear here in real-time."
         />
-      </div>
+      </ContentCard>
     );
   }
 
   return (
-    <div className="glass-panel rounded-xl p-4 md:p-6">
-      <h3 className="text-lg font-semibold mb-3 md:mb-4">Responses</h3>
+    <ContentCard title="Responses" padding="md" rounded="xl">
       <div className="space-y-0">
         {responses.map((response) => (
           <div key={response.id} className="py-3 border-b border-border/50 last:border-0 last:pb-0 first:pt-0">
@@ -36,6 +35,6 @@ export const ResponsesList = ({ responses, totalQuestions, questions }: Response
           </div>
         ))}
       </div>
-    </div>
+    </ContentCard>
   );
 };

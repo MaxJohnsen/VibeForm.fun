@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Users } from 'lucide-react';
 import { lotteryApi } from '../api/lotteryApi';
+import { GlassCard } from '@/shared/ui';
 
 interface DrawControlsProps {
   formId: string;
@@ -26,7 +27,6 @@ export const DrawControls = ({ formId, hasNameQuestion, onDraw, isDrawing }: Dra
         const count = await lotteryApi.getEligibleCount(formId, namedOnly);
         setEligibleCount(count);
         
-        // Adjust winner count if it exceeds eligible count
         if (winnerCount > count) {
           setWinnerCount(Math.max(1, count));
         }
@@ -49,7 +49,7 @@ export const DrawControls = ({ formId, hasNameQuestion, onDraw, isDrawing }: Dra
   const maxWinners = Math.min(10, eligibleCount);
 
   return (
-    <div className="glass-panel rounded-2xl p-6 space-y-6">
+    <GlassCard className="p-6 space-y-6">
       <h2 className="text-xl font-semibold text-foreground">Draw Settings</h2>
 
       {/* Winner Count Slider */}
@@ -105,8 +105,9 @@ export const DrawControls = ({ formId, hasNameQuestion, onDraw, isDrawing }: Dra
       <Button
         onClick={handleDraw}
         disabled={isDrawing || isLoadingCount || eligibleCount === 0}
-        className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-        size="lg"
+        variant="gradient"
+        size="xl"
+        className="w-full"
       >
         <Sparkles className="w-5 h-5 mr-2" />
         {isDrawing ? 'Drawing Winners...' : 'Draw Winners'}
@@ -117,6 +118,6 @@ export const DrawControls = ({ formId, hasNameQuestion, onDraw, isDrawing }: Dra
           No eligible responses found
         </p>
       )}
-    </div>
+    </GlassCard>
   );
 };

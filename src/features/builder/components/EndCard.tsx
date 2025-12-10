@@ -1,5 +1,7 @@
 import { Flag, ExternalLink, RotateCcw } from 'lucide-react';
 import { EndSettings } from '../types/screenSettings';
+import { cn } from '@/lib/utils';
+import { GlassCard } from '@/shared/ui';
 
 interface EndCardProps {
   settings: EndSettings;
@@ -22,7 +24,6 @@ export const EndCard = ({ settings, isSelected, onSelect }: EndCardProps) => {
     }
   };
   
-  // Strip HTML tags for preview (in case message becomes rich text in future)
   const getTextContent = (html: string) => {
     const div = document.createElement('div');
     div.innerHTML = html;
@@ -30,13 +31,14 @@ export const EndCard = ({ settings, isSelected, onSelect }: EndCardProps) => {
   };
 
   return (
-    <div
+    <GlassCard
       onClick={onSelect}
-      className={`glass-panel p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-200 ${
+      className={cn(
+        'p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-200',
         isSelected
           ? '!border !border-primary shadow-xl shadow-primary/40 ring-4 ring-primary/10'
           : '!border !border-border/30 hover:!border-border/50 hover-elevate'
-      }`}
+      )}
     >
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0 rounded-xl bg-primary/10 p-3 flex items-center justify-center">
@@ -69,6 +71,6 @@ export const EndCard = ({ settings, isSelected, onSelect }: EndCardProps) => {
           </div>
         </div>
       </div>
-    </div>
+    </GlassCard>
   );
 };

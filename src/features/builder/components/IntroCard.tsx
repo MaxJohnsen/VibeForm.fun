@@ -1,5 +1,7 @@
 import { Play } from 'lucide-react';
 import { IntroSettings } from '../types/screenSettings';
+import { cn } from '@/lib/utils';
+import { GlassCard } from '@/shared/ui';
 
 interface IntroCardProps {
   formTitle: string;
@@ -17,7 +19,6 @@ export const IntroCard = ({
   const displayTitle = settings.title || formTitle;
   const hasDescription = settings.description && settings.description.trim().length > 0;
   
-  // Strip HTML tags for preview
   const getTextContent = (html: string) => {
     const div = document.createElement('div');
     div.innerHTML = html;
@@ -25,13 +26,14 @@ export const IntroCard = ({
   };
 
   return (
-    <div
+    <GlassCard
       onClick={onSelect}
-      className={`glass-panel p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-200 ${
+      className={cn(
+        'p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-200',
         isSelected
           ? '!border !border-primary shadow-xl shadow-primary/40 ring-4 ring-primary/10'
           : '!border !border-border/30 hover:!border-border/50 hover-elevate'
-      }`}
+      )}
     >
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0 rounded-xl bg-primary/10 p-3 flex items-center justify-center">
@@ -72,6 +74,6 @@ export const IntroCard = ({
           </div>
         </div>
       </div>
-    </div>
+    </GlassCard>
   );
 };

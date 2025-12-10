@@ -2,6 +2,7 @@ import { LotteryDraw } from '../api/lotteryApi';
 import { formatDistanceToNow } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { GlassCard, SectionHeader } from '@/shared/ui';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,10 +27,10 @@ export const DrawHistory = ({ draws, onDelete, isDeletingDraw }: DrawHistoryProp
   }
 
   return (
-    <div className="glass-panel rounded-2xl p-4 space-y-3">
-      <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+    <GlassCard className="p-4 space-y-3">
+      <SectionHeader size="sm" className="text-muted-foreground uppercase tracking-wide mb-0">
         Draw Log
-      </h3>
+      </SectionHeader>
 
       <div className="space-y-1.5">
         {draws.map((draw) => {
@@ -91,6 +92,6 @@ export const DrawHistory = ({ draws, onDelete, isDeletingDraw }: DrawHistoryProp
           );
         })}
       </div>
-    </div>
+    </GlassCard>
   );
 };

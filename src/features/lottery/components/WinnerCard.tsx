@@ -1,6 +1,7 @@
 import { Winner } from '../api/lotteryApi';
 import { generatePersona } from '@/shared/utils/personaGenerator';
 import { Trophy } from 'lucide-react';
+import { GlassCard } from '@/shared/ui';
 
 interface WinnerCardProps {
   winner: Winner;
@@ -10,15 +11,15 @@ interface WinnerCardProps {
 
 export const WinnerCard = ({ winner, index, total }: WinnerCardProps) => {
   const persona = generatePersona(winner.sessionToken);
-  // Only use winner.name if it's a valid string (not {_skipped: true})
   const displayName = (typeof winner.name === 'string' && winner.name.trim()) 
     ? winner.name 
     : `Anonymous (${winner.sessionToken.slice(0, 6)})`;
   const isAnonymous = !(typeof winner.name === 'string' && winner.name.trim());
 
   return (
-    <div 
-      className="glass-panel rounded-2xl p-8 animate-scale-in"
+    <GlassCard 
+      className="p-8 animate-scale-in"
+      animate={false}
       style={{ animationDelay: `${index * 150}ms` }}
     >
       <div className="flex flex-col items-center space-y-4">
@@ -53,6 +54,6 @@ export const WinnerCard = ({ winner, index, total }: WinnerCardProps) => {
           {winner.sessionToken.slice(0, 8)}...
         </p>
       </div>
-    </div>
+    </GlassCard>
   );
 };
