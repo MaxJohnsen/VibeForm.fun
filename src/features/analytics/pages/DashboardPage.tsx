@@ -46,7 +46,6 @@ export const DashboardPage = () => {
 
   return (
     <AppShell
-      className="bg-dot-pattern"
       header={
         <AppHeader
           title={form?.title || 'Form'}

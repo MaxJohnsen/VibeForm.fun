@@ -146,7 +146,7 @@ export const RespondentPage = () => {
   // Early returns AFTER all hooks
   if (!formId) {
     return (
-      <div className="h-[100dvh] flex items-center justify-center p-4 bg-background">
+      <div className="h-[100dvh] flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
         <div className="max-w-md w-full p-8 text-center">
           <p className="text-destructive text-xl">Invalid form link</p>
         </div>
@@ -160,7 +160,7 @@ export const RespondentPage = () => {
 
   if (showWelcome && formInfo) {
     return (
-      <div className="h-[100dvh] bg-background">
+      <div className="h-[100dvh] bg-gradient-to-br from-background via-background to-primary/5">
         <WelcomeScreen
           formTitle={formInfo.title}
           introSettings={formInfo.intro_settings}
@@ -176,7 +176,7 @@ export const RespondentPage = () => {
   }
 
   return (
-    <div className="h-[100dvh] bg-background flex flex-col overflow-hidden">
+    <div className="h-[100dvh] bg-gradient-to-br from-background via-background to-primary/5 flex flex-col overflow-hidden">
       <LoadingBar isLoading={isSubmitting} />
       
       {!isComplete && currentQuestion && (

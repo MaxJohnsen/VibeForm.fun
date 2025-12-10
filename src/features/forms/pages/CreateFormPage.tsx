@@ -39,7 +39,7 @@ export const CreateFormPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background bg-dot-pattern flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         <Button
           variant="ghost"

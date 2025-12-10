@@ -2,80 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 
-  FAIRFORM DESIGN SYSTEM v2
-  Clean, open, warm minimalism.
-  All colors in HSL format.
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    /* Core - Off-white background for depth */
-    --background: 240 5% 97%;
-    --foreground: 240 6% 12%;
+    /* Light, calm backgrounds */
+    --background: 220 20% 97%;
+    --foreground: 220 15% 20%;
 
-    /* Card surfaces - Pure white for contrast */
+    /* Glass card surface */
     --card: 0 0% 100%;
-    --card-foreground: 240 6% 12%;
+    --card-foreground: 220 15% 20%;
 
-    /* Popovers - Pure white, elevated */
+    /* Popovers */
     --popover: 0 0% 100%;
-    --popover-foreground: 240 6% 12%;
+    --popover-foreground: 220 15% 20%;
 
-    /* Primary - Deep Burnt Orange (brand, accents, links) */
-    --primary: 20 90% 45%;
+    /* Primary gradient (blue to purple) */
+    --primary: 245 75% 60%;
     --primary-foreground: 0 0% 100%;
+    --primary-glow: 260 70% 65%;
 
-    /* Premium Gradient - Award-winning CTA */
-    --gradient-start: 16 85% 42%;
-    --gradient-mid: 24 90% 52%;
-    --gradient-end: 36 92% 58%;
-    --glow-color: 24 90% 52%;
+    /* Secondary muted surfaces */
+    --secondary: 220 15% 95%;
+    --secondary-foreground: 220 15% 30%;
 
-    /* Accent - Sunny Yellow */
-    --accent: 38 92% 56%;
-    --accent-foreground: 240 6% 12%;
+    /* Muted text and surfaces */
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 10% 50%;
 
-    /* Secondary surface - Slightly darker than background */
-    --secondary: 240 4% 93%;
-    --secondary-foreground: 240 6% 25%;
+    /* Accent for hover/focus states - subtle gray for good contrast */
+    --accent: 220 15% 92%;
+    --accent-foreground: 220 15% 20%;
 
-    /* Muted */
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
-
-    /* Borders and inputs - More visible */
-    --border: 220 9% 83%;
-    --input: 220 9% 83%;
-    --ring: 20 90% 45%;
-
-    /* Destructive / Error */
-    --destructive: 0 84% 60%;
+    /* Destructive states */
+    --destructive: 0 70% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Success */
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 100%;
-    --success-background: 142 76% 95%;
+    /* Borders and inputs */
+    --border: 220 15% 88%;
+    --input: 220 15% 92%;
+    --input-focus: 245 75% 60%;
+    --ring: 245 75% 60%;
 
-    /* Warning */
-    --warning: 38 92% 50%;
-    --warning-foreground: 240 6% 12%;
-    --warning-background: 48 96% 95%;
-
-    /* Error background */
-    --error-background: 0 93% 97%;
-
-    /* Radius - Large radii for warmth */
+    /* Radius */
     --radius: 0.75rem;
 
-    /* Shadows - Enhanced for depth */
-    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-    --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.12), 0 2px 6px -2px rgb(0 0 0 / 0.08);
-    --shadow-lg: 0 10px 24px -4px rgb(0 0 0 / 0.15), 0 4px 8px -2px rgb(0 0 0 / 0.1);
+    /* Glass effect */
+    --glass-bg: 0 0% 100%;
+    --glass-border: 220 15% 90%;
+    --glass-shadow: 220 20% 70%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(245, 75%, 60%), hsl(260, 70%, 65%));
+    --gradient-background: linear-gradient(180deg, hsl(220, 25%, 98%), hsl(220, 20%, 95%));
+    --gradient-respondent: linear-gradient(135deg, hsl(220, 25%, 98%) 0%, hsl(210, 40%, 96%) 50%, hsl(320, 35%, 96%) 100%);
+
+    /* Shadows */
+    --shadow-soft: 0 4px 24px -4px hsla(220, 20%, 60%, 0.12);
+    --shadow-elevated: 0 8px 32px -8px hsla(220, 20%, 50%, 0.16);
+    --shadow-glow: 0 0 32px hsla(245, 75%, 60%, 0.2);
 
     /* Transitions */
-    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -86,53 +77,39 @@
 
   body {
     @apply bg-background text-foreground;
-    background: hsl(var(--background));
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--gradient-background);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Heading typography */
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
 @layer utilities {
-  /* Surface panel - replaces glass-panel */
-  .surface-panel {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-sm);
-  }
-
-  /* Keep glass-panel as alias for migration */
   .glass-panel {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-sm);
+    background: hsla(var(--glass-bg) / 0.7);
+    backdrop-filter: blur(24px);
+    border: 1px solid hsla(var(--glass-border) / 0.3);
+    box-shadow: var(--shadow-soft);
   }
 
-  /* Input focus glow */
   .input-focus-glow {
     transition: var(--transition-smooth);
   }
 
   .input-focus-glow:focus {
-    border-color: hsl(var(--primary));
-    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+    border-color: hsl(var(--input-focus));
+    box-shadow: 0 0 0 3px hsla(var(--input-focus) / 0.1);
   }
 
-  /* Hover elevation - subtle */
   .hover-elevate {
     transition: var(--transition-smooth);
   }
 
   .hover-elevate:hover {
-    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
   }
 
-  /* Mobile performance optimization */
   .mobile-transform {
     transform: translateZ(0);
     will-change: transform;
@@ -141,12 +118,6 @@
   .question-container {
     isolation: isolate;
     overflow: hidden;
-  }
-
-  /* Optional dot-grid background texture */
-  .bg-dot-pattern {
-    background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
-    background-size: 24px 24px;
   }
 
   /* Remove focus styles on touch devices */

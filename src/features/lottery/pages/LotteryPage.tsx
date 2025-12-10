@@ -74,7 +74,7 @@ export const LotteryPage = () => {
 
   if (isLoadingForm) {
     return (
-      <div className="min-h-screen bg-background p-6">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6">
         <div className="max-w-6xl mx-auto space-y-6">
           <Skeleton className="h-12 w-64" />
           <Skeleton className="h-96 w-full" />
@@ -85,7 +85,7 @@ export const LotteryPage = () => {
 
   if (!form) {
     return (
-      <div className="min-h-screen bg-background p-6">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6">
         <div className="max-w-6xl mx-auto">
           <p className="text-center text-muted-foreground">Form not found</p>
         </div>
@@ -95,7 +95,7 @@ export const LotteryPage = () => {
 
   return (
     <AppShell
-      className="bg-background bg-dot-pattern"
+      className="bg-gradient-to-br from-background via-background to-primary/5"
       header={
         <AppHeader
           title={form.title}

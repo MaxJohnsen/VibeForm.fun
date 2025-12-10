@@ -101,7 +101,7 @@ export const ActionCard = ({
         <div className="flex justify-center mb-3">
           <div 
             className={cn(
-              "p-3 rounded-2xl bg-primary/10 border border-primary/10",
+              "p-3 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/10",
               integration.color
             )}
           >

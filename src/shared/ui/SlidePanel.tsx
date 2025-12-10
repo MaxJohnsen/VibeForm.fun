@@ -52,15 +52,15 @@ export const SlidePanel = ({
         )}
       >
         {/* Header */}
-        <SheetHeader className="px-6 py-4 border-b border-border bg-card shrink-0">
+        <SheetHeader className="px-6 py-4 border-b border-border/50 bg-background/95 backdrop-blur-sm shrink-0">
           <div className="flex items-center gap-3">
             {icon && (
-              <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-secondary">
+              <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-muted/50">
                 {icon}
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-lg font-semibold truncate font-heading">
+              <SheetTitle className="text-lg font-semibold truncate">
                 {title}
               </SheetTitle>
               {description && (
@@ -79,7 +79,7 @@ export const SlidePanel = ({
 
         {/* Footer */}
         {footer && (
-          <div className="shrink-0 px-6 py-4 border-t border-border bg-card">
+          <div className="shrink-0 px-6 py-4 border-t border-border/50 bg-background/95 backdrop-blur-sm">
             {footer}
           </div>
         )}

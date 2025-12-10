@@ -23,7 +23,7 @@ export const SearchBar = ({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
-        className="pl-10"
+        className="pl-10 glass-panel border-border/50"
       />
     </div>
   );

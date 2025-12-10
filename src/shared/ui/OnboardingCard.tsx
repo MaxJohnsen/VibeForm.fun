@@ -20,23 +20,29 @@ export const OnboardingCard = ({
   className,
 }: OnboardingCardProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-background bg-dot-pattern">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
       <div
         className={cn(
           'relative w-full max-w-[480px]',
-          'bg-card',
-          'border border-border',
-          'rounded-3xl shadow-sm',
+          'bg-card/80 backdrop-blur-xl',
+          'border border-border/50',
+          'rounded-3xl shadow-2xl',
           'p-8 sm:p-10',
           'animate-fade-in',
           className
         )}
       >
+        {/* Subtle glow effect */}
+        <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+        
         <div className="relative flex flex-col items-center gap-8">
           {/* Brand Logo */}
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-primary font-heading">
-            Fairform
-          </h1>
+          <div className="relative">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
+              Fairform
+            </h1>
+            <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/20 via-teal-500/20 to-emerald-500/20 blur-2xl -z-10 animate-pulse" />
+          </div>
 
           {/* Icon & Title Section */}
           <div className="text-center space-y-3">
@@ -45,7 +51,7 @@ export const OnboardingCard = ({
                 <Icon className="h-5 w-5" />
               </div>
             )}
-            <h2 className="text-2xl sm:text-3xl font-semibold text-foreground font-heading">
+            <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
               {title}
             </h2>
             {subtitle && (

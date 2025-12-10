@@ -60,11 +60,11 @@ export const LoginForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full space-y-5">
+    <form onSubmit={handleSubmit} className="w-full space-y-4">
       <TextInput
         label="Email address"
         type="email"
-        placeholder="you@example.com"
+        placeholder="Enter your email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         error={errors.email}
@@ -74,7 +74,7 @@ export const LoginForm = () => {
       <TextInput
         label="Password"
         type="password"
-        placeholder="••••••••"
+        placeholder="Enter your password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         error={errors.password}
@@ -84,7 +84,7 @@ export const LoginForm = () => {
       <div className="text-right">
         <button
           type="button"
-          className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
+          className="text-sm text-primary hover:underline transition-all"
         >
           Forgot password?
         </button>
@@ -92,20 +92,20 @@ export const LoginForm = () => {
 
       <Button
         type="submit"
-        variant="gradient"
         disabled={loading}
+        variant="gradient-lg"
         size="xl"
         className="w-full"
       >
         {loading ? 'Signing in...' : 'Sign in'}
       </Button>
 
-      <div className="relative py-2">
+      <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-card px-4 text-muted-foreground">or continue with</span>
+          <span className="bg-card px-2 text-muted-foreground">or continue with</span>
         </div>
       </div>
 
@@ -131,16 +131,16 @@ export const LoginForm = () => {
         Continue with Google
       </SocialButton>
 
-      <p className="text-center text-sm text-muted-foreground pt-2">
+      <div className="text-center text-sm text-muted-foreground">
         Don't have an account?{' '}
         <button
           type="button"
           onClick={() => navigate(ROUTES.SIGNUP)}
-          className="text-primary font-semibold hover:text-primary/80 transition-colors"
+          className="text-primary font-medium hover:underline"
         >
           Sign up
         </button>
-      </p>
+      </div>
     </form>
   );
 };

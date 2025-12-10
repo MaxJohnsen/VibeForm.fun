@@ -27,12 +27,15 @@ export const AppSidebar = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border bg-card flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-4 z-50">
+    <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border/50 glass-panel flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-4 z-50">
       {/* Brand Logo */}
       <div className="hidden md:flex mb-6 w-full justify-center">
-        <span className="text-2xl font-bold tracking-tight text-primary font-heading">
-          FF
-        </span>
+        <div className="relative">
+          <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
+            FF
+          </span>
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 via-teal-500/20 to-emerald-500/20 blur-lg -z-10" />
+        </div>
       </div>
 
       {/* Navigation Items */}
@@ -42,8 +45,8 @@ export const AppSidebar = () => {
           className={cn(
             'w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200',
             location.pathname === ROUTES.FORMS_HOME
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'hover:bg-secondary text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-lg'
+              : 'hover:bg-accent text-muted-foreground hover:text-foreground'
           )}
           aria-label="Home"
         >
@@ -55,8 +58,8 @@ export const AppSidebar = () => {
           className={cn(
             'w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200',
             location.pathname === ROUTES.WORKSPACE_SETTINGS
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'hover:bg-secondary text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-lg'
+              : 'hover:bg-accent text-muted-foreground hover:text-foreground'
           )}
           aria-label="Workspace Settings"
         >
@@ -73,7 +76,7 @@ export const AppSidebar = () => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-secondary text-muted-foreground hover:text-foreground transition-all duration-200"
+            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-accent text-muted-foreground hover:text-foreground transition-all duration-200"
             aria-label="Account"
           >
             <User className="h-5 w-5" />

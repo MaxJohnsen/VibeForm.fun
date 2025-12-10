@@ -25,7 +25,7 @@ export const FormNavigation = ({
 }: FormNavigationProps) => {
   const t = useTranslation(language as SupportedLanguage);
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border pb-safe">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-t border-border/50 pb-safe">
       <div className="px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
         {/* Back button - Icon only on mobile */}
         <div className="flex-shrink-0">

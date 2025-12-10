@@ -117,8 +117,8 @@ export const SignupForm = ({ defaultEmail = '', isEmailLocked = false }: SignupF
 
       <Button
         type="submit"
-        variant="gradient"
         disabled={loading}
+        variant="gradient-lg"
         size="xl"
         className="w-full"
       >
