@@ -3,6 +3,7 @@ import { Check, X } from 'lucide-react';
 import { SupportedLanguage } from '@/shared/constants/translations';
 import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
 import { QuestionLabel } from './QuestionLabel';
+import { QuestionWrapper } from './QuestionWrapper';
 
 interface YesNoQuestionProps {
   label: string;
@@ -46,7 +47,7 @@ export const YesNoQuestion = ({
   };
 
   return (
-    <div className="space-y-8 sm:space-y-12 animate-fade-in">
+    <QuestionWrapper className="space-y-8 sm:space-y-12">
       <QuestionLabel 
         label={label}
         description={description}
@@ -84,6 +85,6 @@ export const YesNoQuestion = ({
           </div>
         </button>
       </div>
-    </div>
+    </QuestionWrapper>
   );
 };

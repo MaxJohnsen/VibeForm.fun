@@ -8,6 +8,7 @@ import type { Locale } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { SupportedLanguage } from '@/shared/constants/translations';
 import { QuestionLabel } from './QuestionLabel';
+import { QuestionWrapper } from './QuestionWrapper';
 import { useQuestionTranslation } from '../../hooks/useQuestionTranslation';
 
 interface DateQuestionProps {
@@ -136,7 +137,7 @@ export const DateQuestion = ({
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-fade-in">
+    <QuestionWrapper>
       <QuestionLabel
         label={label}
         description={description}
@@ -192,6 +193,6 @@ export const DateQuestion = ({
           </div>
         )}
       </div>
-    </div>
+    </QuestionWrapper>
   );
 };

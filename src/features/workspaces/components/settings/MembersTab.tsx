@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { InlineLoader } from '@/shared/ui';
 import { Separator } from '@/components/ui/separator';
 import { SettingsCard } from '@/shared/ui/SettingsCard';
 import { useWorkspaceContext } from '../../context/WorkspaceContext';
@@ -129,7 +129,7 @@ export const MembersTab = () => {
       >
         {isLoadingMembers ? (
           <div className="flex justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <InlineLoader size="lg" />
           </div>
         ) : (
           <MemberList

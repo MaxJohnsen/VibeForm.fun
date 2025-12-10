@@ -11,6 +11,7 @@ import {
   X,
   AlertCircle,
 } from 'lucide-react';
+import { InlineLoader, PageLoader } from '@/shared/ui';
 import { formsApi } from '../api/formsApi';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -264,11 +265,7 @@ export const FormSettingsPage = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!form) {
@@ -373,7 +370,9 @@ export const FormSettingsPage = () => {
                         }`}
                       />
                       {slugStatus === 'checking' && (
-                        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <InlineLoader size="sm" />
+                        </div>
                       )}
                       {slugStatus === 'available' && slug && (
                         <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
@@ -527,7 +526,7 @@ export const FormSettingsPage = () => {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleteFormMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <InlineLoader size="sm" className="mr-2" />
               ) : (
                 <Trash2 className="h-4 w-4 mr-2" />
               )}

@@ -3,6 +3,7 @@ import { Star } from 'lucide-react';
 import { SupportedLanguage } from '@/shared/constants/translations';
 import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
 import { QuestionLabel } from './QuestionLabel';
+import { QuestionWrapper } from './QuestionWrapper';
 
 interface RatingQuestionProps {
   label: string;
@@ -120,7 +121,7 @@ export const RatingQuestion = ({
   };
 
   return (
-    <div className="space-y-8 sm:space-y-12 animate-fade-in">
+    <QuestionWrapper className="space-y-8 sm:space-y-12">
       <QuestionLabel 
         label={label}
         description={description}
@@ -141,6 +142,6 @@ export const RatingQuestion = ({
           </div>
         )}
       </div>
-    </div>
+    </QuestionWrapper>
   );
 };

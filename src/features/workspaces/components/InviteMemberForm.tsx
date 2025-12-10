@@ -9,7 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
+import { InlineLoader } from '@/shared/ui';
 
 interface InviteMemberFormProps {
   onSubmit: (email: string, role: 'admin' | 'member') => Promise<void>;
@@ -80,7 +81,7 @@ export const InviteMemberForm = ({ onSubmit, isLoading = false }: InviteMemberFo
       <Button type="submit" disabled={isLoading || !email.trim()}>
         {isLoading ? (
           <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <InlineLoader size="sm" className="mr-2" />
             Sending...
           </>
         ) : (

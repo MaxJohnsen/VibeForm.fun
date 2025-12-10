@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Trash2, History, Settings, Play, Loader2 } from 'lucide-react';
+import { Trash2, History, Settings, Play } from 'lucide-react';
+import { InlineLoader } from '@/shared/ui';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { GlassCard } from '@/shared/ui/GlassCard';
@@ -146,7 +147,7 @@ export const ActionCard = ({
                       disabled={showTestLoading}
                     >
                       {showTestLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <InlineLoader size="sm" />
                       ) : (
                         <Play className="h-4 w-4" />
                       )}

@@ -118,7 +118,9 @@ export const SignupForm = ({ defaultEmail = '', isEmailLocked = false }: SignupF
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-primary to-primary-glow text-white hover:opacity-90 hover-elevate py-6 rounded-xl text-base font-medium shadow-lg"
+        variant="gradient-lg"
+        size="xl"
+        className="w-full"
       >
         {loading ? 'Creating account...' : 'Create account'}
       </Button>
