@@ -10,15 +10,15 @@
 
 @layer base {
   :root {
-    /* Core - Pure white base */
-    --background: 0 0% 100%;
+    /* Core - Off-white background for depth */
+    --background: 240 5% 97%;
     --foreground: 240 6% 12%;
 
-    /* Card surfaces */
+    /* Card surfaces - Pure white for contrast */
     --card: 0 0% 100%;
     --card-foreground: 240 6% 12%;
 
-    /* Popovers */
+    /* Popovers - Pure white, elevated */
     --popover: 0 0% 100%;
     --popover-foreground: 240 6% 12%;
 
@@ -30,17 +30,17 @@
     --accent: 38 92% 56%;
     --accent-foreground: 240 6% 12%;
 
-    /* Secondary surface - Soft gray */
-    --secondary: 240 5% 97%;
+    /* Secondary surface - Slightly darker than background */
+    --secondary: 240 4% 93%;
     --secondary-foreground: 240 6% 25%;
 
     /* Muted */
-    --muted: 240 5% 97%;
-    --muted-foreground: 240 4% 53%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
 
-    /* Borders and inputs */
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    /* Borders and inputs - More visible */
+    --border: 220 9% 83%;
+    --input: 220 9% 83%;
     --ring: 25 95% 53%;
 
     /* Destructive / Error */
@@ -63,9 +63,10 @@
     /* Radius - Large radii for warmth */
     --radius: 0.75rem;
 
-    /* Shadows - Soft only */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    /* Shadows - Enhanced for depth */
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+    --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.12), 0 2px 6px -2px rgb(0 0 0 / 0.08);
+    --shadow-lg: 0 10px 24px -4px rgb(0 0 0 / 0.15), 0 4px 8px -2px rgb(0 0 0 / 0.1);
 
     /* Transitions */
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);

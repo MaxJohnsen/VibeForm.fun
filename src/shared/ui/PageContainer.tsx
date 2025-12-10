@@ -3,13 +3,14 @@ import { cn } from '@/lib/utils';
 
 export interface PageContainerProps {
   children: ReactNode;
-  variant?: 'default' | 'subtle' | 'accent';
+  variant?: 'default' | 'subtle' | 'canvas' | 'accent';
   className?: string;
 }
 
 const variantClasses = {
   default: 'bg-background',
-  subtle: 'bg-background',
+  subtle: 'bg-background bg-dot-pattern',
+  canvas: 'bg-white',
   accent: 'bg-background',
 };
 
