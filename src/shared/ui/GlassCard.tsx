@@ -16,7 +16,7 @@ const paddingClasses = {
 };
 
 export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
-  ({ className, children, hover = false, animate = true, padding = 'md', ...props }, ref) => {
+  ({ className, children, hover = false, animate = true, padding = 'sm', ...props }, ref) => {
     return (
       <div
         ref={ref}
