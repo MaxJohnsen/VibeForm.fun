@@ -1,6 +1,7 @@
 import { toHTML } from 'slack-markdown';
 import { SlackIcon } from '@/shared/ui';
 import { IntegrationPreviewProps } from '../../types/integrationDefinition';
+import { sanitizeHtml } from '@/shared/utils/sanitize';
 
 export const SlackPreview = ({ processedContent }: IntegrationPreviewProps) => {
   const htmlContent = processedContent.body 
@@ -21,7 +22,7 @@ export const SlackPreview = ({ processedContent }: IntegrationPreviewProps) => {
         </div>
         <div 
           className="mt-1 text-sm slack-content"
-          dangerouslySetInnerHTML={{ __html: htmlContent }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(htmlContent) }}
         />
       </div>
     </div>

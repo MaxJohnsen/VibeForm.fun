@@ -1,11 +1,12 @@
 import { v4 as uuidv4 } from 'https://esm.sh/uuid@9.0.0';
 import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
-import { isValidFormId, isUUID } from '../_shared/formUtils.ts';
+import { isUUID } from '../_shared/formUtils.ts';
 import { checkRateLimit, getEnvInt } from '../_shared/ratelimit.ts';
 import { jsonResponse, jsonError, rateLimitResponse } from '../_shared/responses.ts';
 import { createServiceClient } from '../_shared/supabaseClient.ts';
 import { getClientIP } from '../_shared/httpUtils.ts';
 import { verifyTurnstile } from '../_shared/turnstile.ts';
+import { startResponseSchema, validateRequest } from '../_shared/validation.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -27,11 +28,15 @@ Deno.serve(async (req) => {
       return rateLimitResponse(reset, limit);
     }
 
-    const { formId, turnstileToken } = await req.json();
-
-    if (!formId) {
-      return jsonError('formId is required');
+    const body = await req.json();
+    
+    // Validate input with Zod
+    const validation = validateRequest(startResponseSchema, body);
+    if (!validation.success) {
+      return jsonError(`Invalid input: ${validation.error}`, 400);
     }
+    
+    const { formId, turnstileToken } = validation.data;
 
     // Check if Turnstile is configured on server
     const turnstileSecret = Deno.env.get('CLOUDFLARE_TURNSTILE_SECRET');
@@ -50,10 +55,6 @@ Deno.serve(async (req) => {
       console.log(`Turnstile verified for IP: ${clientIP}`);
     } else {
       console.log('Turnstile not configured, skipping verification');
-    }
-
-    if (!isValidFormId(formId)) {
-      return jsonError('Invalid formId format');
     }
 
     const supabase = createServiceClient();

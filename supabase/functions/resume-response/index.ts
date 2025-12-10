@@ -2,6 +2,7 @@ import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
 import { checkRateLimit, getEnvInt } from '../_shared/ratelimit.ts';
 import { jsonResponse, jsonError, rateLimitResponse } from '../_shared/responses.ts';
 import { createServiceClient } from '../_shared/supabaseClient.ts';
+import { resumeResponseSchema, validateRequest } from '../_shared/validation.ts';
 
 const RATE_LIMIT_PREFIX = 'resume-response';
 
@@ -11,11 +12,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { sessionToken } = await req.json();
+    const body = await req.json();
 
-    if (!sessionToken) {
-      return jsonError('sessionToken is required', 400);
+    // Validate input with Zod
+    const validation = validateRequest(resumeResponseSchema, body);
+    if (!validation.success) {
+      return jsonError(`Invalid input: ${validation.error}`, 400);
     }
+
+    const { sessionToken } = validation.data;
 
     // Rate limiting by session token (shared with submit-answer)
     const rateLimitResult = await checkRateLimit(sessionToken, {

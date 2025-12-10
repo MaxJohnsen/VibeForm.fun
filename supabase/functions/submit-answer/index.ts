@@ -1,9 +1,9 @@
 import { corsHeaders, handleCorsOptions } from '../_shared/cors.ts';
-import { uuidPattern } from '../_shared/formUtils.ts';
 import { checkRateLimit, getEnvInt } from '../_shared/ratelimit.ts';
 import { jsonResponse, jsonError, rateLimitResponse } from '../_shared/responses.ts';
 import { createServiceClient } from '../_shared/supabaseClient.ts';
 import { evaluateRule, QuestionLogic } from '../_shared/logic.ts';
+import { submitAnswerSchema, validateRequest } from '../_shared/validation.ts';
 
 // EdgeRuntime global for background task management
 declare const EdgeRuntime: {
@@ -16,21 +16,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { sessionToken, questionId, answerValue } = await req.json();
+    const body = await req.json();
 
-    // Allow null values for optional questions
-    if (!sessionToken || !questionId) {
-      return jsonError('sessionToken and questionId are required');
+    // Validate input with Zod
+    const validation = validateRequest(submitAnswerSchema, body);
+    if (!validation.success) {
+      return jsonError(`Invalid input: ${validation.error}`, 400);
     }
 
-    // Validate input formats
-    if (!uuidPattern.test(sessionToken)) {
-      return jsonError('Invalid session token format');
-    }
-    
-    if (!uuidPattern.test(questionId)) {
-      return jsonError('Invalid question ID format');
-    }
+    const { sessionToken, questionId, answerValue } = validation.data;
 
     // Rate limiting by session token
     const rateLimitConfig = {
@@ -68,7 +62,7 @@ Deno.serve(async (req) => {
 
     // Save or update answer using UPSERT
     const isEmptyOrWhitespace = typeof answerValue === 'string' && answerValue.trim() === '';
-    const valueToStore = (answerValue === null || isEmptyOrWhitespace) 
+    const valueToStore = (answerValue === null || answerValue === undefined || isEmptyOrWhitespace) 
       ? { _skipped: true } 
       : answerValue;
     
