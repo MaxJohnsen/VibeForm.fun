@@ -105,8 +105,7 @@ export const DrawControls = ({ formId, hasNameQuestion, onDraw, isDrawing }: Dra
       <Button
         onClick={handleDraw}
         disabled={isDrawing || isLoadingCount || eligibleCount === 0}
-        variant="gradient"
-        size="xl"
+        size="lg"
         className="w-full"
       >
         <Sparkles className="w-5 h-5 mr-2" />

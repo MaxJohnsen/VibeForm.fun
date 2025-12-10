@@ -2,71 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/* 
+  FAIRFORM DESIGN SYSTEM v2
+  Clean, open, warm minimalism.
+  All colors in HSL format.
 */
 
 @layer base {
   :root {
-    /* Light, calm backgrounds */
-    --background: 220 20% 97%;
-    --foreground: 220 15% 20%;
+    /* Core - Pure white base */
+    --background: 0 0% 100%;
+    --foreground: 240 6% 12%;
 
-    /* Glass card surface */
+    /* Card surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 220 15% 20%;
+    --card-foreground: 240 6% 12%;
 
     /* Popovers */
     --popover: 0 0% 100%;
-    --popover-foreground: 220 15% 20%;
+    --popover-foreground: 240 6% 12%;
 
-    /* Primary gradient (blue to purple) */
-    --primary: 245 75% 60%;
+    /* Primary - Warm Orange */
+    --primary: 25 95% 53%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 260 70% 65%;
 
-    /* Secondary muted surfaces */
-    --secondary: 220 15% 95%;
-    --secondary-foreground: 220 15% 30%;
+    /* Accent - Sunny Yellow */
+    --accent: 38 92% 56%;
+    --accent-foreground: 240 6% 12%;
 
-    /* Muted text and surfaces */
-    --muted: 220 15% 94%;
-    --muted-foreground: 220 10% 50%;
+    /* Secondary surface - Soft gray */
+    --secondary: 240 5% 97%;
+    --secondary-foreground: 240 6% 25%;
 
-    /* Accent for hover/focus states - subtle gray for good contrast */
-    --accent: 220 15% 92%;
-    --accent-foreground: 220 15% 20%;
-
-    /* Destructive states */
-    --destructive: 0 70% 60%;
-    --destructive-foreground: 0 0% 100%;
+    /* Muted */
+    --muted: 240 5% 97%;
+    --muted-foreground: 240 4% 53%;
 
     /* Borders and inputs */
-    --border: 220 15% 88%;
-    --input: 220 15% 92%;
-    --input-focus: 245 75% 60%;
-    --ring: 245 75% 60%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 25 95% 53%;
 
-    /* Radius */
+    /* Destructive / Error */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Success */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --success-background: 142 76% 95%;
+
+    /* Warning */
+    --warning: 38 92% 50%;
+    --warning-foreground: 240 6% 12%;
+    --warning-background: 48 96% 95%;
+
+    /* Error background */
+    --error-background: 0 93% 97%;
+
+    /* Radius - Large radii for warmth */
     --radius: 0.75rem;
 
-    /* Glass effect */
-    --glass-bg: 0 0% 100%;
-    --glass-border: 220 15% 90%;
-    --glass-shadow: 220 20% 70%;
-
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(245, 75%, 60%), hsl(260, 70%, 65%));
-    --gradient-background: linear-gradient(180deg, hsl(220, 25%, 98%), hsl(220, 20%, 95%));
-    --gradient-respondent: linear-gradient(135deg, hsl(220, 25%, 98%) 0%, hsl(210, 40%, 96%) 50%, hsl(320, 35%, 96%) 100%);
-
-    /* Shadows */
-    --shadow-soft: 0 4px 24px -4px hsla(220, 20%, 60%, 0.12);
-    --shadow-elevated: 0 8px 32px -8px hsla(220, 20%, 50%, 0.16);
-    --shadow-glow: 0 0 32px hsla(245, 75%, 60%, 0.2);
+    /* Shadows - Soft only */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 
     /* Transitions */
-    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -77,39 +79,53 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    background: var(--gradient-background);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    background: hsl(var(--background));
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Heading typography */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   }
 }
 
 @layer utilities {
-  .glass-panel {
-    background: hsla(var(--glass-bg) / 0.7);
-    backdrop-filter: blur(24px);
-    border: 1px solid hsla(var(--glass-border) / 0.3);
-    box-shadow: var(--shadow-soft);
+  /* Surface panel - replaces glass-panel */
+  .surface-panel {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
   }
 
+  /* Keep glass-panel as alias for migration */
+  .glass-panel {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Input focus glow */
   .input-focus-glow {
     transition: var(--transition-smooth);
   }
 
   .input-focus-glow:focus {
-    border-color: hsl(var(--input-focus));
-    box-shadow: 0 0 0 3px hsla(var(--input-focus) / 0.1);
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
   }
 
+  /* Hover elevation - subtle */
   .hover-elevate {
     transition: var(--transition-smooth);
   }
 
   .hover-elevate:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-elevated);
+    box-shadow: var(--shadow-md);
   }
 
+  /* Mobile performance optimization */
   .mobile-transform {
     transform: translateZ(0);
     will-change: transform;
@@ -118,6 +134,12 @@ All colors MUST be HSL.
   .question-container {
     isolation: isolate;
     overflow: hidden;
+  }
+
+  /* Optional dot-grid background texture */
+  .bg-dot-pattern {
+    background-image: radial-gradient(hsl(var(--border)) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
   /* Remove focus styles on touch devices */
