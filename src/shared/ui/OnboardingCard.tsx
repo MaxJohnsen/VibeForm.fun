@@ -20,7 +20,7 @@ export const OnboardingCard = ({
   className,
 }: OnboardingCardProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-background">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-background bg-dot-pattern">
       <div
         className={cn(
           'relative w-full max-w-[480px]',

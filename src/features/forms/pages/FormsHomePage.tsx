@@ -62,7 +62,7 @@ export const FormsHomePage = () => {
   }, [forms, searchQuery, filterType, sortType]);
 
   return (
-    <PageContainer>
+    <PageContainer variant="subtle">
       <AppSidebar />
 
       <div className="ml-0 md:ml-16 px-4 md:px-8 py-4 md:py-8 pb-24 md:pb-8">

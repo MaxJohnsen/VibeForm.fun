@@ -95,7 +95,7 @@ export const LotteryPage = () => {
 
   return (
     <AppShell
-      className="bg-background"
+      className="bg-background bg-dot-pattern"
       header={
         <AppHeader
           title={form.title}
