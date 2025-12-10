@@ -37,7 +37,7 @@ export const AppShell = ({
   const isMobile = useIsMobile();
 
   return (
-    <div className={cn("h-[100dvh] flex flex-col bg-background overflow-hidden", className)}>
+    <div className={cn("h-[100dvh] flex flex-col bg-background bg-dots overflow-hidden", className)}>
       {header}
       
       <div className="flex-1 flex overflow-hidden relative">

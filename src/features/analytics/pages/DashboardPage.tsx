@@ -32,7 +32,7 @@ export const DashboardPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background p-8">
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-6 bg-gradient-dots">
           <Skeleton className="h-12 w-64" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Skeleton className="h-32" />

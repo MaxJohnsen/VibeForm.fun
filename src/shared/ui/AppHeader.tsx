@@ -56,7 +56,7 @@ export const AppHeader = ({
             </Button>
           )}
           <div className="min-w-0 flex-1">
-            <h1 className="text-base md:text-lg font-semibold truncate">
+            <h1 className="text-base md:text-lg font-heading font-semibold truncate">
               {title}
             </h1>
             {(subtitle || saveStatus) && (
