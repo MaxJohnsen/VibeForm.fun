@@ -92,6 +92,7 @@ export const LoginForm = () => {
 
       <Button
         type="submit"
+        variant="gradient"
         disabled={loading}
         size="lg"
         className="w-full"
