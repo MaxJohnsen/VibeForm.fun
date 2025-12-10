@@ -21,7 +21,7 @@ export const QuestionLabel = ({
         {optionalText}
       </span>
     )}
-    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">
+    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium text-foreground">
       {label}
     </h2>
     {description && (
