@@ -56,9 +56,7 @@ export const AppHeader = ({
             </Button>
           )}
           <div className="min-w-0 flex-1">
-            <h1 className="text-base md:text-lg font-heading font-semibold truncate">
-              {title}
-            </h1>
+            <h4 className="truncate">{title}</h4>
             {(subtitle || saveStatus) && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground truncate">
                 {saveStatus && (

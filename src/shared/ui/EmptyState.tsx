@@ -27,7 +27,7 @@ export const EmptyState = ({
       <div className="rounded-full bg-muted/50 p-6 mb-4">
         <Icon className="h-12 w-12 text-muted-foreground" />
       </div>
-      <h3 className="text-section-lg font-heading font-semibold mb-2">{title}</h3>
+      <h3 className="mb-2">{title}</h3>
       <p className="text-muted-foreground mb-6 max-w-sm">{description}</p>
       {actionLabel && onAction && (
         <Button onClick={onAction} size="lg">

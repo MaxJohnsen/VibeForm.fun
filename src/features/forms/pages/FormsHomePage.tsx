@@ -70,9 +70,7 @@ export const FormsHomePage = () => {
         <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-end gap-3">
-              <h1 className="heading-page">
-                {activeWorkspace?.name || 'Your Projects'}
-              </h1>
+              <h1>{activeWorkspace?.name || 'Your Projects'}</h1>
               {workspaces.length > 0 && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

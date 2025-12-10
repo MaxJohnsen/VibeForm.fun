@@ -99,7 +99,7 @@ export const WelcomeScreen = ({
     <div className="h-full flex items-center justify-center p-4 sm:p-6">
       <div className="max-w-2xl w-full space-y-6 sm:space-y-8 text-center animate-fade-in">
         <div className="space-y-3 sm:space-y-4">
-          <h1 className="text-title-lg sm:text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-foreground">{displayTitle}</h1>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl">{displayTitle}</h1>
           {displayDescription && (
             <div
               className="text-lg sm:text-xl prose-intro max-w-xl mx-auto px-4"
