@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Trash2, LogOut } from 'lucide-react';
+import { Trash2, LogOut } from 'lucide-react';
+import { InlineLoader } from '@/shared/ui';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -159,7 +160,7 @@ export const GeneralTab = () => {
                 disabled={isSaving || name.trim() === activeWorkspace.name}
               >
                 {isSaving ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <InlineLoader size="sm" />
                 ) : (
                   'Save'
                 )}
@@ -185,7 +186,7 @@ export const GeneralTab = () => {
                 <Button variant="outline" disabled={isLeaving}>
                   {isLeaving ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <InlineLoader size="sm" className="mr-2" />
                       Leaving...
                     </>
                   ) : (
@@ -231,7 +232,7 @@ export const GeneralTab = () => {
                 <Button variant="destructive" disabled={isDeleting}>
                   {isDeleting ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <InlineLoader size="sm" className="mr-2" />
                       Deleting...
                     </>
                   ) : (

@@ -6,6 +6,7 @@ import { defaultCountries, parseCountry } from 'react-international-phone';
 import { SupportedLanguage } from '@/shared/constants/translations';
 import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
 import { QuestionLabel } from './QuestionLabel';
+import { QuestionWrapper } from './QuestionWrapper';
 
 const phoneUtil = PhoneNumberUtil.getInstance();
 
@@ -104,7 +105,7 @@ export const PhoneQuestion = ({
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-fade-in">
+    <QuestionWrapper>
       <QuestionLabel 
         label={label}
         description={description}
@@ -124,6 +125,6 @@ export const PhoneQuestion = ({
           <p className="text-sm text-destructive animate-fade-in">{error}</p>
         )}
       </div>
-    </div>
+    </QuestionWrapper>
   );
 };

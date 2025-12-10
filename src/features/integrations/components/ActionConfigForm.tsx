@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Loader2 } from 'lucide-react';
+import { InlineLoader } from '@/shared/ui';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -169,7 +169,7 @@ export const ActionConfigForm = ({
           <h3 className="text-sm font-medium mb-4 text-muted-foreground uppercase tracking-wide">Preview</h3>
           {isLoadingPreview ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <InlineLoader size="lg" />
             </div>
           ) : previewData ? (
             <ActionPreview
@@ -200,7 +200,7 @@ export const ActionConfigForm = ({
           form="action-form"
           disabled={isSaving || !name || !isConfigValid()}
         >
-          {isSaving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          {isSaving && <InlineLoader size="sm" className="mr-2" />}
           {isSaving ? 'Saving...' : (action ? 'Save Changes' : 'Create Action')}
         </Button>
       </div>

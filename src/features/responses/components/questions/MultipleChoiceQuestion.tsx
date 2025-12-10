@@ -5,6 +5,7 @@ import { X, Check } from 'lucide-react';
 import { SupportedLanguage } from '@/shared/constants/translations';
 import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
 import { QuestionLabel } from './QuestionLabel';
+import { QuestionWrapper } from './QuestionWrapper';
 
 interface MultipleChoiceQuestionProps {
   label: string;
@@ -125,7 +126,7 @@ export const MultipleChoiceQuestion = ({
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-fade-in" onKeyPress={handleKeyPress}>
+    <QuestionWrapper>
       <QuestionLabel 
         label={label}
         description={description}
@@ -235,6 +236,6 @@ export const MultipleChoiceQuestion = ({
           )
         )}
       </div>
-    </div>
+    </QuestionWrapper>
   );
 };

@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
-import { Loader2, Plus, Zap } from 'lucide-react';
+import { Plus, Zap } from 'lucide-react';
+import { InlineLoader } from '@/shared/ui';
 import { Button } from '@/components/ui/button';
 import { useIntegrations } from '../hooks/useIntegrations';
 import { ActionCard } from '../components/ActionCard';
@@ -199,7 +200,7 @@ export const ActionsPage = () => {
           {/* Actions List or Empty State */}
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <InlineLoader size="lg" />
             </div>
           ) : filteredActions.length === 0 && integrations.length === 0 ? (
             <EmptyState

@@ -93,7 +93,9 @@ export const LoginForm = () => {
       <Button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-primary to-primary-glow text-white hover:opacity-90 hover-elevate py-6 rounded-xl text-base font-medium shadow-lg"
+        variant="gradient-lg"
+        size="xl"
+        className="w-full"
       >
         {loading ? 'Signing in...' : 'Sign in'}
       </Button>

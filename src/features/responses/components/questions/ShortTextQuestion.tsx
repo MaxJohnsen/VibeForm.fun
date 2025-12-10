@@ -3,6 +3,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { SupportedLanguage } from '@/shared/constants/translations';
 import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
 import { QuestionLabel } from './QuestionLabel';
+import { QuestionWrapper } from './QuestionWrapper';
 import { RespondentInput } from './RespondentInput';
 
 interface ShortTextQuestionProps {
@@ -59,7 +60,7 @@ export const ShortTextQuestion = ({
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-fade-in">
+    <QuestionWrapper>
       <QuestionLabel 
         label={label}
         description={description}
@@ -82,6 +83,6 @@ export const ShortTextQuestion = ({
           {value.length} / {maxLength}
         </p>
       )}
-    </div>
+    </QuestionWrapper>
   );
 };
