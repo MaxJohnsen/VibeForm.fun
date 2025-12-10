@@ -39,7 +39,7 @@ export const AppHeader = ({
 
   return (
     <header className={cn(
-      "h-14 md:h-16 border-b border-border/50 glass-panel flex-shrink-0",
+      "h-14 md:h-16 border-b border-border bg-card flex-shrink-0",
       className
     )}>
       <div className="h-full px-4 md:px-6 flex items-center justify-between">
@@ -56,7 +56,7 @@ export const AppHeader = ({
             </Button>
           )}
           <div className="min-w-0 flex-1">
-            <h1 className="text-base md:text-lg font-semibold truncate">
+            <h1 className="text-base md:text-lg font-semibold truncate font-heading">
               {title}
             </h1>
             {(subtitle || saveStatus) && (
@@ -66,8 +66,8 @@ export const AppHeader = ({
                     <div className={cn(
                       "h-1.5 w-1.5 rounded-full",
                       saveStatus === 'saving' && "bg-muted-foreground animate-pulse",
-                      saveStatus === 'saved' && "bg-green-500",
-                      saveStatus === 'idle' && "bg-green-500"
+                      saveStatus === 'saved' && "bg-success",
+                      saveStatus === 'idle' && "bg-success"
                     )} />
                     <span>{saveStatus === 'saving' ? 'Saving...' : 'Saved'}</span>
                     {subtitle && <span>•</span>}

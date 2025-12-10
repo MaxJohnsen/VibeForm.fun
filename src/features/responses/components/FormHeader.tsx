@@ -11,15 +11,13 @@ export const FormHeader = ({ currentQuestion, totalQuestions, onClose }: FormHea
   const progress = (currentQuestion / totalQuestions) * 100;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-sm border-b border-border">
       <div className="px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Brand - Simplified on mobile */}
+        {/* Brand */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <div className="relative">
-            <span className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
-              Fairform
-            </span>
-          </div>
+          <span className="text-xl sm:text-2xl font-bold tracking-tight text-primary font-heading">
+            Fairform
+          </span>
         </div>
 
         {/* Progress - Centered and responsive */}
