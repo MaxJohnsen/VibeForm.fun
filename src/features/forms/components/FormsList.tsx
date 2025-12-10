@@ -7,10 +7,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface FormsListProps {
   forms: Form[];
   isLoading: boolean;
+  memberEmailMap?: Record<string, string>;
   onCreateNew: () => void;
 }
 
-export const FormsList = ({ forms, isLoading, onCreateNew }: FormsListProps) => {
+export const FormsList = ({ forms, isLoading, memberEmailMap, onCreateNew }: FormsListProps) => {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -36,7 +37,11 @@ export const FormsList = ({ forms, isLoading, onCreateNew }: FormsListProps) => 
   return (
     <div className="space-y-4 animate-fade-in">
       {forms.map((form) => (
-        <FormCardEnhanced key={form.id} form={form} />
+        <FormCardEnhanced 
+          key={form.id} 
+          form={form} 
+          creatorEmail={memberEmailMap?.[form.created_by]}
+        />
       ))}
     </div>
   );

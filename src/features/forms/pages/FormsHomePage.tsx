@@ -8,7 +8,8 @@ import { ActivityFeed } from '../components/ActivityFeed';
 import { useForms } from '../hooks/useForms';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
-import { useWorkspaceContext, CreateWorkspaceDialog } from '@/features/workspaces';
+import { useWorkspaceContext, CreateWorkspaceDialog, workspacesApi } from '@/features/workspaces';
+import { useQuery } from '@tanstack/react-query';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +29,22 @@ export const FormsHomePage = () => {
   const [filterType, setFilterType] = useState<FilterType>('all');
   const [sortType, setSortType] = useState<SortType>('updated');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+
+  // Fetch workspace members to get email addresses
+  const { data: members = [] } = useQuery({
+    queryKey: ['workspace-members', activeWorkspace?.id],
+    queryFn: () => workspacesApi.getWorkspaceMembers(activeWorkspace!.id),
+    enabled: !!activeWorkspace?.id,
+  });
+
+  // Create userId -> email lookup map
+  const memberEmailMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    members.forEach(m => {
+      if (m.email) map[m.user_id] = m.email;
+    });
+    return map;
+  }, [members]);
 
   const filteredAndSortedForms = useMemo(() => {
     let filtered = forms;
@@ -198,6 +215,7 @@ export const FormsHomePage = () => {
             <FormsList
               forms={filteredAndSortedForms}
               isLoading={isLoading}
+              memberEmailMap={memberEmailMap}
               onCreateNew={() => navigate(ROUTES.CREATE_FORM)}
             />
           </main>

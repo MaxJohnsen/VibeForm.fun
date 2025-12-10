@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 
 interface FormCardEnhancedProps {
   form: Form;
+  creatorEmail?: string;
 }
 
 interface FormStats {
@@ -31,10 +32,9 @@ interface FormStats {
   integrationCount: number;
   dailyResponses: number[];
   lastResponseAt: string | null;
-  creatorEmail: string | null;
 }
 
-export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
+export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) => {
   const navigate = useNavigate();
   const [shareOpen, setShareOpen] = useState(false);
   const [stats, setStats] = useState<FormStats>({
@@ -44,12 +44,10 @@ export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
     integrationCount: 0,
     dailyResponses: [],
     lastResponseAt: null,
-    creatorEmail: null,
   });
 
   useEffect(() => {
     const fetchStats = async () => {
-      // Fetch all stats in parallel
       const [
         { count: responseCount },
         { count: completedCount },
@@ -63,11 +61,9 @@ export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
         supabase.from('questions').select('*', { count: 'exact', head: true }).eq('form_id', form.id),
         supabase.from('form_integrations').select('*', { count: 'exact', head: true }).eq('form_id', form.id).eq('enabled', true),
         supabase.from('responses').select('completed_at').eq('form_id', form.id).eq('status', 'completed').order('completed_at', { ascending: false }).limit(1).maybeSingle(),
-        // Get responses from last 7 days for sparkline
         supabase.from('responses').select('started_at').eq('form_id', form.id).gte('started_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
       ]);
 
-      // Process daily responses for sparkline
       const dailyResponses = Array(7).fill(0);
       (dailyData || []).forEach((r: any) => {
         const dayIndex = 6 - Math.floor((Date.now() - new Date(r.started_at).getTime()) / (24 * 60 * 60 * 1000));
@@ -76,26 +72,6 @@ export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
         }
       });
 
-      // Fetch creator email
-      let creatorEmail: string | null = null;
-      try {
-        const { data: memberData } = await supabase
-          .from('workspace_members')
-          .select('user_id')
-          .eq('workspace_id', form.workspace_id)
-          .eq('user_id', form.created_by)
-          .maybeSingle();
-        
-        if (memberData) {
-          // We can't directly access auth.users from client, so we'll use the created_by as email hint
-          // For now, just show a truncated version
-          creatorEmail = form.created_by;
-        }
-      } catch (e) {
-        // Fallback - just use created_by
-        creatorEmail = form.created_by;
-      }
-
       setStats({
         responseCount: responseCount || 0,
         completedCount: completedCount || 0,
@@ -103,12 +79,11 @@ export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
         integrationCount: integrationCount || 0,
         dailyResponses,
         lastResponseAt: lastResponse?.completed_at || null,
-        creatorEmail,
       });
     };
 
     fetchStats();
-  }, [form.id, form.created_by, form.workspace_id]);
+  }, [form.id]);
 
   const handlePreview = () => {
     window.open(ROUTES.getRespondentRoute(form.id), '_blank');
@@ -224,14 +199,17 @@ export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
           </div>
         </div>
 
+        {/* Separator */}
+        <div className="border-t border-border/50 my-3" />
+
         {/* Row 2: Creator info + Last response */}
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             {/* Avatar with initials */}
             <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-medium text-primary">
-              {getInitials(stats.creatorEmail)}
+              {getInitials(creatorEmail)}
             </div>
-            <span className="truncate max-w-[180px]">{getDisplayEmail(stats.creatorEmail)}</span>
+            <span className="truncate max-w-[180px]">{getDisplayEmail(creatorEmail)}</span>
             <span className="text-muted-foreground/50">·</span>
             <span>Created {format(new Date(form.created_at || new Date()), 'MMM d, yyyy')}</span>
           </div>
