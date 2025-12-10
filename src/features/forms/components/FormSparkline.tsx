@@ -1,4 +1,4 @@
-import { Area, AreaChart, ResponsiveContainer } from 'recharts';
+import { Bar, BarChart, ResponsiveContainer } from 'recharts';
 
 interface FormSparklineProps {
   data: number[];
@@ -13,11 +13,11 @@ export const FormSparkline = ({ data }: FormSparklineProps) => {
   if (!hasData) {
     return (
       <div className="w-20 h-8 flex items-center justify-center">
-        <div className="flex gap-0.5">
+        <div className="flex gap-1 items-end">
           {[...Array(7)].map((_, i) => (
             <div 
               key={i} 
-              className="w-1.5 h-1 rounded-full bg-muted-foreground/20" 
+              className="w-2 h-2 rounded-sm bg-muted-foreground/20" 
             />
           ))}
         </div>
@@ -28,22 +28,14 @@ export const FormSparkline = ({ data }: FormSparklineProps) => {
   return (
     <div className="w-20 h-8">
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-          <defs>
-            <linearGradient id="sparklineGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <Area
-            type="monotone"
+        <BarChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+          <Bar
             dataKey="value"
-            stroke="hsl(var(--primary))"
-            strokeWidth={1.5}
-            fill="url(#sparklineGradient)"
+            fill="hsl(var(--primary))"
+            radius={[2, 2, 0, 0]}
             isAnimationActive={false}
           />
-        </AreaChart>
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );
