@@ -3,10 +3,12 @@ import { MessageSquare, Mail, Webhook, Zap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SlackIcon } from '@/shared/ui/icons';
+import { cn } from '@/lib/utils';
 
 interface ActivityItem {
   id: string;
-  type: 'response' | 'email' | 'webhook' | 'slack';
+  type: 'response' | 'email' | 'webhook' | 'slack' | 'zapier';
   formTitle: string;
   formId: string;
   timestamp: string;
@@ -16,6 +18,41 @@ interface ActivityItem {
 interface ActivityFeedProps {
   workspaceId: string | undefined;
 }
+
+const getActivityStyle = (type: ActivityItem['type']) => {
+  switch (type) {
+    case 'response':
+      return {
+        bg: 'bg-primary/10',
+        icon: 'text-primary',
+      };
+    case 'email':
+      return {
+        bg: 'bg-emerald-500/10',
+        icon: 'text-emerald-600 dark:text-emerald-400',
+      };
+    case 'slack':
+      return {
+        bg: 'bg-amber-500/10',
+        icon: 'text-amber-600 dark:text-amber-400',
+      };
+    case 'webhook':
+      return {
+        bg: 'bg-sky-500/10',
+        icon: 'text-sky-600 dark:text-sky-400',
+      };
+    case 'zapier':
+      return {
+        bg: 'bg-orange-500/10',
+        icon: 'text-orange-600 dark:text-orange-400',
+      };
+    default:
+      return {
+        bg: 'bg-muted',
+        icon: 'text-muted-foreground',
+      };
+  }
+};
 
 export const ActivityFeed = ({ workspaceId }: ActivityFeedProps) => {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
@@ -110,8 +147,9 @@ export const ActivityFeed = ({ workspaceId }: ActivityFeedProps) => {
     switch (type) {
       case 'response': return MessageSquare;
       case 'email': return Mail;
-      case 'slack': return Zap;
+      case 'slack': return SlackIcon;
       case 'webhook': return Webhook;
+      case 'zapier': return Zap;
       default: return MessageSquare;
     }
   };
@@ -144,10 +182,14 @@ export const ActivityFeed = ({ workspaceId }: ActivityFeedProps) => {
     <div className="space-y-3">
       {activities.map((activity) => {
         const Icon = getIcon(activity.type);
+        const style = getActivityStyle(activity.type);
         return (
           <div key={activity.id} className="flex gap-3 group">
-            <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-              <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+            <div className={cn(
+              "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
+              style.bg
+            )}>
+              <Icon className={cn("h-3.5 w-3.5", style.icon)} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{activity.formTitle}</p>
