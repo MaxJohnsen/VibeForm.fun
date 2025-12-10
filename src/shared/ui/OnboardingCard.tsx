@@ -38,9 +38,9 @@ export const OnboardingCard = ({
         <div className="relative flex flex-col items-center gap-8">
           {/* Brand Logo */}
           <div className="relative">
-            <h1 className="text-title-lg sm:text-5xl font-heading font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
+            <span className="text-4xl sm:text-5xl font-semibold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
               Fairform
-            </h1>
+            </span>
             <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/20 via-teal-500/20 to-emerald-500/20 blur-2xl -z-10 animate-pulse" />
           </div>
 
@@ -51,9 +51,7 @@ export const OnboardingCard = ({
                 <Icon className="h-5 w-5" />
               </div>
             )}
-            <h2 className="text-section-lg sm:text-title font-heading font-semibold text-foreground">
-              {title}
-            </h2>
+            <h2>{title}</h2>
             {subtitle && (
               <p className="text-muted-foreground max-w-sm text-sm sm:text-base leading-relaxed">
                 {subtitle}

@@ -125,7 +125,7 @@ export const FormCard = ({ form }: FormCardProps) => {
       <GlassCard className="p-6 hover-elevate transition-all duration-300 relative">
         {/* Form Title and Status */}
         <div className="flex items-start justify-between gap-3 mb-4">
-          <h3 className="font-heading font-bold text-lg flex-1">{form.title}</h3>
+          <h3 className="flex-1">{form.title}</h3>
           <Badge className={`${getStatusColor(form.status)} capitalize rounded-full px-3 py-1 text-xs font-medium border flex-shrink-0`}>
             {form.status}
           </Badge>

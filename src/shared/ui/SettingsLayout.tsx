@@ -35,7 +35,7 @@ export const SettingsLayout = ({
     <div className={cn('flex flex-col h-full', className)}>
       {/* Header */}
       <div className="px-4 md:px-6 py-4 md:py-6 border-b border-border/50">
-        <h1 className="heading-page">{title}</h1>
+        <h1>{title}</h1>
         {subtitle && (
           <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
         )}

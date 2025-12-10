@@ -73,6 +73,21 @@ All colors MUST be HSL.
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
+
+  /* Base heading styles - Outfit font, semibold weight */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: theme('fontFamily.heading');
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  h1 { @apply text-title-lg; }
+  h2 { @apply text-title; }
+  h3 { @apply text-section-lg; }
+  h4 { @apply text-section; }
+  h5 { @apply text-lg; }
+  h6 { @apply text-base; }
 }
 
 @layer base {
@@ -96,32 +111,6 @@ All colors MUST be HSL.
   }
 }
 
-@layer components {
-  /* Page titles - largest headings */
-  .heading-page {
-    @apply font-heading font-bold text-title md:text-title-lg text-foreground;
-  }
-  
-  /* Section headers */
-  .heading-section {
-    @apply font-heading font-semibold text-section md:text-section-lg text-foreground;
-  }
-  
-  /* Card/subsection titles */
-  .heading-card {
-    @apply font-heading font-semibold text-lg text-foreground;
-  }
-  
-  /* Body text */
-  .text-body {
-    @apply font-sans font-normal text-body text-foreground;
-  }
-  
-  /* Muted/secondary text */
-  .text-muted-body {
-    @apply font-sans font-normal text-sm text-muted-foreground;
-  }
-}
 
 @layer utilities {
   /* Dot pattern background utilities */
