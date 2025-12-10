@@ -14,21 +14,21 @@ export const SettingsCard = forwardRef<HTMLDivElement, SettingsCardProps>(
       <div
         ref={ref}
         className={cn(
-          'glass-panel rounded-2xl shadow-sm',
+          'bg-card border border-border rounded-2xl shadow-sm',
           'animate-fade-in',
-          variant === 'danger' && 'border-destructive/30 bg-destructive/5',
+          variant === 'danger' && 'border-destructive/30 bg-red-50',
           className
         )}
         {...props}
       >
         {(title || description) && (
           <div className={cn(
-            'px-5 py-4 border-b border-border/30',
+            'px-5 py-4 border-b border-border',
             variant === 'danger' && 'border-destructive/20'
           )}>
             {title && (
               <h3 className={cn(
-                'font-semibold',
+                'font-semibold font-heading',
                 variant === 'danger' && 'text-destructive'
               )}>
                 {title}

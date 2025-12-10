@@ -7,7 +7,7 @@ export const LoadingBar = ({ isLoading }: LoadingBarProps) => {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[100] h-1 bg-transparent overflow-hidden">
-      <div className="h-full bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 animate-loading-slide" />
+      <div className="h-full bg-primary animate-loading-slide" />
     </div>
   );
 };

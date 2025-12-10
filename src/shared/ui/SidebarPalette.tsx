@@ -49,13 +49,13 @@ export const SidebarPalette = ({
 
   return (
     <div className={cn(
-      "border-r border-border/50 glass-panel h-full overflow-y-auto transition-opacity",
+      "border-r border-border bg-card h-full overflow-y-auto transition-opacity",
       disabled && "opacity-50 pointer-events-none",
       className
     )}>
       {/* Header */}
-      <div className="p-6 pb-4 sticky top-0 glass-panel border-b border-border/50 z-10">
-        <h2 className="font-semibold text-lg mb-1">{title}</h2>
+      <div className="p-6 pb-4 sticky top-0 bg-card border-b border-border z-10">
+        <h2 className="font-semibold text-lg mb-1 font-heading">{title}</h2>
         {subtitle && (
           <p className="text-xs text-muted-foreground mb-4">{subtitle}</p>
         )}
@@ -68,7 +68,7 @@ export const SidebarPalette = ({
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-9 bg-background/50"
+              className="pl-10 h-9"
             />
           </div>
         )}
@@ -84,12 +84,12 @@ export const SidebarPalette = ({
                 key={item.id}
                 variant="ghost"
                 onClick={() => onSelect(item.id)}
-                className="w-full h-auto text-left p-4 rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group justify-start"
+                className="w-full h-auto text-left p-4 rounded-xl border border-border hover:border-primary/30 hover:bg-primary/5 transition-all duration-200 group justify-start"
               >
                 <div className="flex items-start gap-3 w-full">
                   <div className={cn(
                     'rounded-lg p-2 transition-colors',
-                    item.colorClass || 'bg-muted/50'
+                    item.colorClass || 'bg-secondary'
                   )}>
                     <Icon className="h-5 w-5" />
                   </div>

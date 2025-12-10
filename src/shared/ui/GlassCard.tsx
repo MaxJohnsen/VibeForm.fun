@@ -21,9 +21,9 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
       <div
         ref={ref}
         className={cn(
-          'glass-panel rounded-2xl',
+          'bg-card border border-border rounded-2xl shadow-sm',
           paddingClasses[padding],
-          hover && 'hover:shadow-lg transition-all duration-200',
+          hover && 'hover:bg-secondary/50 transition-colors duration-200',
           animate && 'animate-fade-in',
           className
         )}
