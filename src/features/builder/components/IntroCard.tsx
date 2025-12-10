@@ -27,6 +27,7 @@ export const IntroCard = ({
 
   return (
     <GlassCard
+      padding="none"
       onClick={onSelect}
       className={cn(
         'p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-200',
