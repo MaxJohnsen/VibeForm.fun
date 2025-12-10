@@ -1,4 +1,4 @@
-import { FormCard } from './FormCard';
+import { FormCardEnhanced } from './FormCardEnhanced';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Form } from '../api/formsApi';
 import { FileText } from 'lucide-react';
@@ -13,11 +13,9 @@ interface FormsListProps {
 export const FormsList = ({ forms, isLoading, onCreateNew }: FormsListProps) => {
   if (isLoading) {
     return (
-      <div className="flex flex-wrap gap-6">
+      <div className="space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="min-w-[320px] flex-1 max-w-md">
-            <Skeleton className="h-48 rounded-2xl" />
-          </div>
+          <Skeleton key={i} className="h-32 rounded-2xl" />
         ))}
       </div>
     );
@@ -36,11 +34,9 @@ export const FormsList = ({ forms, isLoading, onCreateNew }: FormsListProps) => 
   }
 
   return (
-    <div className="flex flex-wrap gap-6 animate-fade-in">
+    <div className="space-y-4 animate-fade-in">
       {forms.map((form) => (
-        <div key={form.id} className="min-w-[320px] flex-1 max-w-md">
-          <FormCard form={form} />
-        </div>
+        <FormCardEnhanced key={form.id} form={form} />
       ))}
     </div>
   );

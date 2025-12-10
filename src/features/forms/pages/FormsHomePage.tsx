@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react';
-import { Plus, Filter, ArrowUpDown, ChevronsUpDown, Building2, Check } from 'lucide-react';
+import { Plus, ChevronsUpDown, Building2, Check, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SearchBar, AppSidebar, PageContainer } from '@/shared/ui';
 import { FormsList } from '../components/FormsList';
+import { StatusFilterTabs } from '../components/StatusFilterTabs';
+import { ActivityFeed } from '../components/ActivityFeed';
 import { useForms } from '../hooks/useForms';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
@@ -124,53 +126,58 @@ export const FormsHomePage = () => {
               <span className="md:hidden">New</span>
             </Button>
           </div>
+        </div>
 
-          {/* Search and Filters */}
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="flex-1">
-              <SearchBar
-                placeholder="Search your forms..."
-                value={searchQuery}
-                onChange={setSearchQuery}
+        {/* 3-Column Layout */}
+        <div className="flex gap-8">
+          {/* Left Sidebar: Status Filters (hidden on mobile) */}
+          <aside className="hidden lg:block w-48 shrink-0">
+            <div className="sticky top-8">
+              <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 px-3">
+                Filter
+              </h2>
+              <StatusFilterTabs 
+                forms={forms}
+                activeFilter={filterType}
+                onFilterChange={setFilterType}
               />
             </div>
+          </aside>
 
-            {/* Filter Dropdown */}
-            <div className="flex gap-2 md:contents">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="gap-2 md:w-auto md:px-4 shrink-0">
-                    <Filter className="h-4 w-4" />
-                    <span className="hidden md:inline">Filter</span>
-                    {filterType !== 'all' && (
-                      <span className="hidden md:inline ml-1 text-xs text-muted-foreground">
-                        ({filterType})
-                      </span>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setFilterType('all')}>
-                    All Forms
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterType('active')}>
-                    Active
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterType('draft')}>
-                    Draft
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setFilterType('archived')}>
-                    Archived
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+          {/* Center: Form Cards */}
+          <main className="flex-1 min-w-0">
+            {/* Search and Sort Row */}
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex-1">
+                <SearchBar
+                  placeholder="Search forms..."
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                />
+              </div>
+              
+              {/* Mobile Filter */}
+              <div className="lg:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      {filterType === 'all' ? 'All' : filterType}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setFilterType('all')}>All Forms</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterType('active')}>Active</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterType('draft')}>Draft</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterType('archived')}>Archived</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
               {/* Sort Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="gap-2 md:w-auto md:px-4 shrink-0">
+                  <Button variant="outline" size="icon" className="shrink-0">
                     <ArrowUpDown className="h-4 w-4" />
-                    <span className="hidden md:inline">Sort</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -185,17 +192,26 @@ export const FormsHomePage = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
             </div>
-          </div>
-        </div>
 
-        {/* Forms Grid */}
-        <FormsList
-          forms={filteredAndSortedForms}
-          isLoading={isLoading}
-          onCreateNew={() => navigate(ROUTES.CREATE_FORM)}
-        />
+            {/* Forms List */}
+            <FormsList
+              forms={filteredAndSortedForms}
+              isLoading={isLoading}
+              onCreateNew={() => navigate(ROUTES.CREATE_FORM)}
+            />
+          </main>
+
+          {/* Right Sidebar: Activity Feed (hidden on mobile/tablet) */}
+          <aside className="hidden xl:block w-72 shrink-0">
+            <div className="sticky top-8">
+              <h2 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+                Activity
+              </h2>
+              <ActivityFeed workspaceId={activeWorkspace?.id} />
+            </div>
+          </aside>
+        </div>
       </div>
 
       <CreateWorkspaceDialog 
