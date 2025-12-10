@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2 } from 'lucide-react';
+import { InlineLoader } from '@/shared/ui';
 
 interface CreateWorkspaceFormProps {
   onSubmit: (name: string) => Promise<void>;
@@ -66,7 +66,7 @@ export const CreateWorkspaceForm = ({
       >
         {isLoading ? (
           <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <InlineLoader size="sm" />
             Creating...
           </>
         ) : (

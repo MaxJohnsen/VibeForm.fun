@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, Check, X, Loader2 } from 'lucide-react';
+import { Mail, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { InlineLoader } from '@/shared/ui';
 import { workspacesApi, PendingInvite } from '../api/workspacesApi';
 import { useWorkspaceContext } from '../context/WorkspaceContext';
 
@@ -83,8 +84,10 @@ export const PendingInvitesNotification = () => {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <button
-          className="relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-accent text-muted-foreground hover:text-foreground transition-all duration-200"
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative rounded-xl"
           aria-label="Pending invites"
         >
           <Mail className="h-5 w-5" />
@@ -96,7 +99,7 @@ export const PendingInvitesNotification = () => {
               {invites.length}
             </Badge>
           )}
-        </button>
+        </Button>
       </PopoverTrigger>
       <PopoverContent 
         side="top" 
@@ -112,7 +115,7 @@ export const PendingInvitesNotification = () => {
         <div className="max-h-64 overflow-y-auto">
           {isLoading ? (
             <div className="flex justify-center py-6">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              <InlineLoader />
             </div>
           ) : (
             <div className="divide-y">
@@ -133,7 +136,7 @@ export const PendingInvitesNotification = () => {
                       onClick={() => handleAccept(invite.id)}
                     >
                       {processingId === invite.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <InlineLoader size="sm" />
                       ) : (
                         <>
                           <Check className="h-4 w-4 mr-1" />

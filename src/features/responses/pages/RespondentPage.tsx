@@ -7,7 +7,7 @@ import { FormHeader } from '../components/FormHeader';
 import { FormNavigation } from '../components/FormNavigation';
 import { WelcomeScreen } from '../components/WelcomeScreen';
 import { LoadingBar } from '../components/LoadingBar';
-import { Loader2 } from 'lucide-react';
+import { PageLoader, InlineLoader } from '@/shared/ui';
 import { debounce } from '@/shared/utils/debounce';
 import { useTranslation } from '../hooks/useTranslation';
 import { SupportedLanguage } from '@/shared/constants/translations';
@@ -155,14 +155,7 @@ export const RespondentPage = () => {
   }
 
   if (isLoading) {
-    return (
-      <div className="h-[100dvh] flex items-center justify-center p-4 bg-gradient-to-br from-background via-background to-primary/5">
-        <div className="flex items-center justify-center space-x-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="text-xl text-foreground">Loading form...</span>
-        </div>
-      </div>
-    );
+    return <PageLoader text="Loading form..." />;
   }
 
   if (showWelcome && formInfo) {
@@ -233,7 +226,7 @@ export const RespondentPage = () => {
       {isStarting && (
         <div className="flex-1 flex items-center justify-center px-6">
           <div className="flex items-center justify-center space-x-3">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <InlineLoader size="lg" />
             <span className="text-xl text-foreground">{t.loading.starting}</span>
           </div>
         </div>

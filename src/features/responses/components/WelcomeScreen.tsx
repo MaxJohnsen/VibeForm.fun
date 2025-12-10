@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { InlineLoader } from "@/shared/ui";
 import { Turnstile, TurnstileInstance } from "@marsidev/react-turnstile";
 import { IntroSettings } from "@/features/builder/types/screenSettings";
 import { useTranslation } from "../hooks/useTranslation";
@@ -133,12 +134,12 @@ export const WelcomeScreen = ({
         >
         {isStarting ? (
             <>
-              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+              <InlineLoader size="sm" />
               <span>{t.loading.starting}</span>
             </>
           ) : requiresTurnstile && verificationStarted && isTokenLoading ? (
             <>
-              <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+              <InlineLoader size="sm" />
               <span>{t.welcome.verifying}</span>
             </>
           ) : requiresTurnstile && turnstileError ? (
