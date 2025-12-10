@@ -23,7 +23,7 @@ export const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(
         className={cn(
           'bg-card border border-border rounded-2xl shadow-sm',
           paddingClasses[padding],
-          hover && 'hover:bg-secondary/50 transition-colors duration-200',
+          hover && 'hover:shadow-md hover:border-border/80 transition-all duration-200',
           animate && 'animate-fade-in',
           className
         )}
