@@ -1,8 +1,7 @@
-import { Check, X } from 'lucide-react';
+import { Check, X, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PendingInvite } from '../api/workspacesApi';
 import { cn } from '@/lib/utils';
-import { Building2 } from 'lucide-react';
 import { GlassCard, InlineLoader } from '@/shared/ui';
 
 interface InviteCardProps {
