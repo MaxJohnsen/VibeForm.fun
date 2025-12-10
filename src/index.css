@@ -82,12 +82,12 @@ All colors MUST be HSL.
     line-height: 1.2;
   }
 
-  h1 { @apply text-title-lg; }
-  h2 { @apply text-title; }
-  h3 { @apply text-section-lg; }
-  h4 { @apply text-section; }
-  h5 { @apply text-lg; }
-  h6 { @apply text-base; }
+  h1 { @apply text-title; }
+  h2 { @apply text-section-lg; }
+  h3 { @apply text-section; }
+  h4 { @apply text-lg; }
+  h5 { @apply text-base; }
+  h6 { @apply text-sm; }
 }
 
 @layer base {
