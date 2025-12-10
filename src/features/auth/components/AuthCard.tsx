@@ -9,7 +9,7 @@ interface AuthCardProps {
 export const AuthCard = ({ children, title, subtitle }: AuthCardProps) => {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <GlassCard className="max-w-[420px]">
+      <GlassCard padding="lg" className="max-w-[420px] w-full">
         <div className="flex flex-col items-center gap-6">
           {/* Brand Logo */}
           <div className="relative">

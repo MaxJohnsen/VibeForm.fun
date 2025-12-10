@@ -34,6 +34,7 @@ export const ContentCard = ({
 }: ContentCardProps) => {
   return (
     <GlassCard
+      padding="none"
       className={cn(
         paddingClasses[padding],
         roundedClasses[rounded],

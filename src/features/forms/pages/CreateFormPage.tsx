@@ -50,8 +50,8 @@ export const CreateFormPage = () => {
           Back to Forms
         </Button>
 
-        <GlassCard>
-          <h1 className="text-3xl font-bold mb-2">Create New Form</h1>
+        <GlassCard padding="lg">
+          <h1 className="text-3xl font-bold mb-3">Create New Form</h1>
           <p className="text-muted-foreground mb-8">
             Give your form a name to get started
           </p>
