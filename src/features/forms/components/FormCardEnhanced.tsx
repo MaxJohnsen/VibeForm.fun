@@ -146,9 +146,6 @@ export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) 
             
             {/* Stats with full labels */}
             <div className="flex items-center gap-1 text-xs text-muted-foreground flex-wrap">
-              <MessageSquare className="h-3.5 w-3.5" />
-              <span>{stats.responseCount} submissions</span>
-              <span className="mx-1.5">·</span>
               <HelpCircle className="h-3.5 w-3.5" />
               <span>{stats.questionCount} questions</span>
               {stats.integrationCount > 0 && (
