@@ -22,9 +22,12 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 6% 12%;
 
-    /* Primary - Deep Burnt Orange */
+    /* Primary - Deep Burnt Orange (brand, accents, links) */
     --primary: 20 90% 45%;
     --primary-foreground: 0 0% 100%;
+
+    /* Primary Button - Vibrant Orange (CTAs, main actions) */
+    --primary-button: 24 95% 52%;
 
     /* Accent - Sunny Yellow */
     --accent: 38 92% 56%;
