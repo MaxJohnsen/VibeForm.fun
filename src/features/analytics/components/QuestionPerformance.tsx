@@ -449,6 +449,6 @@ export const QuestionPerformance = ({ questions, responses, formId }: QuestionPe
           );
         })}
       </div>
-    </div>
+    </ContentCard>
   );
 };
