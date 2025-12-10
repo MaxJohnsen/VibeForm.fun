@@ -20,7 +20,7 @@ export const OnboardingCard = ({
   className,
 }: OnboardingCardProps) => {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
+    <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-gradient-dots">
       <div
         className={cn(
           'relative w-full max-w-[480px]',
@@ -38,7 +38,7 @@ export const OnboardingCard = ({
         <div className="relative flex flex-col items-center gap-8">
           {/* Brand Logo */}
           <div className="relative">
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
+            <h1 className="text-title-lg sm:text-5xl font-heading font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
               Fairform
             </h1>
             <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/20 via-teal-500/20 to-emerald-500/20 blur-2xl -z-10 animate-pulse" />
@@ -51,7 +51,7 @@ export const OnboardingCard = ({
                 <Icon className="h-5 w-5" />
               </div>
             )}
-            <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
+            <h2 className="text-section-lg sm:text-title font-heading font-semibold text-foreground">
               {title}
             </h2>
             {subtitle && (

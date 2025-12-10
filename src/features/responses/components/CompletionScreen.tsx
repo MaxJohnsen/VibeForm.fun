@@ -41,7 +41,7 @@ export const CompletionScreen = ({ formTitle, endSettings, language = 'en' }: Co
       </div>
       
       <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-bold">{title}</h1>
+        <h1 className="text-section-lg sm:text-title font-heading font-bold">{title}</h1>
         <p className="text-base sm:text-lg text-muted-foreground max-w-md whitespace-pre-wrap">
           {message}
         </p>

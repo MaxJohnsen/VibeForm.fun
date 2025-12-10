@@ -13,6 +13,24 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Outfit', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        // Body text: 16-18px
+        'body': ['1rem', { lineHeight: '1.5' }],
+        'body-lg': ['1.125rem', { lineHeight: '1.5' }],
+        // Section headers: 20-24px
+        'section': ['1.25rem', { lineHeight: '1.25', letterSpacing: '-0.01em' }],
+        'section-lg': ['1.5rem', { lineHeight: '1.25', letterSpacing: '-0.01em' }],
+        // Page titles: 28-36px
+        'title': ['1.75rem', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
+        'title-lg': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
+        // Button text: 14-16px
+        'button': ['0.875rem', { lineHeight: '1' }],
+        'button-lg': ['1rem', { lineHeight: '1' }],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

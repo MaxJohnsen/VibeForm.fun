@@ -8,9 +8,9 @@ export interface SectionHeaderProps {
 }
 
 const sizeClasses = {
-  sm: 'text-sm font-medium mb-2 md:mb-3',
-  md: 'text-lg font-semibold mb-3 md:mb-4',
-  lg: 'text-xl font-semibold mb-4 md:mb-5',
+  sm: 'text-sm font-heading font-medium mb-2 md:mb-3',
+  md: 'text-lg font-heading font-semibold mb-3 md:mb-4',
+  lg: 'text-xl font-heading font-semibold mb-4 md:mb-5',
 };
 
 export const SectionHeader = ({

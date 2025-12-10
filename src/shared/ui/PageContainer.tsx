@@ -8,9 +8,9 @@ export interface PageContainerProps {
 }
 
 const variantClasses = {
-  default: 'bg-gradient-to-br from-background via-background to-muted/20',
-  subtle: 'bg-background',
-  accent: 'bg-gradient-to-br from-background via-muted/10 to-primary/5',
+  default: 'bg-gradient-dots',
+  subtle: 'bg-dots bg-background',
+  accent: 'bg-gradient-dots',
 };
 
 export const PageContainer = ({

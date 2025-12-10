@@ -434,7 +434,7 @@ export const FormBuilderPage = () => {
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
+    <div className="h-[100dvh] flex flex-col bg-background bg-dots overflow-hidden">
       <BuilderTopBar
         form={form || null}
         isSaving={isSaving}
