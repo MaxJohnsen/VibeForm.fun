@@ -27,7 +27,7 @@ export const FormsHomePage = () => {
   const { workspaces, activeWorkspace, setActiveWorkspace } = useWorkspaceContext();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<FilterType>('all');
-  const [sortType, setSortType] = useState<SortType>('updated');
+  const [sortType, setSortType] = useState<SortType>('created');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   // Fetch workspace members to get email addresses
@@ -165,13 +165,12 @@ export const FormsHomePage = () => {
           <main className="flex-1 min-w-0">
             {/* Search and Sort Row */}
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex-1">
-                <SearchBar
-                  placeholder="Search forms..."
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                />
-              </div>
+              <SearchBar
+                placeholder="Search forms..."
+                value={searchQuery}
+                onChange={setSearchQuery}
+                className="max-w-none"
+              />
               
               {/* Mobile Filter */}
               <div className="lg:hidden">
