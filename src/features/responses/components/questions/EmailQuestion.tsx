@@ -4,6 +4,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { SupportedLanguage } from '@/shared/constants/translations';
 import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
 import { QuestionLabel } from './QuestionLabel';
+import { RespondentInput } from './RespondentInput';
 
 interface EmailQuestionProps {
   label: string;
@@ -59,10 +60,8 @@ export const EmailQuestion = ({
       e.preventDefault();
       
       if (isMobile) {
-        // On mobile: Just dismiss keyboard
         e.currentTarget.blur();
       } else {
-        // On desktop: Submit if valid
         if (value && !error) {
           onSubmit(value);
         }
@@ -80,16 +79,14 @@ export const EmailQuestion = ({
       />
 
       <div className="space-y-2">
-        <input
+        <RespondentInput
           type="email"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
           autoFocus
-          className={`w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg bg-white/50 dark:bg-white/5 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all ${
-            error ? 'border-destructive focus:border-destructive' : 'border-border/50 focus:border-primary'
-          }`}
+          error={error}
         />
         {error && (
           <p className="text-sm text-destructive animate-fade-in">{error}</p>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { SupportedLanguage } from '@/shared/constants/translations';
 import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
 import { QuestionLabel } from './QuestionLabel';
+import { RespondentInput } from './RespondentInput';
 
 interface LongTextQuestionProps {
   label: string;
@@ -40,17 +41,14 @@ export const LongTextQuestion = ({
     
     onValidationChange(isValid);
     
-    // Only update the answer when there's content (or for optional fields, always update)
     if (hasContent) {
       onSubmit(value);
     } else if (!isRequired) {
-      // For optional fields, explicitly pass empty to indicate skipped
       onSubmit('');
     }
   }, [value, isRequired, onValidationChange, onSubmit]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    // Ctrl+Enter to submit (for long text)
     if (e.key === 'Enter' && e.ctrlKey) {
       const trimmedValue = value.trim();
       const hasContent = trimmedValue.length > 0;
@@ -60,7 +58,6 @@ export const LongTextQuestion = ({
         onSubmit(value);
       }
     }
-    // Regular Enter creates new line (default textarea behavior)
   };
 
   return (
@@ -72,7 +69,8 @@ export const LongTextQuestion = ({
         optionalText={t.optional} 
       />
 
-      <textarea
+      <RespondentInput
+        variant="textarea"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -80,7 +78,6 @@ export const LongTextQuestion = ({
         maxLength={maxLength}
         autoFocus
         rows={6}
-        className="w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg bg-white/50 dark:bg-white/5 border border-border/50 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
       />
 
       <div className="flex justify-between text-xs sm:text-sm text-muted-foreground">

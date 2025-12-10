@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { ROUTES } from '@/shared/constants/routes';
 import { Button } from '@/components/ui/button';
-import { PageLoader } from '@/shared/ui';
+import { PageLoader, GlassCard } from '@/shared/ui';
 
 const Index = () => {
   const { user, loading, signOut } = useAuth();
@@ -34,7 +34,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="glass-panel rounded-2xl p-8 max-w-md w-full text-center space-y-6 animate-fade-in">
+      <GlassCard className="p-8 max-w-md w-full text-center space-y-6">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center shadow-lg mx-auto">
           <svg
             width="32"
@@ -75,7 +75,7 @@ const Index = () => {
         >
           Sign out
         </Button>
-      </div>
+      </GlassCard>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { SupportedLanguage } from '@/shared/constants/translations';
 import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
 import { QuestionLabel } from './QuestionLabel';
+import { RespondentInput } from './RespondentInput';
 
 interface ShortTextQuestionProps {
   label: string;
@@ -48,10 +49,8 @@ export const ShortTextQuestion = ({
       e.preventDefault();
       
       if (isMobile) {
-        // On mobile: Just dismiss keyboard
         e.currentTarget.blur();
       } else {
-        // On desktop: Submit if valid
         if (value.trim()) {
           onSubmit(value);
         }
@@ -68,7 +67,7 @@ export const ShortTextQuestion = ({
         optionalText={t.optional} 
       />
 
-      <input
+      <RespondentInput
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
@@ -76,7 +75,6 @@ export const ShortTextQuestion = ({
         placeholder={placeholder}
         maxLength={maxLength}
         autoFocus
-        className="w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg bg-white/50 dark:bg-white/5 border border-border/50 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
       />
 
       {maxLength && (

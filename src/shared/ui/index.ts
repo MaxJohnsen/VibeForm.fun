@@ -20,6 +20,8 @@ export { SidebarPalette, type PaletteItem, type SidebarPaletteProps } from './Si
 export { PageLoader, type PageLoaderProps } from './PageLoader';
 export { InlineLoader, type InlineLoaderProps } from './InlineLoader';
 export { PageContainer, type PageContainerProps } from './PageContainer';
+export { SectionHeader, type SectionHeaderProps } from './SectionHeader';
+export { ContentCard, type ContentCardProps } from './ContentCard';
 
 // Icons
 export { SlackIcon } from './icons';

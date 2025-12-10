@@ -3,6 +3,7 @@ import { useIntegrationLogs } from '../hooks/useIntegrations';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { GlassCard } from '@/shared/ui';
 
 interface IntegrationLogsDialogProps {
   integrationId: string;
@@ -35,7 +36,7 @@ export const IntegrationLogsDialog = ({
           ) : (
             <div className="space-y-3">
               {logs.map((log) => (
-                <div key={log.id} className="glass-panel p-4 rounded-lg">
+                <GlassCard key={log.id} className="p-4 rounded-lg" animate={false}>
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
                       {log.status === 'success' ? (
@@ -70,7 +71,7 @@ export const IntegrationLogsDialog = ({
                       </pre>
                     </details>
                   )}
-                </div>
+                </GlassCard>
               ))}
             </div>
           )}

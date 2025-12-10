@@ -6,6 +6,7 @@ import { ChevronDown, Star, Download } from 'lucide-react';
 import { formatAnswerValue } from '../utils/formatAnswerValue';
 import { analyticsApi } from '../api/analyticsApi';
 import { toast } from '@/hooks/use-toast';
+import { ContentCard } from '@/shared/ui';
 
 // Helper to detect skipped answers
 const isSkippedAnswer = (value: any): boolean => {
@@ -230,8 +231,7 @@ export const QuestionPerformance = ({ questions, responses, formId }: QuestionPe
   };
 
   return (
-    <div className="glass-panel rounded-xl p-4 md:p-6">
-      <h3 className="text-lg font-semibold mb-3 md:mb-4">Question Performance</h3>
+    <ContentCard title="Question Performance" padding="md" rounded="xl">
       <div className="space-y-6">
         {questions.map((question) => {
           const { visual, metric, details, dropoffRate, reachedCount, droppedOffCount, skipRate, skippedCount, actualAnswers } = getQuestionMetrics(question);

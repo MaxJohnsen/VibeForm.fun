@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Gift, Trophy, Loader2 } from 'lucide-react';
+import { Gift, Trophy } from 'lucide-react';
 import { Winner } from '../api/lotteryApi';
 import { generatePersona, getInitialsFromName } from '@/shared/utils/personaGenerator';
+import { GlassCard, InlineLoader } from '@/shared/ui';
 
 interface WinnerDisplayCardProps {
   state: 'idle' | 'loading' | 'animating' | 'revealed';
@@ -19,7 +20,6 @@ export const WinnerDisplayCard = ({
   const [currentIndices, setCurrentIndices] = useState<number[]>([]);
   const [animPhase, setAnimPhase] = useState<'fast' | 'slow' | 'reveal'>('fast');
 
-  // Animation effect
   useEffect(() => {
     if (state !== 'animating' || candidates.length === 0 || winners.length === 0) return;
 
@@ -36,13 +36,11 @@ export const WinnerDisplayCard = ({
       );
     };
 
-    // Fast rolling phase (1.5s)
     interval = setInterval(updateIndices, 50);
 
     phaseTimeout = setTimeout(() => {
       clearInterval(interval);
       
-      // Slow down phase (1.5s)
       setAnimPhase('slow');
       let slowInterval = 100;
       
@@ -53,7 +51,6 @@ export const WinnerDisplayCard = ({
         if (Date.now() - startTime < 3000) {
           setTimeout(slowRoll, slowInterval);
         } else {
-          // Final reveal
           setAnimPhase('reveal');
           setCurrentIndices(winners.map((_, idx) => idx));
           setTimeout(onAnimationComplete, 800);
@@ -78,7 +75,7 @@ export const WinnerDisplayCard = ({
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-8 pt-24 h-full min-h-[400px] flex flex-col items-center justify-start">
+    <GlassCard className="p-8 pt-24 h-full min-h-[400px] flex flex-col items-center justify-start">
       {/* Idle State */}
       {state === 'idle' && (
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
@@ -95,7 +92,7 @@ export const WinnerDisplayCard = ({
       {/* Loading State */}
       {state === 'loading' && (
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
-          <Loader2 className="w-16 h-16 text-primary animate-spin" />
+          <InlineLoader size="lg" className="w-16 h-16" />
           <h3 className="text-xl font-semibold text-foreground">
             Preparing draw...
           </h3>
@@ -140,7 +137,6 @@ export const WinnerDisplayCard = ({
                       </div>
                     )}
 
-                    {/* Avatar */}
                     <div 
                       className={`
                         ${winners.length === 1 ? 'w-20 h-20' : 'w-16 h-16'} 
@@ -155,7 +151,6 @@ export const WinnerDisplayCard = ({
                       </span>
                     </div>
 
-                    {/* Name */}
                     <div className="text-center">
                       <h3 
                         className={`
@@ -169,7 +164,6 @@ export const WinnerDisplayCard = ({
                       </h3>
                     </div>
 
-                    {/* Session ID */}
                     <p className="text-xs text-muted-foreground/60 font-mono">
                       {candidate.sessionToken.slice(0, 8)}...
                     </p>
@@ -202,33 +196,28 @@ export const WinnerDisplayCard = ({
                   style={{ animationDelay: `${index * 150}ms` }}
                 >
                   <div className="flex flex-col items-center space-y-3">
-                    {/* Trophy Icon */}
                     {winners.length === 1 && (
                       <Trophy className="w-12 h-12 text-yellow-500 mb-2" />
                     )}
                     
-                    {/* Position Badge */}
                     {winners.length > 1 && (
                       <div className="text-sm font-medium text-muted-foreground">
                         #{index + 1}
                       </div>
                     )}
 
-                    {/* Avatar */}
                     <div className={`${winners.length === 1 ? 'w-20 h-20' : 'w-16 h-16'} rounded-full ${persona.avatarColor} flex items-center justify-center`}>
                       <span className={`${winners.length === 1 ? 'text-2xl' : 'text-xl'} font-bold text-white`}>
                         {isAnonymous ? 'AN' : persona.initials}
                       </span>
                     </div>
 
-                    {/* Name */}
                     <div className="text-center">
                       <h3 className={`${winners.length === 1 ? 'text-2xl' : 'text-lg'} font-bold text-foreground`}>
                         {displayName}
                       </h3>
                     </div>
 
-                    {/* Session ID (subtle) */}
                     <p className="text-xs text-muted-foreground/60 font-mono">
                       {winner.sessionToken.slice(0, 8)}...
                     </p>
@@ -239,6 +228,6 @@ export const WinnerDisplayCard = ({
           </div>
         </div>
       )}
-    </div>
+    </GlassCard>
   );
 };

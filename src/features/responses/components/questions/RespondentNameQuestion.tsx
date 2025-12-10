@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { SupportedLanguage } from '@/shared/constants/translations';
 import { useQuestionTranslation } from '@/features/responses/hooks/useQuestionTranslation';
 import { QuestionLabel } from './QuestionLabel';
+import { RespondentInput } from './RespondentInput';
 
 interface RespondentNameQuestionProps {
   label: string;
@@ -42,7 +43,6 @@ export const RespondentNameQuestion = ({
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && value.trim()) {
-      // Blur on mobile to dismiss keyboard, submit on desktop
       if (window.innerWidth < 768) {
         (e.target as HTMLInputElement).blur();
       }
@@ -58,14 +58,13 @@ export const RespondentNameQuestion = ({
         optionalText={t.optional} 
       />
 
-      <input
+      <RespondentInput
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyPress={handleKeyPress}
         placeholder={placeholder}
         autoFocus
-        className="w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg bg-white/50 dark:bg-white/5 border border-border/50 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
       />
     </div>
   );
