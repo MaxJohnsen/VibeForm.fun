@@ -18,18 +18,27 @@ export default {
         heading: ['Outfit', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        // Body text: 16-18px
-        'body': ['1rem', { lineHeight: '1.5' }],
-        'body-lg': ['1.125rem', { lineHeight: '1.5' }],
-        // Section headers: 20-24px
+        // Body text (Manrope): slightly open for readability
+        'body': ['1rem', { lineHeight: '1.5', letterSpacing: '0.01em' }],
+        'body-lg': ['1.125rem', { lineHeight: '1.5', letterSpacing: '0.005em' }],
+        // Section headers (Outfit): slightly tight
         'section': ['1.25rem', { lineHeight: '1.25', letterSpacing: '-0.01em' }],
         'section-lg': ['1.5rem', { lineHeight: '1.25', letterSpacing: '-0.01em' }],
-        // Page titles: 28-36px
+        // Page titles (Outfit): tighter
         'title': ['1.75rem', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
         'title-lg': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
-        // Button text: 14-16px
-        'button': ['0.875rem', { lineHeight: '1' }],
-        'button-lg': ['1rem', { lineHeight: '1' }],
+        // Button text (Manrope): slightly open for CTA clarity
+        'button': ['0.875rem', { lineHeight: '1', letterSpacing: '0.02em' }],
+        'button-lg': ['1rem', { lineHeight: '1', letterSpacing: '0.015em' }],
+      },
+      letterSpacing: {
+        'tightest': '-0.03em',
+        'tighter': '-0.02em',
+        'tight': '-0.01em',
+        'normal': '0',
+        'wide': '0.01em',
+        'wider': '0.02em',
+        'widest': '0.05em',
       },
       colors: {
         border: "hsl(var(--border))",
