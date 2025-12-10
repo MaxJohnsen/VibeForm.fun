@@ -3,6 +3,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { VariablePicker } from '../../components/VariablePicker';
 import { IntegrationConfigProps } from '../../types/integrationDefinition';
 
@@ -27,15 +28,18 @@ export const EmailConfig = ({
       {/* Provider Choice */}
       <div className="space-y-3">
         <Label>Email Provider</Label>
-        <div className="space-y-2">
+        <RadioGroup
+          value={config.useCustomApiKey ? 'custom' : 'fairform'}
+          onValueChange={(value) => {
+            const useCustom = value === 'custom';
+            onChange({ ...config, useCustomApiKey: useCustom });
+            if (useCustom && !apiKeySaved) setShowApiKeyInput(true);
+          }}
+          disabled={disabled}
+          className="space-y-2"
+        >
           <label className={`flex items-start gap-3 p-3 rounded-lg border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
-            <input
-              type="radio"
-              checked={!config.useCustomApiKey}
-              onChange={() => onChange({ ...config, useCustomApiKey: false })}
-              className="mt-0.5"
-              disabled={disabled}
-            />
+            <RadioGroupItem value="fairform" id="provider-fairform" className="mt-0.5" />
             <div className="flex-1">
               <div className="font-medium text-sm">Use Fairform Email</div>
               <div className="text-xs text-muted-foreground mt-0.5">
@@ -45,16 +49,7 @@ export const EmailConfig = ({
           </label>
           
           <label className={`flex items-start gap-3 p-3 rounded-lg border border-border/50 cursor-pointer hover:bg-muted/50 transition-colors ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
-            <input
-              type="radio"
-              checked={config.useCustomApiKey}
-              onChange={() => {
-                onChange({ ...config, useCustomApiKey: true });
-                if (!apiKeySaved) setShowApiKeyInput(true);
-              }}
-              className="mt-0.5"
-              disabled={disabled}
-            />
+            <RadioGroupItem value="custom" id="provider-custom" className="mt-0.5" />
             <div className="flex-1">
               <div className="font-medium text-sm">Use your own Resend API key</div>
               <div className="text-xs text-muted-foreground mt-0.5">
@@ -62,7 +57,7 @@ export const EmailConfig = ({
               </div>
             </div>
           </label>
-        </div>
+        </RadioGroup>
       </div>
 
       {/* Custom API Key Fields */}

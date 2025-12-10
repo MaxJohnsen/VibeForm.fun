@@ -1,6 +1,7 @@
 import { ReactNode, useState } from 'react';
 import { Search, LucideIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export interface PaletteItem {
@@ -79,28 +80,29 @@ export const SidebarPalette = ({
           filteredItems.map((item) => {
             const Icon = item.icon;
             const defaultElement = (
-              <button
+              <Button
                 key={item.id}
+                variant="ghost"
                 onClick={() => onSelect(item.id)}
-                className="w-full text-left p-4 rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group"
+                className="w-full h-auto text-left p-4 rounded-xl border border-border/50 hover:border-primary/30 hover:bg-primary/5 hover:scale-[1.02] transition-all duration-200 group justify-start"
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-3 w-full">
                   <div className={cn(
                     'rounded-lg p-2 transition-colors',
                     item.colorClass || 'bg-muted/50'
                   )}>
                     <Icon className="h-5 w-5" />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 text-left">
                     <div className="font-medium text-sm group-hover:text-primary transition-colors">
                       {item.label}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                    <div className="text-xs text-muted-foreground mt-1 line-clamp-2 whitespace-normal">
                       {item.description}
                     </div>
                   </div>
                 </div>
-              </button>
+              </Button>
             );
 
             return renderItem ? renderItem(item, defaultElement) : defaultElement;

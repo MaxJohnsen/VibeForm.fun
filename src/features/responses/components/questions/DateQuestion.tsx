@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { format, isAfter, isBefore, startOfDay } from 'date-fns';
 import { enUS, nb, es, fr, de, pt, it, nl, sv, da, fi, pl, tr, ru, ar, ja, ko, zhCN } from 'date-fns/locale';
@@ -148,10 +149,11 @@ export const DateQuestion = ({
       <div className="space-y-3">
         <Popover>
           <PopoverTrigger asChild>
-            <button
+            <Button
               type="button"
+              variant="outline"
               className={cn(
-                "w-full px-4 py-3 sm:px-6 sm:py-4 text-base sm:text-lg bg-white/50 dark:bg-white/5 border rounded-xl focus:outline-none transition-all text-left flex items-center gap-2",
+                "w-full px-4 py-3 sm:px-6 sm:py-4 h-auto text-base sm:text-lg bg-white/50 dark:bg-white/5 rounded-xl transition-all justify-start gap-2",
                 error
                   ? "border-destructive focus:border-destructive focus:ring-2 focus:ring-destructive/20"
                   : "border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20"
@@ -161,9 +163,9 @@ export const DateQuestion = ({
               {date ? (
                 format(date, 'PPP', { locale })
               ) : (
-                <span className="text-muted-foreground">{t.pickDate}</span>
+                <span className="text-muted-foreground font-normal">{t.pickDate}</span>
               )}
-            </button>
+            </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="center" side="bottom">
             <Calendar
