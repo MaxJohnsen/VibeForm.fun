@@ -26,9 +26,11 @@
     --primary: 20 90% 45%;
     --primary-foreground: 0 0% 100%;
 
-    /* Primary Button Gradient - Premium CTA (login/signup only) */
-    --gradient-start: 24 85% 48%;
-    --gradient-end: 32 90% 58%;
+    /* Premium Gradient - Award-winning CTA */
+    --gradient-start: 16 85% 42%;
+    --gradient-mid: 24 90% 52%;
+    --gradient-end: 36 92% 58%;
+    --glow-color: 24 90% 52%;
 
     /* Accent - Sunny Yellow */
     --accent: 38 92% 56%;
