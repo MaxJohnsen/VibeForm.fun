@@ -5,6 +5,7 @@ import { LoginForm } from '../components/LoginForm';
 import { useAuth } from '../hooks/useAuth';
 import { ROUTES } from '@/shared/constants/routes';
 import { useToast } from '@/hooks/use-toast';
+import { PageLoader } from '@/shared/ui';
 
 const LoginPage = () => {
   const { user, loading } = useAuth();
@@ -32,11 +33,7 @@ const LoginPage = () => {
   }, [user, loading, navigate]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return (

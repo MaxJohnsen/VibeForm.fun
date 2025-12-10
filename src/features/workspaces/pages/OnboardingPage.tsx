@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { OnboardingCard } from '@/shared/ui';
+import { OnboardingCard, PageLoader } from '@/shared/ui';
 import { CreateWorkspaceForm } from '../components/CreateWorkspaceForm';
 import { InviteCard } from '../components/InviteCard';
 import { useWorkspaces } from '../hooks/useWorkspaces';
@@ -102,11 +102,7 @@ export const OnboardingPage = () => {
 
   // Loading state
   if (isLoadingInvites) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PageLoader />;
   }
 
   const hasInvites = invites.length > 0;
