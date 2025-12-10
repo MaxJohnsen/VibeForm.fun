@@ -24,7 +24,7 @@ export const WorkspaceSettingsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background bg-dot-pattern flex">
       <AppSidebar />
 
       <div className="flex-1 ml-0 md:ml-16 flex flex-col pb-20 md:pb-0">
