@@ -119,7 +119,7 @@ export const SignupForm = ({ defaultEmail = '', isEmailLocked = false }: SignupF
         type="submit"
         variant="gradient"
         disabled={loading}
-        size="lg"
+        size="xl"
         className="w-full"
       >
         {loading ? 'Creating account...' : 'Create account'}
