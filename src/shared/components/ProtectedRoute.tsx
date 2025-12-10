@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useWorkspaceContext } from '@/features/workspaces';
 import { ROUTES } from '@/shared/constants/routes';
+import { PageLoader } from '@/shared/ui';
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: authLoading } = useAuth();
@@ -25,22 +26,14 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }, [user, authLoading, workspaces, workspacesLoading, navigate]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!user) return null;
 
   // Wait for workspace to be available before rendering children
   if (workspaces.length > 0 && !activeWorkspace) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   return <>{children}</>;

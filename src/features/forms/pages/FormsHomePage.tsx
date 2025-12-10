@@ -1,8 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Plus, Filter, ArrowUpDown, ChevronsUpDown, Building2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SearchBar } from '@/shared/ui/SearchBar';
-import { AppSidebar } from '@/shared/ui/AppSidebar';
+import { SearchBar, AppSidebar, PageContainer } from '@/shared/ui';
 import { FormsList } from '../components/FormsList';
 import { useForms } from '../hooks/useForms';
 import { useNavigate } from 'react-router-dom';
@@ -63,7 +62,7 @@ export const FormsHomePage = () => {
   }, [forms, searchQuery, filterType, sortType]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <PageContainer>
       <AppSidebar />
 
       <div className="ml-0 md:ml-16 px-4 md:px-8 py-4 md:py-8 pb-24 md:pb-8">
@@ -205,6 +204,6 @@ export const FormsHomePage = () => {
         open={createDialogOpen} 
         onOpenChange={setCreateDialogOpen} 
       />
-    </div>
+    </PageContainer>
   );
 };

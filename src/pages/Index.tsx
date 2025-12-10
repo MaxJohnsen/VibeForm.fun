@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { ROUTES } from '@/shared/constants/routes';
 import { Button } from '@/components/ui/button';
+import { PageLoader } from '@/shared/ui';
 
 const Index = () => {
   const { user, loading, signOut } = useAuth();
@@ -24,11 +25,7 @@ const Index = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <PageLoader />;
   }
 
   if (!user) {
