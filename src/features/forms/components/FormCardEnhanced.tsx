@@ -91,9 +91,9 @@ export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) 
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-500';
-      case 'draft': return 'bg-blue-400';
-      case 'archived': return 'bg-orange-400';
+      case 'active': return 'bg-emerald-500';
+      case 'draft': return 'bg-amber-400';
+      case 'archived': return 'bg-slate-400';
       default: return 'bg-muted-foreground';
     }
   };
@@ -161,10 +161,20 @@ export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) 
             </div>
           </div>
           
-          {/* Right side: Sparkline + Circular Progress + Menu */}
+          {/* Right side: Submission count + Sparkline + Circular Progress + Menu */}
           <div className="flex items-center gap-3 shrink-0">
+            {/* Prominent submission count */}
+            <div className="text-right pr-3 border-r border-border/50">
+              <p className="text-lg font-semibold text-foreground leading-none">
+                {stats.responseCount}
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                submissions
+              </p>
+            </div>
+            
             <FormSparkline data={stats.dailyResponses} />
-            <CircularProgress value={completionRate} size={36} />
+            <CircularProgress value={completionRate} size={44} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
