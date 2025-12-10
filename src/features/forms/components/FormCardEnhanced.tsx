@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MoreHorizontal, Share2, Eye, Settings, Zap, MessageSquare, HelpCircle } from 'lucide-react';
+import { MoreHorizontal, Share2, Eye, Settings, Zap, MessageSquare, HelpCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,11 +11,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { GlassCard } from '@/shared/ui/GlassCard';
 import { Form } from '../api/formsApi';
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/shared/constants/routes';
 import { ShareDialog } from './ShareDialog';
 import { FormSparkline } from './FormSparkline';
+import { CircularProgress } from './CircularProgress';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
@@ -25,10 +26,12 @@ interface FormCardEnhancedProps {
 
 interface FormStats {
   responseCount: number;
+  completedCount: number;
   questionCount: number;
   integrationCount: number;
   dailyResponses: number[];
   lastResponseAt: string | null;
+  creatorEmail: string | null;
 }
 
 export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
@@ -36,10 +39,12 @@ export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
   const [shareOpen, setShareOpen] = useState(false);
   const [stats, setStats] = useState<FormStats>({
     responseCount: 0,
+    completedCount: 0,
     questionCount: 0,
     integrationCount: 0,
     dailyResponses: [],
     lastResponseAt: null,
+    creatorEmail: null,
   });
 
   useEffect(() => {
@@ -47,12 +52,14 @@ export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
       // Fetch all stats in parallel
       const [
         { count: responseCount },
+        { count: completedCount },
         { count: questionCount },
         { count: integrationCount },
         { data: lastResponse },
         { data: dailyData },
       ] = await Promise.all([
         supabase.from('responses').select('*', { count: 'exact', head: true }).eq('form_id', form.id),
+        supabase.from('responses').select('*', { count: 'exact', head: true }).eq('form_id', form.id).eq('status', 'completed'),
         supabase.from('questions').select('*', { count: 'exact', head: true }).eq('form_id', form.id),
         supabase.from('form_integrations').select('*', { count: 'exact', head: true }).eq('form_id', form.id).eq('enabled', true),
         supabase.from('responses').select('completed_at').eq('form_id', form.id).eq('status', 'completed').order('completed_at', { ascending: false }).limit(1).maybeSingle(),
@@ -69,17 +76,39 @@ export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
         }
       });
 
+      // Fetch creator email
+      let creatorEmail: string | null = null;
+      try {
+        const { data: memberData } = await supabase
+          .from('workspace_members')
+          .select('user_id')
+          .eq('workspace_id', form.workspace_id)
+          .eq('user_id', form.created_by)
+          .maybeSingle();
+        
+        if (memberData) {
+          // We can't directly access auth.users from client, so we'll use the created_by as email hint
+          // For now, just show a truncated version
+          creatorEmail = form.created_by;
+        }
+      } catch (e) {
+        // Fallback - just use created_by
+        creatorEmail = form.created_by;
+      }
+
       setStats({
         responseCount: responseCount || 0,
+        completedCount: completedCount || 0,
         questionCount: questionCount || 0,
         integrationCount: integrationCount || 0,
         dailyResponses,
         lastResponseAt: lastResponse?.completed_at || null,
+        creatorEmail,
       });
     };
 
     fetchStats();
-  }, [form.id]);
+  }, [form.id, form.created_by, form.workspace_id]);
 
   const handlePreview = () => {
     window.open(ROUTES.getRespondentRoute(form.id), '_blank');
@@ -94,75 +123,123 @@ export const FormCardEnhanced = ({ form }: FormCardEnhancedProps) => {
     }
   };
 
+  // Get initials from email
+  const getInitials = (email: string | null) => {
+    if (!email) return 'U';
+    const local = email.split('@')[0];
+    if (!local) return 'U';
+    // Take first two letters or first letter of each word part
+    const parts = local.split(/[._-]/);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return local.slice(0, 2).toUpperCase();
+  };
+
+  // Get display email (truncated if needed)
+  const getDisplayEmail = (email: string | null) => {
+    if (!email) return 'Unknown';
+    if (email.includes('@')) {
+      const [local, domain] = email.split('@');
+      if (local.length > 12) {
+        return `${local.slice(0, 10)}...@${domain}`;
+      }
+      return email;
+    }
+    // It's a UUID - show truncated
+    return `${email.slice(0, 8)}...`;
+  };
+
+  const completionRate = stats.responseCount > 0 
+    ? Math.round((stats.completedCount / stats.responseCount) * 100) 
+    : 0;
+
   return (
     <>
       <GlassCard 
         className="p-5 hover:shadow-lg transition-all duration-300 cursor-pointer group"
         onClick={() => navigate(ROUTES.getBuilderRoute(form.id))}
       >
-        {/* Title Row */}
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className={cn('w-2 h-2 rounded-full shrink-0', getStatusColor(form.status))} />
-            <h3 className="font-heading font-semibold text-foreground truncate">{form.title}</h3>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48" onClick={(e) => e.stopPropagation()}>
-              <DropdownMenuLabel className="text-xs text-muted-foreground">Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={handlePreview} className="cursor-pointer">
-                <Eye className="h-4 w-4 mr-2" />
-                Preview
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShareOpen(true)} className="cursor-pointer">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={() => navigate(ROUTES.getFormSettingsRoute(form.id))} 
-                className="cursor-pointer"
-              >
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {/* Stats Row */}
-        <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-          <div className="flex items-center gap-1.5">
-            <MessageSquare className="h-3.5 w-3.5" />
-            <span>{stats.responseCount}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <HelpCircle className="h-3.5 w-3.5" />
-            <span>{stats.questionCount}</span>
-          </div>
-          {stats.integrationCount > 0 && (
-            <div className="flex items-center gap-1.5">
-              <Zap className="h-3.5 w-3.5" />
-              <span>{stats.integrationCount}</span>
+        {/* Row 1: Title + Stats + Sparkline + Progress */}
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <div className="flex-1 min-w-0">
+            {/* Title with status dot */}
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className={cn('w-2 h-2 rounded-full shrink-0', getStatusColor(form.status))} />
+              <h3 className="font-heading font-semibold text-foreground truncate">{form.title}</h3>
             </div>
-          )}
+            
+            {/* Stats with full labels */}
+            <div className="flex items-center gap-1 text-xs text-muted-foreground flex-wrap">
+              <MessageSquare className="h-3.5 w-3.5" />
+              <span>{stats.responseCount} submissions</span>
+              <span className="mx-1.5">·</span>
+              <HelpCircle className="h-3.5 w-3.5" />
+              <span>{stats.questionCount} questions</span>
+              {stats.integrationCount > 0 && (
+                <>
+                  <span className="mx-1.5">·</span>
+                  <Zap className="h-3.5 w-3.5" />
+                  <span>{stats.integrationCount} integrations</span>
+                </>
+              )}
+            </div>
+          </div>
+          
+          {/* Right side: Sparkline + Circular Progress + Menu */}
+          <div className="flex items-center gap-3 shrink-0">
+            <FormSparkline data={stats.dailyResponses} />
+            <CircularProgress value={completionRate} size={36} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuLabel className="text-xs text-muted-foreground">Actions</DropdownMenuLabel>
+                <DropdownMenuItem onClick={handlePreview} className="cursor-pointer">
+                  <Eye className="h-4 w-4 mr-2" />
+                  Preview
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setShareOpen(true)} className="cursor-pointer">
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => navigate(ROUTES.getFormSettingsRoute(form.id))} 
+                  className="cursor-pointer"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
-        {/* Bottom Row: Sparkline + Last Updated */}
-        <div className="flex items-center justify-between">
-          <FormSparkline data={stats.dailyResponses} />
-          <div className="text-xs text-muted-foreground">
+        {/* Row 2: Creator info + Last response */}
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            {/* Avatar with initials */}
+            <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-medium text-primary">
+              {getInitials(stats.creatorEmail)}
+            </div>
+            <span className="truncate max-w-[180px]">{getDisplayEmail(stats.creatorEmail)}</span>
+            <span className="text-muted-foreground/50">·</span>
+            <span>Created {format(new Date(form.created_at || new Date()), 'MMM d, yyyy')}</span>
+          </div>
+          
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" />
             {stats.lastResponseAt ? (
-              <span>Last {formatDistanceToNow(new Date(stats.lastResponseAt), { addSuffix: true })}</span>
+              <span>Last response {formatDistanceToNow(new Date(stats.lastResponseAt), { addSuffix: false })} ago</span>
             ) : (
               <span>No responses yet</span>
             )}
