@@ -3,7 +3,7 @@ interface CircularProgressProps {
   size?: number;
 }
 
-export const CircularProgress = ({ value, size = 40 }: CircularProgressProps) => {
+export const CircularProgress = ({ value, size = 44 }: CircularProgressProps) => {
   const strokeWidth = 3;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -36,8 +36,8 @@ export const CircularProgress = ({ value, size = 40 }: CircularProgressProps) =>
           className="transition-all duration-500"
         />
       </svg>
-      <span className="absolute text-xs font-medium text-foreground">
-        {Math.round(progress)}
+      <span className="absolute text-[10px] font-medium text-foreground">
+        {Math.round(progress)}%
       </span>
     </div>
   );
