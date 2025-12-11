@@ -30,17 +30,9 @@ export const AppSidebar = () => {
     <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border/50 glass-panel flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-4 z-50">
       {/* Brand Logo */}
       <div className="hidden md:flex mb-6 w-full justify-center">
-        <div className="relative">
-          <span 
-            className="text-3xl font-black tracking-tight text-primary"
-            style={{ 
-              textShadow: '0 1px 2px rgba(0,0,0,0.1), 0 2px 8px hsl(24 85% 48% / 0.3)' 
-            }}
-          >
-            FF
-          </span>
-          <div className="absolute -inset-2 bg-primary/25 blur-xl -z-10" />
-        </div>
+        <span className="text-3xl font-black tracking-tight bg-gradient-to-r from-slate-700 via-slate-600 to-primary bg-clip-text text-transparent">
+          FF
+        </span>
       </div>
 
       {/* Navigation Items */}

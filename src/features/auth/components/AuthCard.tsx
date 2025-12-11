@@ -12,23 +12,17 @@ export const AuthCard = ({ children, title, subtitle }: AuthCardProps) => {
       <GlassCard padding="lg" className="max-w-[420px] w-full">
         <div className="flex flex-col items-center gap-6">
           {/* Brand Logo */}
-          <div className="relative">
-            <span 
-              className="text-5xl md:text-6xl font-black tracking-tight text-primary animate-fade-in"
-              style={{ 
-                textShadow: '0 2px 4px rgba(0,0,0,0.1), 0 4px 12px hsl(24 85% 48% / 0.25)' 
-              }}
-            >
-              Fairform
-            </span>
-            <div className="absolute -inset-4 bg-primary/25 blur-3xl -z-10" />
-          </div>
+          <span 
+            className="text-5xl md:text-6xl font-black tracking-tight bg-gradient-to-r from-slate-700 via-slate-600 to-primary bg-clip-text text-transparent animate-fade-in"
+          >
+            Fairform
+          </span>
 
           {/* Header */}
           {(title || subtitle) && (
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-3">
               {title && <h1>{title}</h1>}
-              {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+              {subtitle && <p className="text-sm text-muted-foreground mb-2">{subtitle}</p>}
             </div>
           )}
 
