@@ -26,10 +26,11 @@ export const FormsList = ({ forms, isLoading, memberEmailMap, onCreateNew }: For
     return (
       <EmptyState
         icon={FileText}
-        title="No forms yet"
-        description="Create your first form to start collecting responses"
+        title="Ready to create something great?"
+        description="Build beautiful forms in minutes. Drag, drop, and publish – it's that simple."
         actionLabel="Create New Form"
         onAction={onCreateNew}
+        buttonClassName="rounded-full"
       />
     );
   }
