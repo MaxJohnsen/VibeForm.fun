@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Mail, Check, X } from 'lucide-react';
+import { Mail, Check, X, Inbox } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { InlineLoader } from '@/shared/ui';
@@ -76,40 +81,44 @@ export const PendingInvitesNotification = () => {
     }
   };
 
-  // Don't render anything if no invites
-  if (!isLoading && invites.length === 0) {
-    return null;
-  }
-
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative rounded-xl"
-          aria-label="Pending invites"
-        >
-          <Mail className="h-5 w-5" />
-          {invites.length > 0 && (
-            <Badge 
-              variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <PopoverTrigger asChild>
+            <button
+              className="relative w-10 h-10 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+              aria-label="Pending invites"
             >
-              {invites.length}
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
+              <Mail className="h-5 w-5" />
+              {invites.length > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
+                >
+                  {invites.length}
+                </Badge>
+              )}
+            </button>
+          </PopoverTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="right" sideOffset={12} className="font-medium">
+          Invitations
+        </TooltipContent>
+      </Tooltip>
       <PopoverContent 
-        side="top" 
+        side="right" 
         align="end" 
-        className="w-80 p-0"
+        sideOffset={16}
+        className="w-80 p-0 glass-panel border-border/50"
       >
-        <div className="p-3 border-b">
+        <div className="p-3 border-b border-border/50">
           <h3 className="font-semibold">Workspace Invites</h3>
           <p className="text-xs text-muted-foreground">
-            {invites.length} pending invite{invites.length !== 1 ? 's' : ''}
+            {invites.length > 0 
+              ? `${invites.length} pending invite${invites.length !== 1 ? 's' : ''}`
+              : 'No pending invites'
+            }
           </p>
         </div>
         <div className="max-h-64 overflow-y-auto">
@@ -117,8 +126,14 @@ export const PendingInvitesNotification = () => {
             <div className="flex justify-center py-6">
               <InlineLoader />
             </div>
+          ) : invites.length === 0 ? (
+            <div className="py-8 text-center">
+              <Inbox className="h-10 w-10 mx-auto text-muted-foreground/40" />
+              <p className="mt-3 text-sm text-muted-foreground">No pending invitations</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">You're all caught up!</p>
+            </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-border/50">
               {invites.map((invite) => (
                 <div key={invite.id} className="p-3 space-y-2">
                   <div>
