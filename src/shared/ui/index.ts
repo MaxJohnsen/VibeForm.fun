@@ -22,6 +22,7 @@ export { InlineLoader, type InlineLoaderProps } from './InlineLoader';
 export { PageContainer, type PageContainerProps } from './PageContainer';
 export { SectionHeader, type SectionHeaderProps } from './SectionHeader';
 export { ContentCard, type ContentCardProps } from './ContentCard';
+export { Logo } from './Logo';
 
 // Icons
 export { SlackIcon } from './icons';
