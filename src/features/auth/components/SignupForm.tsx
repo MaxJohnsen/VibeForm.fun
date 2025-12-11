@@ -161,7 +161,7 @@ export const SignupForm = ({ defaultEmail = '', isEmailLocked = false }: SignupF
         <button
           type="button"
           onClick={() => navigate(ROUTES.LOGIN)}
-          className="text-primary font-medium hover:underline"
+          className="text-coral font-medium hover:underline"
         >
           Sign in
         </button>

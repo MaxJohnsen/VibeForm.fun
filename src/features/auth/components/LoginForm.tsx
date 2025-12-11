@@ -84,7 +84,7 @@ export const LoginForm = () => {
       <div className="text-right">
         <button
           type="button"
-          className="text-sm text-primary hover:underline transition-all"
+          className="text-sm text-coral hover:underline transition-all"
         >
           Forgot password?
         </button>
@@ -136,7 +136,7 @@ export const LoginForm = () => {
         <button
           type="button"
           onClick={() => navigate(ROUTES.SIGNUP)}
-          className="text-primary font-medium hover:underline"
+          className="text-coral font-medium hover:underline"
         >
           Sign up
         </button>
