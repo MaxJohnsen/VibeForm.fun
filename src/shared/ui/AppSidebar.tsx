@@ -30,7 +30,7 @@ export const AppSidebar = () => {
     <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border/50 glass-panel flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-4 z-50">
       {/* Brand Logo with Icon + FF */}
       <div className="hidden md:flex flex-col items-center gap-1 mb-6 w-full justify-center">
-        <i className="fa-sharp fa-regular fa-comment-dot text-lg text-primary" />
+        <i className="fa-solid fa-comment-dot text-lg text-primary" />
         <div className="flex">
           <span className="text-lg font-black tracking-tight font-logo text-slate-800">F</span>
           <span className="text-lg font-black tracking-tight font-logo text-primary">F</span>

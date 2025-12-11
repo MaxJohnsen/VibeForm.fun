@@ -15,7 +15,7 @@ export const FormHeader = ({ currentQuestion, totalQuestions, onClose }: FormHea
       <div className="px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand with Icon */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <i className="fa-sharp fa-regular fa-comment-dot text-base sm:text-lg text-primary" />
+          <i className="fa-solid fa-comment-dot text-base sm:text-lg text-primary" />
           <div>
             <span className="text-xl sm:text-2xl font-black tracking-tight font-logo text-slate-800">
               Fair
