@@ -82,6 +82,11 @@ export default {
           border: "hsl(var(--glass-border))",
           shadow: "hsl(var(--glass-shadow))",
         },
+        coral: {
+          DEFAULT: "hsl(var(--coral))",
+          foreground: "hsl(var(--coral-foreground))",
+          glow: "hsl(var(--coral-glow))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
