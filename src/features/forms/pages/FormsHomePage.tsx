@@ -84,7 +84,8 @@ export const FormsHomePage = () => {
     <PageContainer>
       <AppSidebar />
 
-      <ContentContainer maxWidth="7xl" className="ml-0 md:ml-16 pb-24 md:pb-0">
+      <div className="ml-0 md:ml-16 pb-24 md:pb-0">
+        <ContentContainer maxWidth="7xl">
         {/* Header */}
         <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
           <div className="flex items-center justify-between gap-4">
@@ -229,7 +230,8 @@ export const FormsHomePage = () => {
             </div>
           </aside>
         </div>
-      </ContentContainer>
+        </ContentContainer>
+      </div>
 
       <CreateWorkspaceDialog
         open={createDialogOpen} 
