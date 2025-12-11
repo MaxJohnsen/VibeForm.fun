@@ -135,6 +135,7 @@ export const FormsHomePage = () => {
               )}
             </div>
             <Button
+              variant="coral"
               size="default"
               onClick={() => navigate(ROUTES.CREATE_FORM)}
               className="gap-2 rounded-full px-4 md:px-6"

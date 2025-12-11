@@ -177,7 +177,7 @@ export const BuilderTopBar = ({ form, isSaving = false }: BuilderTopBarProps) =>
         <Settings className="h-4 w-4 mr-2" />
         Settings
       </Button>
-      <Button size="sm" onClick={() => setShareOpen(true)}>
+      <Button variant="coral" size="sm" onClick={() => setShareOpen(true)}>
         <Share2 className="h-4 w-4 mr-2" />
         Share
       </Button>
