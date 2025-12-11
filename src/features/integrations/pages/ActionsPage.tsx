@@ -7,7 +7,7 @@ import { useIntegrations } from '../hooks/useIntegrations';
 import { ActionCard } from '../components/ActionCard';
 import { ActionConfigForm } from '../components/ActionConfigForm';
 import { IntegrationTypePalette } from '../components/IntegrationTypePalette';
-import { SearchBar, SlidePanel, AppShell, AppHeader } from '@/shared/ui';
+import { SearchBar, SlidePanel, AppShell, AppHeader, ContentContainer } from '@/shared/ui';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -167,7 +167,8 @@ export const ActionsPage = () => {
         onMobileSheetOpenChange={setIsTypeSheetOpen}
         hideMobileTrigger
       >
-        <div className="p-4 sm:p-6 space-y-4 overflow-y-auto h-full">
+        <div className="overflow-y-auto h-full">
+          <ContentContainer maxWidth="6xl" className="space-y-4">
           {/* Search and Filter Bar (only when actions exist) */}
           {integrations.length > 0 && (
             <div className="flex flex-col sm:flex-row gap-3">
@@ -230,6 +231,7 @@ export const ActionsPage = () => {
               ))}
             </div>
           )}
+          </ContentContainer>
         </div>
       </AppShell>
 

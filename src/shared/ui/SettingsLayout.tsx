@@ -3,6 +3,7 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ContentContainer } from './ContentContainer';
 
 export interface SettingsTab {
   id: string;
@@ -100,9 +101,9 @@ export const SettingsLayout = ({
 
         {/* Content area */}
         <main className="flex-1 overflow-y-auto">
-          <div className="p-4 md:p-6 max-w-2xl">
+          <ContentContainer maxWidth="2xl" className="py-4 md:py-6">
             {children}
-          </div>
+          </ContentContainer>
         </main>
       </div>
     </div>
