@@ -16,7 +16,7 @@ export const AuthCard = ({ children, title, subtitle }: AuthCardProps) => {
             <i className="fa-solid fa-comment-dot text-3xl md:text-4xl text-primary" />
             <div>
               <span className="text-5xl md:text-6xl font-black tracking-tight font-logo text-slate-800">
-                fair
+                Fair
               </span>
               <span className="text-5xl md:text-6xl font-black tracking-tight font-logo text-primary">
                 form
