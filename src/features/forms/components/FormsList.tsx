@@ -1,7 +1,6 @@
 import { FormCardEnhanced } from './FormCardEnhanced';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Form } from '../api/formsApi';
-import { FileText } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface FormsListProps {
@@ -11,7 +10,7 @@ interface FormsListProps {
   onCreateNew: () => void;
 }
 
-export const FormsList = ({ forms, isLoading, memberEmailMap, onCreateNew }: FormsListProps) => {
+export const FormsList = ({ forms, isLoading, memberEmailMap }: FormsListProps) => {
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -25,12 +24,9 @@ export const FormsList = ({ forms, isLoading, memberEmailMap, onCreateNew }: For
   if (forms.length === 0) {
     return (
       <EmptyState
-        icon={FileText}
+        icon="fa-solid fa-wand-magic-sparkles"
         title="Ready to create something great?"
-        description="Build beautiful forms in minutes. Drag, drop, and publish – it's that simple."
-        actionLabel="Create New Form"
-        onAction={onCreateNew}
-        buttonClassName="rounded-full"
+        description="Build beautiful forms in minutes. Drag, drop, and publish – click 'Create New Form' above to start."
       />
     );
   }
