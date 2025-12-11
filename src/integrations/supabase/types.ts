@@ -467,6 +467,18 @@ export type Database = {
         Args: { _invite_id: string }
         Returns: boolean
       }
+      get_form_stats: {
+        Args: { p_form_ids: string[] }
+        Returns: {
+          completed_count: number
+          form_id: string
+          integration_count: number
+          last_response_at: string
+          question_count: number
+          response_count: number
+          weekly_responses: number[]
+        }[]
+      }
       get_workspace_role: {
         Args: { _user_id: string; _workspace_id: string }
         Returns: Database["public"]["Enums"]["workspace_role"]

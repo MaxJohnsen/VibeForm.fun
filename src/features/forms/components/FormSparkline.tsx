@@ -5,19 +5,23 @@ interface FormSparklineProps {
 }
 
 export const FormSparkline = ({ data }: FormSparklineProps) => {
-  const chartData = data.map((value, index) => ({ value, index }));
+  // Ensure we always have 6 bars (weeks)
+  const normalizedData = [...Array(6)].map((_, i) => ({
+    value: data[i] || 0,
+    index: i,
+  }));
   
-  // Don't render if all zeros
-  const hasData = data.some(v => v > 0);
+  // Don't render chart if all zeros
+  const hasData = normalizedData.some(d => d.value > 0);
   
   if (!hasData) {
     return (
       <div className="w-20 h-8 flex items-center justify-center">
         <div className="flex gap-1 items-end">
-          {[...Array(7)].map((_, i) => (
+          {[...Array(6)].map((_, i) => (
             <div 
               key={i} 
-              className="w-2 h-2 rounded-sm bg-muted-foreground/20" 
+              className="w-2.5 h-2 rounded-sm bg-muted-foreground/20" 
             />
           ))}
         </div>
@@ -28,7 +32,7 @@ export const FormSparkline = ({ data }: FormSparklineProps) => {
   return (
     <div className="w-20 h-8">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+        <BarChart data={normalizedData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
           <Bar
             dataKey="value"
             fill="hsl(var(--primary))"

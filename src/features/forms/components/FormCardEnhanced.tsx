@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { MoreHorizontal, Share2, Eye, Settings, Zap, MessageSquare, HelpCircle, Clock } from 'lucide-react';
+import { useState } from 'react';
+import { MoreHorizontal, Share2, Eye, Settings, Zap, HelpCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,73 +17,27 @@ import { ROUTES } from '@/shared/constants/routes';
 import { ShareDialog } from './ShareDialog';
 import { FormSparkline } from './FormSparkline';
 import { CircularProgress } from './CircularProgress';
-import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { FormStats } from '../hooks/useFormStats';
 
 interface FormCardEnhancedProps {
   form: Form;
   creatorEmail?: string;
+  stats?: FormStats;
 }
 
-interface FormStats {
-  responseCount: number;
-  completedCount: number;
-  questionCount: number;
-  integrationCount: number;
-  dailyResponses: number[];
-  lastResponseAt: string | null;
-}
+const defaultStats: FormStats = {
+  responseCount: 0,
+  completedCount: 0,
+  questionCount: 0,
+  integrationCount: 0,
+  weeklyResponses: [],
+  lastResponseAt: null,
+};
 
-export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) => {
+export const FormCardEnhanced = ({ form, creatorEmail, stats = defaultStats }: FormCardEnhancedProps) => {
   const navigate = useNavigate();
   const [shareOpen, setShareOpen] = useState(false);
-  const [stats, setStats] = useState<FormStats>({
-    responseCount: 0,
-    completedCount: 0,
-    questionCount: 0,
-    integrationCount: 0,
-    dailyResponses: [],
-    lastResponseAt: null,
-  });
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      const [
-        { count: responseCount },
-        { count: completedCount },
-        { count: questionCount },
-        { count: integrationCount },
-        { data: lastResponse },
-        { data: dailyData },
-      ] = await Promise.all([
-        supabase.from('responses').select('*', { count: 'exact', head: true }).eq('form_id', form.id),
-        supabase.from('responses').select('*', { count: 'exact', head: true }).eq('form_id', form.id).eq('status', 'completed'),
-        supabase.from('questions').select('*', { count: 'exact', head: true }).eq('form_id', form.id),
-        supabase.from('form_integrations').select('*', { count: 'exact', head: true }).eq('form_id', form.id).eq('enabled', true),
-        supabase.from('responses').select('completed_at').eq('form_id', form.id).eq('status', 'completed').order('completed_at', { ascending: false }).limit(1).maybeSingle(),
-        supabase.from('responses').select('started_at').eq('form_id', form.id).gte('started_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
-      ]);
-
-      const dailyResponses = Array(7).fill(0);
-      (dailyData || []).forEach((r: any) => {
-        const dayIndex = 6 - Math.floor((Date.now() - new Date(r.started_at).getTime()) / (24 * 60 * 60 * 1000));
-        if (dayIndex >= 0 && dayIndex < 7) {
-          dailyResponses[dayIndex]++;
-        }
-      });
-
-      setStats({
-        responseCount: responseCount || 0,
-        completedCount: completedCount || 0,
-        questionCount: questionCount || 0,
-        integrationCount: integrationCount || 0,
-        dailyResponses,
-        lastResponseAt: lastResponse?.completed_at || null,
-      });
-    };
-
-    fetchStats();
-  }, [form.id]);
 
   const handlePreview = () => {
     window.open(ROUTES.getRespondentRoute(form.id), '_blank');
@@ -98,12 +52,10 @@ export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) 
     }
   };
 
-  // Get initials from email
   const getInitials = (email: string | null) => {
     if (!email) return 'U';
     const local = email.split('@')[0];
     if (!local) return 'U';
-    // Take first two letters or first letter of each word part
     const parts = local.split(/[._-]/);
     if (parts.length >= 2) {
       return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
@@ -111,7 +63,6 @@ export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) 
     return local.slice(0, 2).toUpperCase();
   };
 
-  // Get display email (truncated if needed)
   const getDisplayEmail = (email: string | null) => {
     if (!email) return 'Unknown';
     if (email.includes('@')) {
@@ -121,7 +72,6 @@ export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) 
       }
       return email;
     }
-    // It's a UUID - show truncated
     return `${email.slice(0, 8)}...`;
   };
 
@@ -170,7 +120,7 @@ export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) 
               </p>
             </div>
             
-            <FormSparkline data={stats.dailyResponses} />
+            <FormSparkline data={stats.weeklyResponses} />
             <CircularProgress value={completionRate} size={44} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
