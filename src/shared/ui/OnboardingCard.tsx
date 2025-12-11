@@ -36,12 +36,18 @@ export const OnboardingCard = ({
         <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
         
         <div className="relative flex flex-col items-center gap-8">
-          {/* Brand Logo */}
-          <div className="relative">
-            <span className="text-4xl sm:text-5xl font-semibold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
-              Fairform
-            </span>
-            <div className="absolute -inset-2 bg-gradient-to-r from-cyan-500/20 via-teal-500/20 to-emerald-500/20 blur-2xl -z-10 animate-pulse" />
+          {/* Brand Logo with Icon */}
+          <div className="relative flex items-center gap-3">
+            <i className="fa-sharp fa-regular fa-comment-dot text-4xl sm:text-5xl text-primary" />
+            <div>
+              <span className="text-4xl sm:text-5xl font-black tracking-tight font-logo text-slate-800">
+                Fair
+              </span>
+              <span className="text-4xl sm:text-5xl font-black tracking-tight font-logo text-primary">
+                form
+              </span>
+            </div>
+            <div className="absolute -inset-2 bg-primary/10 blur-2xl -z-10 animate-pulse" />
           </div>
 
           {/* Icon & Title Section */}

@@ -13,11 +13,15 @@ export const FormHeader = ({ currentQuestion, totalQuestions, onClose }: FormHea
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <div className="px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Brand - Simplified on mobile */}
+        {/* Brand with Icon */}
         <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <div className="relative">
-            <span className="text-xl sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 bg-clip-text text-transparent">
-              Fairform
+          <i className="fa-sharp fa-regular fa-comment-dot text-xl sm:text-2xl text-primary" />
+          <div>
+            <span className="text-xl sm:text-2xl font-black tracking-tight font-logo text-slate-800">
+              Fair
+            </span>
+            <span className="text-xl sm:text-2xl font-black tracking-tight font-logo text-primary">
+              form
             </span>
           </div>
         </div>
