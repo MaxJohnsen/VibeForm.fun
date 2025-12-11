@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/shared/ui';
 
 interface FormHeaderProps {
   currentQuestion: number;
@@ -13,17 +14,9 @@ export const FormHeader = ({ currentQuestion, totalQuestions, onClose }: FormHea
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
       <div className="px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Brand with Icon */}
-        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-          <i className="fa-solid fa-comment-dot text-base sm:text-lg text-primary" />
-          <div>
-            <span className="text-xl sm:text-2xl font-black tracking-tight font-logo text-slate-800">
-              Fair
-            </span>
-            <span className="text-xl sm:text-2xl font-black tracking-tight font-logo text-primary">
-              form
-            </span>
-          </div>
+        {/* Brand */}
+        <div className="flex-shrink-0">
+          <Logo size="sm" />
         </div>
 
         {/* Progress - Centered and responsive */}

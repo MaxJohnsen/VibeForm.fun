@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Logo } from './Logo';
 
 interface OnboardingCardProps {
   icon?: LucideIcon;
@@ -36,17 +37,9 @@ export const OnboardingCard = ({
         <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/5 via-transparent to-primary/5 pointer-events-none" />
         
         <div className="relative flex flex-col items-center gap-8">
-          {/* Brand Logo with Icon */}
-          <div className="relative flex items-center gap-2">
-            <i className="fa-solid fa-comment-dot text-2xl sm:text-3xl text-primary" />
-            <div>
-              <span className="text-4xl sm:text-5xl font-black tracking-tight font-logo text-slate-800">
-                Fair
-              </span>
-              <span className="text-4xl sm:text-5xl font-black tracking-tight font-logo text-primary">
-                form
-              </span>
-            </div>
+          {/* Brand Logo */}
+          <div className="relative">
+            <Logo size="md" />
             <div className="absolute -inset-2 bg-primary/10 blur-2xl -z-10 animate-pulse" />
           </div>
 

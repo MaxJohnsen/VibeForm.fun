@@ -1,4 +1,4 @@
-import { GlassCard } from '@/shared/ui';
+import { GlassCard, Logo } from '@/shared/ui';
 
 interface AuthCardProps {
   children: React.ReactNode;
@@ -11,18 +11,8 @@ export const AuthCard = ({ children, title, subtitle }: AuthCardProps) => {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-dots">
       <GlassCard padding="lg" className="max-w-[420px] w-full">
         <div className="flex flex-col items-center gap-6">
-          {/* Brand Logo with Icon */}
-          <div className="animate-fade-in flex items-center gap-2">
-            <i className="fa-solid fa-comment-dot text-3xl md:text-4xl text-primary" />
-            <div>
-              <span className="text-5xl md:text-6xl font-black tracking-tight font-logo text-slate-800">
-                Fair
-              </span>
-              <span className="text-5xl md:text-6xl font-black tracking-tight font-logo text-primary">
-                form
-              </span>
-            </div>
-          </div>
+          {/* Brand Logo */}
+          <Logo size="lg" animated />
 
           {/* Header */}
           {(title || subtitle) && (
