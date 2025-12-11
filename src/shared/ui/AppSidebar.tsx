@@ -33,7 +33,7 @@ const NavButton = ({ icon, label, isActive, onClick }: NavButtonProps) => (
         className={cn(
           'w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200',
           isActive
-            ? 'bg-primary text-primary-foreground shadow-lg'
+            ? 'bg-coral text-coral-foreground shadow-lg'
             : 'hover:bg-accent text-muted-foreground hover:text-foreground'
         )}
         aria-label={label}
@@ -68,7 +68,7 @@ export const AppSidebar = () => {
       <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border/50 glass-panel flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-4 z-50">
         {/* Brand Icon */}
         <div className="hidden md:flex items-center justify-center mb-6 w-full">
-          <i className="fa-solid fa-comment-dot text-2xl text-primary" />
+          <i className="fa-solid fa-comment-dot text-2xl text-coral" />
         </div>
 
         {/* Navigation Items */}

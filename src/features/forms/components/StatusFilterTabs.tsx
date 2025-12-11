@@ -34,15 +34,15 @@ export const StatusFilterTabs = ({ forms, activeFilter, onFilterChange }: Status
             onClick={() => onFilterChange(filter.value)}
             className={cn(
               'flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors text-left',
-              isActive 
-                ? 'bg-primary/10 text-primary font-medium' 
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+            isActive 
+              ? 'bg-coral/10 text-coral font-medium' 
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             )}
           >
             <span>{filter.label}</span>
             <span className={cn(
               'text-xs tabular-nums',
-              isActive ? 'text-primary' : 'text-muted-foreground'
+              isActive ? 'text-coral' : 'text-muted-foreground'
             )}>
               {count}
             </span>
