@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Plus, ChevronsUpDown, Building2, Check, ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SearchBar, AppSidebar, PageContainer } from '@/shared/ui';
+import { SearchBar, AppSidebar, PageContainer, ContentContainer } from '@/shared/ui';
 import { FormsList } from '../components/FormsList';
 import { StatusFilterTabs } from '../components/StatusFilterTabs';
 import { ActivityFeed } from '../components/ActivityFeed';
@@ -84,7 +84,7 @@ export const FormsHomePage = () => {
     <PageContainer>
       <AppSidebar />
 
-      <div className="ml-0 md:ml-16 px-4 md:px-8 py-4 md:py-8 pb-24 md:pb-8">
+      <ContentContainer maxWidth="7xl" className="ml-0 md:ml-16 pb-24 md:pb-0">
         {/* Header */}
         <div className="flex flex-col gap-4 md:gap-6 mb-6 md:mb-8">
           <div className="flex items-center justify-between gap-4">
@@ -229,9 +229,9 @@ export const FormsHomePage = () => {
             </div>
           </aside>
         </div>
-      </div>
+      </ContentContainer>
 
-      <CreateWorkspaceDialog 
+      <CreateWorkspaceDialog
         open={createDialogOpen} 
         onOpenChange={setCreateDialogOpen} 
       />
