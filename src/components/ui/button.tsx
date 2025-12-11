@@ -17,6 +17,8 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         gradient: "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 shadow-lg",
         "gradient-lg": "bg-gradient-to-r from-primary to-primary-glow text-primary-foreground hover:opacity-90 shadow-lg hover-elevate rounded-xl text-base font-medium",
+        peach: "bg-[hsl(var(--peach))] text-[hsl(var(--peach-foreground))] hover:bg-[hsl(var(--peach))]/80",
+        soft: "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border/50",
       },
       size: {
         default: "h-10 px-4 py-2",

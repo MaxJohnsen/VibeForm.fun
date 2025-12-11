@@ -47,6 +47,19 @@ All colors MUST be HSL.
     --input-focus: 21 94% 61%;
     --ring: 21 94% 61%;
 
+    /* Extended palette colors for multi-dimensional design */
+    --peach: 17 88% 78%;
+    --peach-foreground: 21 70% 35%;
+    --lavender: 300 3% 90%;
+    --lavender-foreground: 230 5% 35%;
+    --charcoal: 230 5% 20%;
+    --palladium: 0 0% 69%;
+
+    /* Status colors */
+    --status-active: 150 60% 45%;
+    --status-draft: 17 88% 70%;
+    --status-archived: 0 0% 69%;
+
     /* Radius */
     --radius: 0.75rem;
 

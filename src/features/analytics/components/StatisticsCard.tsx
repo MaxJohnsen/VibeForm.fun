@@ -2,6 +2,15 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GlassCard } from '@/shared/ui';
 
+type ColorVariant = 'primary' | 'peach' | 'lavender' | 'charcoal';
+
+const colorClasses: Record<ColorVariant, string> = {
+  primary: 'bg-primary/10 text-primary',
+  peach: 'bg-[hsl(var(--peach))]/30 text-[hsl(var(--peach-foreground))]',
+  lavender: 'bg-[hsl(var(--lavender))] text-[hsl(var(--lavender-foreground))]',
+  charcoal: 'bg-[hsl(var(--charcoal))]/10 text-[hsl(var(--charcoal))]',
+};
+
 interface StatisticsCardProps {
   icon: LucideIcon;
   label: string;
@@ -12,6 +21,7 @@ interface StatisticsCardProps {
     isPositive: boolean;
   };
   className?: string;
+  color?: ColorVariant;
 }
 
 export const StatisticsCard = ({
@@ -21,6 +31,7 @@ export const StatisticsCard = ({
   subtitle,
   trend,
   className,
+  color = 'primary',
 }: StatisticsCardProps) => {
   return (
     <GlassCard 
@@ -29,8 +40,8 @@ export const StatisticsCard = ({
     >
       <div className="flex flex-row items-center md:items-start gap-4 md:gap-0 md:block">
         <div className="flex items-start justify-between md:mb-4 shrink-0">
-          <div className="rounded-xl bg-primary/10 p-3 shadow-sm w-fit">
-            <Icon className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+          <div className={cn("rounded-xl p-3 shadow-sm w-fit", colorClasses[color])}>
+            <Icon className="h-5 w-5 md:h-6 md:w-6" />
           </div>
           {trend && (
             <div className={cn(
