@@ -25,17 +25,17 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
     --primary-glow: 30 88% 56%;
 
-    /* Secondary - Warm Burgundy/Wine */
-    --secondary: 350 30% 94%;
-    --secondary-foreground: 350 45% 28%;
+    /* Secondary muted surfaces */
+    --secondary: 220 15% 95%;
+    --secondary-foreground: 220 15% 30%;
 
     /* Muted text and surfaces */
-    --muted: 350 20% 93%;
-    --muted-foreground: 350 15% 45%;
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 10% 50%;
 
-    /* Accent for hover/focus states - wine tinted */
-    --accent: 350 25% 90%;
-    --accent-foreground: 350 40% 25%;
+    /* Accent for hover/focus states - subtle gray for good contrast */
+    --accent: 220 15% 92%;
+    --accent-foreground: 220 15% 20%;
 
     /* Destructive states */
     --destructive: 0 70% 60%;
