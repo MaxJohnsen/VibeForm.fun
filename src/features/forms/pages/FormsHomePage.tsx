@@ -216,7 +216,6 @@ export const FormsHomePage = () => {
               forms={filteredAndSortedForms}
               isLoading={isLoading}
               memberEmailMap={memberEmailMap}
-              onCreateNew={() => navigate(ROUTES.CREATE_FORM)}
             />
           </main>
 

@@ -1,16 +1,20 @@
+import { useMemo } from 'react';
 import { FormCardEnhanced } from './FormCardEnhanced';
 import { EmptyState } from '@/shared/ui/EmptyState';
 import { Form } from '../api/formsApi';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useFormStats } from '../hooks/useFormStats';
 
 interface FormsListProps {
   forms: Form[];
   isLoading: boolean;
   memberEmailMap?: Record<string, string>;
-  onCreateNew: () => void;
 }
 
 export const FormsList = ({ forms, isLoading, memberEmailMap }: FormsListProps) => {
+  const formIds = useMemo(() => forms.map(f => f.id), [forms]);
+  const { data: statsMap = {} } = useFormStats(formIds);
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -38,6 +42,7 @@ export const FormsList = ({ forms, isLoading, memberEmailMap }: FormsListProps) 
           key={form.id} 
           form={form} 
           creatorEmail={memberEmailMap?.[form.created_by]}
+          stats={statsMap[form.id]}
         />
       ))}
     </div>
