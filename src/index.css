@@ -25,6 +25,11 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
     --primary-glow: 30 88% 56%;
 
+    /* Coral - accent color for highlights */
+    --coral: 352 57% 55%;
+    --coral-foreground: 0 0% 100%;
+    --coral-glow: 355 60% 60%;
+
     /* Secondary muted surfaces */
     --secondary: 220 15% 95%;
     --secondary-foreground: 220 15% 30%;
@@ -57,6 +62,7 @@ All colors MUST be HSL.
 
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(24, 85%, 52%), hsl(30, 88%, 56%));
+    --gradient-coral: linear-gradient(135deg, hsl(352, 57%, 55%), hsl(355, 60%, 60%));
     --gradient-background: linear-gradient(180deg, hsl(220, 25%, 98%), hsl(220, 20%, 95%));
     --gradient-respondent: linear-gradient(135deg, hsl(220, 25%, 98%) 0%, hsl(210, 40%, 96%) 50%, hsl(320, 35%, 96%) 100%);
 
@@ -64,6 +70,7 @@ All colors MUST be HSL.
     --shadow-soft: 0 4px 24px -4px hsla(220, 20%, 60%, 0.12);
     --shadow-elevated: 0 8px 32px -8px hsla(220, 20%, 50%, 0.16);
     --shadow-glow: 0 0 32px hsla(24, 85%, 52%, 0.25);
+    --shadow-coral: 0 0 32px hsla(352, 57%, 55%, 0.25);
 
     /* Dot pattern */
     --dot-color: 220 15% 88%;
