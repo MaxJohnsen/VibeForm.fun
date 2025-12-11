@@ -31,10 +31,15 @@ export const AppSidebar = () => {
       {/* Brand Logo */}
       <div className="hidden md:flex mb-6 w-full justify-center">
         <div className="relative">
-          <span className="text-2xl font-extrabold tracking-tight text-primary">
+          <span 
+            className="text-3xl font-black tracking-tight text-primary"
+            style={{ 
+              textShadow: '0 1px 2px rgba(0,0,0,0.1), 0 2px 8px hsl(24 85% 48% / 0.3)' 
+            }}
+          >
             FF
           </span>
-          <div className="absolute -inset-1 bg-primary/20 blur-lg -z-10" />
+          <div className="absolute -inset-2 bg-primary/25 blur-xl -z-10" />
         </div>
       </div>
 

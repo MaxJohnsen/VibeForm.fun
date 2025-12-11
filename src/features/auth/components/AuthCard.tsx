@@ -13,10 +13,15 @@ export const AuthCard = ({ children, title, subtitle }: AuthCardProps) => {
         <div className="flex flex-col items-center gap-6">
           {/* Brand Logo */}
           <div className="relative">
-            <span className="text-4xl md:text-5xl font-extrabold tracking-tight text-primary animate-fade-in">
+            <span 
+              className="text-5xl md:text-6xl font-black tracking-tight text-primary animate-fade-in"
+              style={{ 
+                textShadow: '0 2px 4px rgba(0,0,0,0.1), 0 4px 12px hsl(24 85% 48% / 0.25)' 
+              }}
+            >
               Fairform
             </span>
-            <div className="absolute -inset-2 bg-primary/15 blur-2xl -z-10" />
+            <div className="absolute -inset-4 bg-primary/25 blur-3xl -z-10" />
           </div>
 
           {/* Header */}
