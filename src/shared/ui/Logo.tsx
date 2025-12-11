@@ -44,7 +44,7 @@ export const Logo = ({ size = 'md', className, animated = false }: LogoProps) =>
         className
       )}
     >
-      <i className={cn('fa-solid fa-comment-dot text-primary', config.icon)} />
+      <i className={cn('fa-solid fa-comment-dot text-coral', config.icon)} />
       {isCompact ? (
         <div className="flex">
           <span className={cn('font-black tracking-tight font-logo text-slate-800', config.text)}>
