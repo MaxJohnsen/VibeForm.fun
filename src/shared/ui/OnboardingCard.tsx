@@ -41,7 +41,7 @@ export const OnboardingCard = ({
             <i className="fa-solid fa-comment-dot text-2xl sm:text-3xl text-primary" />
             <div>
               <span className="text-4xl sm:text-5xl font-black tracking-tight font-logo text-slate-800">
-                Fair
+                fair
               </span>
               <span className="text-4xl sm:text-5xl font-black tracking-tight font-logo text-primary">
                 form
