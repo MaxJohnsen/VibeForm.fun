@@ -16,7 +16,7 @@ export default {
       fontFamily: {
         sans: ['Manrope', 'system-ui', 'sans-serif'],
         heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-        logo: ['DM Sans', 'system-ui', 'sans-serif'],
+        logo: ['Bricolage Grotesque', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         // Body text (Manrope): slightly open for readability
