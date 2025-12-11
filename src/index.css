@@ -117,6 +117,16 @@ All colors MUST be HSL.
     background-size: var(--dot-spacing) var(--dot-spacing), 100% 100%;
     background-attachment: fixed;
   }
+
+  /* Global link styling */
+  a {
+    @apply text-coral hover:text-coral/80 transition-colors;
+  }
+
+  /* Exclude buttons styled as links */
+  a[class*="button"], button a {
+    color: inherit;
+  }
 }
 
 
