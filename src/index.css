@@ -8,78 +8,65 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Backgrounds - Brilliance white #FDFCFC */
-    --background: 0 14% 99%;
-    --foreground: 230 5% 20%;
+    /* Light, calm backgrounds */
+    --background: 220 20% 97%;
+    --foreground: 220 15% 20%;
 
-    /* Card surfaces - pure white with warmth */
-    --card: 0 10% 100%;
-    --card-foreground: 230 5% 20%;
+    /* Glass card surface */
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 20%;
 
     /* Popovers */
-    --popover: 0 10% 100%;
-    --popover-foreground: 230 5% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 20%;
 
-    /* Primary - Precious Persimmon orange #F87941 */
-    --primary: 21 94% 61%;
+    /* Primary - elegant warm orange */
+    --primary: 24 85% 52%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 17 88% 78%;
+    --primary-glow: 30 88% 56%;
 
-    /* Secondary - Violet Essence cool gray #E6E4E6 */
-    --secondary: 300 3% 90%;
-    --secondary-foreground: 230 5% 30%;
+    /* Secondary muted surfaces */
+    --secondary: 220 15% 95%;
+    --secondary-foreground: 220 15% 30%;
 
-    /* Muted - lighter violet essence */
-    --muted: 300 3% 94%;
-    --muted-foreground: 230 5% 45%;
+    /* Muted text and surfaces */
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 10% 50%;
 
-    /* Accent - No Way Rosé peach #F9B095 */
-    --accent: 17 88% 78%;
-    --accent-foreground: 230 5% 20%;
+    /* Accent for hover/focus states - subtle gray for good contrast */
+    --accent: 220 15% 92%;
+    --accent-foreground: 220 15% 20%;
 
     /* Destructive states */
     --destructive: 0 70% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders - Palladium gray based #B1B1B1 */
-    --border: 0 0% 85%;
-    --input: 300 3% 92%;
-    --input-focus: 21 94% 61%;
-    --ring: 21 94% 61%;
-
-    /* Extended palette colors for multi-dimensional design */
-    --peach: 17 88% 78%;
-    --peach-foreground: 21 70% 35%;
-    --lavender: 300 3% 90%;
-    --lavender-foreground: 230 5% 35%;
-    --charcoal: 230 5% 20%;
-    --palladium: 0 0% 69%;
-
-    /* Status colors */
-    --status-active: 150 60% 45%;
-    --status-draft: 17 88% 70%;
-    --status-archived: 0 0% 69%;
+    /* Borders and inputs */
+    --border: 220 15% 88%;
+    --input: 220 15% 92%;
+    --input-focus: 24 85% 52%;
+    --ring: 24 85% 52%;
 
     /* Radius */
     --radius: 0.75rem;
 
     /* Glass effect */
-    --glass-bg: 0 10% 100%;
-    --glass-border: 0 0% 88%;
-    --glass-shadow: 230 5% 60%;
+    --glass-bg: 0 0% 100%;
+    --glass-border: 220 15% 90%;
+    --glass-shadow: 220 20% 70%;
 
-    /* Gradients - orange to peach */
-    --gradient-primary: linear-gradient(135deg, hsl(21, 94%, 61%), hsl(17, 88%, 70%));
-    --gradient-background: linear-gradient(180deg, hsl(0, 14%, 99%), hsl(300, 3%, 96%));
-    --gradient-respondent: linear-gradient(135deg, hsl(0, 14%, 99%) 0%, hsl(300, 3%, 96%) 50%, hsl(17, 88%, 96%) 100%);
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(24, 85%, 52%), hsl(30, 88%, 56%));
+    --gradient-background: linear-gradient(180deg, hsl(220, 25%, 98%), hsl(220, 20%, 95%));
+    --gradient-respondent: linear-gradient(135deg, hsl(220, 25%, 98%) 0%, hsl(210, 40%, 96%) 50%, hsl(320, 35%, 96%) 100%);
 
-    /* Shadows - charcoal tinted */
-    --shadow-soft: 0 4px 24px -4px hsla(230, 5%, 20%, 0.10);
-    --shadow-elevated: 0 8px 32px -8px hsla(230, 5%, 20%, 0.15);
-    --shadow-glow: 0 0 32px hsla(21, 94%, 61%, 0.25);
+    /* Shadows */
+    --shadow-soft: 0 4px 24px -4px hsla(220, 20%, 60%, 0.12);
+    --shadow-elevated: 0 8px 32px -8px hsla(220, 20%, 50%, 0.16);
+    --shadow-glow: 0 0 32px hsla(24, 85%, 52%, 0.25);
 
-    /* Dot pattern - subtle gray */
-    --dot-color: 0 0% 88%;
+    /* Dot pattern */
+    --dot-color: 220 15% 88%;
     --dot-size: 1px;
     --dot-spacing: 24px;
 

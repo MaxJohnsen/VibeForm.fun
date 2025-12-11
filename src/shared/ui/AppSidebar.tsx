@@ -50,8 +50,8 @@ export const AppSidebar = () => {
           className={cn(
             'w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200',
             location.pathname === ROUTES.FORMS_HOME
-              ? 'bg-primary text-primary-foreground shadow-lg shadow-[hsl(var(--peach))]/50'
-              : 'hover:bg-[hsl(var(--peach))]/30 text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-lg'
+              : 'hover:bg-accent text-muted-foreground hover:text-foreground'
           )}
           aria-label="Home"
         >
@@ -63,8 +63,8 @@ export const AppSidebar = () => {
           className={cn(
             'w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200',
             location.pathname === ROUTES.WORKSPACE_SETTINGS
-              ? 'bg-primary text-primary-foreground shadow-lg shadow-[hsl(var(--peach))]/50'
-              : 'hover:bg-[hsl(var(--peach))]/30 text-muted-foreground hover:text-foreground'
+              ? 'bg-primary text-primary-foreground shadow-lg'
+              : 'hover:bg-accent text-muted-foreground hover:text-foreground'
           )}
           aria-label="Workspace Settings"
         >
@@ -81,7 +81,7 @@ export const AppSidebar = () => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-[hsl(var(--lavender))] text-muted-foreground hover:text-foreground transition-all duration-200"
+            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-accent text-muted-foreground hover:text-foreground transition-all duration-200"
             aria-label="Account"
           >
             <User className="h-5 w-5" />

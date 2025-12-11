@@ -91,24 +91,11 @@ export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) 
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-[hsl(var(--status-active))]';
-      case 'draft': return 'bg-[hsl(var(--status-draft))]';
-      case 'archived': return 'bg-[hsl(var(--palladium))]';
+      case 'active': return 'bg-emerald-500';
+      case 'draft': return 'bg-amber-400';
+      case 'archived': return 'bg-slate-400';
       default: return 'bg-muted-foreground';
     }
-  };
-
-  // Get avatar color cycling through palette
-  const getAvatarColor = (email: string | null) => {
-    const colors = [
-      'bg-primary/20 text-primary',
-      'bg-[hsl(var(--peach))]/40 text-[hsl(var(--peach-foreground))]',
-      'bg-[hsl(var(--lavender))] text-[hsl(var(--lavender-foreground))]',
-      'bg-[hsl(var(--charcoal))]/10 text-[hsl(var(--charcoal))]',
-    ];
-    if (!email) return colors[0];
-    const hash = email.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-    return colors[hash % colors.length];
   };
 
   // Get initials from email
@@ -145,11 +132,7 @@ export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) 
   return (
     <>
       <GlassCard 
-        className={cn(
-          "p-5 hover:shadow-lg transition-all duration-300 cursor-pointer group",
-          form.status === 'active' && "border-l-4 border-l-[hsl(var(--status-active))]",
-          form.status === 'draft' && "border-l-4 border-l-[hsl(var(--peach))]",
-        )}
+        className="p-5 hover:shadow-lg transition-all duration-300 cursor-pointer group"
         onClick={() => navigate(ROUTES.getBuilderRoute(form.id))}
       >
         {/* Row 1: Title + Stats + Sparkline + Progress */}
@@ -230,7 +213,7 @@ export const FormCardEnhanced = ({ form, creatorEmail }: FormCardEnhancedProps) 
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             {/* Avatar with initials */}
-            <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-medium", getAvatarColor(creatorEmail))}>
+            <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-medium text-primary">
               {getInitials(creatorEmail)}
             </div>
             <span className="truncate max-w-[180px]">{getDisplayEmail(creatorEmail)}</span>

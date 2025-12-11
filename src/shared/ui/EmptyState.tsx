@@ -24,8 +24,8 @@ export const EmptyState = ({
       'flex flex-col items-center justify-center py-16 px-4 text-center',
       className
     )}>
-      <div className="rounded-full bg-[hsl(var(--lavender))] p-6 mb-4">
-        <Icon className="h-12 w-12 text-primary" />
+      <div className="rounded-full bg-muted/50 p-6 mb-4">
+        <Icon className="h-12 w-12 text-muted-foreground" />
       </div>
       <h3 className="mb-2">{title}</h3>
       <p className="text-muted-foreground mb-6 max-w-sm">{description}</p>
