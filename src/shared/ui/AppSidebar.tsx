@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Logo } from './Logo';
+
 
 export const AppSidebar = () => {
   const location = useLocation();
@@ -29,9 +29,9 @@ export const AppSidebar = () => {
 
   return (
     <div className="fixed bottom-0 left-0 w-full h-16 border-t md:top-0 md:h-screen md:w-16 md:border-t-0 md:border-r border-border/50 glass-panel flex flex-row md:flex-col items-center justify-around md:justify-start py-2 md:py-4 z-50">
-      {/* Brand Logo */}
-      <div className="hidden md:flex flex-col items-center mb-6 w-full justify-center">
-        <Logo size="compact" />
+      {/* Brand Icon */}
+      <div className="hidden md:flex items-center justify-center mb-6 w-full">
+        <i className="fa-solid fa-comment-dot text-2xl text-primary" />
       </div>
 
       {/* Navigation Items */}
