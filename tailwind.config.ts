@@ -15,7 +15,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Manrope', 'system-ui', 'sans-serif'],
-        heading: ['Outfit', 'system-ui', 'sans-serif'],
+        heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         // Body text (Manrope): slightly open for readability
