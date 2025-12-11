@@ -12,8 +12,8 @@ export const AuthCard = ({ children, title, subtitle }: AuthCardProps) => {
       <GlassCard padding="lg" className="max-w-[420px] w-full">
         <div className="flex flex-col items-center gap-6">
           {/* Brand Logo with Icon */}
-          <div className="animate-fade-in flex items-center gap-3">
-            <i className="fa-sharp fa-regular fa-comment-dot text-5xl md:text-6xl text-primary" />
+          <div className="animate-fade-in flex items-center gap-2">
+            <i className="fa-sharp fa-regular fa-comment-dot text-4xl md:text-5xl text-primary" />
             <div>
               <span className="text-5xl md:text-6xl font-black tracking-tight font-logo text-slate-800">
                 Fair

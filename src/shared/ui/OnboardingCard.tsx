@@ -37,8 +37,8 @@ export const OnboardingCard = ({
         
         <div className="relative flex flex-col items-center gap-8">
           {/* Brand Logo with Icon */}
-          <div className="relative flex items-center gap-3">
-            <i className="fa-sharp fa-regular fa-comment-dot text-4xl sm:text-5xl text-primary" />
+          <div className="relative flex items-center gap-2">
+            <i className="fa-sharp fa-regular fa-comment-dot text-3xl sm:text-4xl text-primary" />
             <div>
               <span className="text-4xl sm:text-5xl font-black tracking-tight font-logo text-slate-800">
                 Fair
