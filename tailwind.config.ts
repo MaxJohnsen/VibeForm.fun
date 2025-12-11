@@ -17,6 +17,7 @@ export default {
         sans: ['Manrope', 'system-ui', 'sans-serif'],
         heading: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
         logo: ['Sora', 'system-ui', 'sans-serif'],
+        archivo: ['Archivo', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         // Body text (Manrope): slightly open for readability
