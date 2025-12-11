@@ -57,7 +57,7 @@ export const SettingsLayout = ({
                     className={cn(
                       'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors',
                       isActive
-                        ? 'bg-coral text-coral-foreground'
+                        ? 'bg-coral/10 text-coral'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     )}
                   >
@@ -87,7 +87,7 @@ export const SettingsLayout = ({
                       className={cn(
                         'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
                         isActive
-                          ? 'bg-coral text-coral-foreground'
+                          ? 'bg-coral/10 text-coral'
                           : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                       )}
                     >
