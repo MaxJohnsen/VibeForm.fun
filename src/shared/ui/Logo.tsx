@@ -47,19 +47,19 @@ export const Logo = ({ size = 'md', className, animated = false }: LogoProps) =>
       <i className={cn('fa-solid fa-comment-dot text-primary', config.icon)} />
       {isCompact ? (
         <div className="flex">
-          <span className={cn('font-semibold tracking-tight font-archivo text-slate-800', config.text)}>
+          <span className={cn('font-black tracking-tight font-logo text-slate-800', config.text)}>
             F
           </span>
-          <span className={cn('font-semibold tracking-tight font-archivo text-primary', config.text)}>
+          <span className={cn('font-black tracking-tight font-logo text-primary', config.text)}>
             F
           </span>
         </div>
       ) : (
         <div>
-          <span className={cn('font-semibold tracking-tight font-archivo text-slate-800', config.text)}>
+          <span className={cn('font-black tracking-tight font-logo text-slate-800', config.text)}>
             Fair
           </span>
-          <span className={cn('font-semibold tracking-tight font-archivo text-primary', config.text)}>
+          <span className={cn('font-black tracking-tight font-logo text-primary', config.text)}>
             form
           </span>
         </div>
