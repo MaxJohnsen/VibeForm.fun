@@ -32,7 +32,7 @@ export const IntroCard = ({
       className={cn(
         'p-4 sm:p-6 rounded-xl cursor-pointer transition-all duration-200',
         isSelected
-          ? '!border !border-primary shadow-xl shadow-primary/40 ring-4 ring-primary/10'
+          ? '!border !border-coral shadow-xl shadow-coral/40 ring-4 ring-coral/10'
           : '!border !border-border/30 hover:!border-border/50 hover-elevate'
       )}
     >

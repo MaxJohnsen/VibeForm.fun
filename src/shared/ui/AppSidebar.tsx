@@ -33,7 +33,7 @@ const NavButton = ({ icon, label, isActive, onClick }: NavButtonProps) => (
         className={cn(
           'w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200',
           isActive
-            ? 'bg-coral text-coral-foreground shadow-lg'
+            ? 'bg-primary text-primary-foreground shadow-lg'
             : 'hover:bg-accent text-muted-foreground hover:text-foreground'
         )}
         aria-label={label}
