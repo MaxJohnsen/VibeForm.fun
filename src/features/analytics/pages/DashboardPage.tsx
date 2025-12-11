@@ -77,18 +77,21 @@ export const DashboardPage = () => {
                 label="Completion Rate"
                 value={`${stats?.completionRate.toFixed(0)}%`}
                 subtitle={`${stats?.completedSubmissions} of ${stats?.totalSubmissions} completed`}
+                color="primary"
               />
               <StatisticsCard
                 icon={Users}
                 label="Total Submissions"
                 value={stats?.totalSubmissions || 0}
                 subtitle={`${stats?.completedSubmissions} completed, ${(stats?.totalSubmissions || 0) - (stats?.completedSubmissions || 0)} incomplete`}
+                color="peach"
               />
               <StatisticsCard
                 icon={Clock}
                 label="Avg. Completion Time"
                 value={stats?.averageCompletionTime ? formatDuration(Math.round(stats.averageCompletionTime)) : 'N/A'}
                 subtitle={stats?.primaryDropoffQuestion ? `Most drop at: ${stats.primaryDropoffQuestion.questionLabel}` : 'No drop-offs detected'}
+                color="lavender"
               />
             </div>
 

@@ -80,6 +80,21 @@ export default {
           border: "hsl(var(--glass-border))",
           shadow: "hsl(var(--glass-shadow))",
         },
+        peach: {
+          DEFAULT: "hsl(var(--peach))",
+          foreground: "hsl(var(--peach-foreground))",
+        },
+        lavender: {
+          DEFAULT: "hsl(var(--lavender))",
+          foreground: "hsl(var(--lavender-foreground))",
+        },
+        charcoal: "hsl(var(--charcoal))",
+        palladium: "hsl(var(--palladium))",
+        status: {
+          active: "hsl(var(--status-active))",
+          draft: "hsl(var(--status-draft))",
+          archived: "hsl(var(--status-archived))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
