@@ -34,7 +34,7 @@ export const SettingsLayout = ({
 
   return (
     <div className={cn('flex flex-col h-full', className)}>
-      <ContentContainer maxWidth="5xl" padding={false} className="flex flex-col flex-1 min-h-0">
+      <ContentContainer maxWidth="7xl" padding={false} className="flex flex-col flex-1 min-h-0">
         {/* Header */}
         <div className="px-4 md:px-6 py-4 md:py-6 border-b border-border/50">
           <h1>{title}</h1>
