@@ -18,7 +18,7 @@ export const FormHeader = ({ currentQuestion, totalQuestions, onClose }: FormHea
           <i className="fa-solid fa-comment-dot text-base sm:text-lg text-primary" />
           <div>
             <span className="text-xl sm:text-2xl font-black tracking-tight font-logo text-slate-800">
-              Fair
+              fair
             </span>
             <span className="text-xl sm:text-2xl font-black tracking-tight font-logo text-primary">
               form

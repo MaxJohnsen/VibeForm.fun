@@ -32,7 +32,7 @@ export const AppSidebar = () => {
       <div className="hidden md:flex flex-col items-center gap-1 mb-6 w-full justify-center">
         <i className="fa-solid fa-comment-dot text-lg text-primary" />
         <div className="flex">
-          <span className="text-lg font-black tracking-tight font-logo text-slate-800">F</span>
+          <span className="text-lg font-black tracking-tight font-logo text-slate-800">f</span>
           <span className="text-lg font-black tracking-tight font-logo text-primary">F</span>
         </div>
       </div>
